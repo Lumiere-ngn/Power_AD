@@ -1,0 +1,854 @@
+<title>Smart-Sign Telemetry Profile</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of stacked sections, a sticky section nav, charts on raised surfaces. */
+:root {
+  --bg: #f4f5f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10); --wash: rgba(11,11,11,.04);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --de: #b5b4ad;
+  --div-neg: #e34948; --div-mid: #f0efec; --div-pos: #2a78d6;
+  --good: #0ca30c; --warn: #fab219; --serious: #ec835a; --crit: #d03b3b;
+  --seq-1: #cde2fb; --seq-7: #0d366b;
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Light only, by request: the page keeps this palette whatever the viewer's theme. */
+  color-scheme: light;
+}
+html { background: #f4f5f4; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font); padding-inline: 16px; padding-block: 0 48px; }
+a { color: inherit; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+header.top { padding-block: 36px 20px; display: grid; gap: 8px; }
+header.top h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 600; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+header.top .lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+header.top .stamp { color: var(--muted); font-size: 13px; }
+nav.sections { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--grid); margin-inline: -16px; padding-inline: 16px; }
+nav.sections ul { list-style: none; margin: 0 auto; padding: 0; max-width: 1180px; display: flex; gap: 2px 18px; flex-wrap: wrap; font-size: 13px; }
+nav.sections a { text-decoration: none; color: var(--ink-2); padding-block: 10px; display: inline-block; border-bottom: 2px solid transparent; }
+nav.sections a:hover { color: var(--ink); }
+section { padding-block: 36px 8px; scroll-margin-top: 56px; }
+section > h2 { font-size: 22px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.01em; }
+section > .sub { color: var(--ink-2); margin: 0 0 18px; max-width: 72ch; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; }
+.row { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.row.two { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+.row > * { min-width: 0; }
+.tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 18px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile .label { color: var(--ink-2); font-size: 13px; }
+.tile .value { font-size: 26px; font-weight: 600; line-height: 1.15; }
+.tile .sub { color: var(--muted); font-size: 12px; }
+.hero { font-size: 48px; font-weight: 600; line-height: 1.05; }
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px 10px; display: grid; gap: 6px; min-width: 0; }
+figure.chart .head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+figure.chart .title { font-weight: 500; font-size: 14px; }
+figure.chart .cap { color: var(--muted); font-size: 12px; margin: 0; }
+figure.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+figure.chart .toggle { font: inherit; font-size: 12px; color: var(--ink-2); background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; white-space: nowrap; }
+figure.chart .toggle:hover, figure.chart .toggle:focus-visible { background: var(--wash); outline: none; }
+figure.chart .toggle:focus-visible { box-shadow: 0 0 0 2px var(--s1); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 14px; height: 2px; border-radius: 1px; }
+.legend i.rect { height: 10px; width: 10px; border-radius: 2px; }
+.tablewrap { overflow-x: auto; max-width: 100%; position: relative; }
+figure.chart .body { min-width: 0; position: relative; }
+table.data { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+table.data th, table.data td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+table.data th { color: var(--ink-2); font-weight: 500; cursor: pointer; user-select: none; background: var(--surface); }
+table.data th:hover { color: var(--ink); }
+table.data th:first-child, table.data td:first-child { text-align: left; }
+table.data td.l, table.data th.l { text-align: left; }
+table.data .id { font-family: var(--mono); font-size: 12px; }
+table.data tr:hover td { background: var(--wash); }
+.pill { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 500; border: 1px solid var(--border); color: var(--ink-2); }
+.pill.good { border-color: var(--good); color: var(--ink); } .pill.warn { border-color: var(--warn); } .pill.crit { border-color: var(--crit); }
+.pill.good::before, .pill.warn::before, .pill.crit::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.pill.good::before { background: var(--good); } .pill.warn::before { background: var(--warn); } .pill.crit::before { background: var(--crit); }
+.more { font: inherit; font-size: 12px; background: none; border: 0; color: var(--s1); cursor: pointer; padding: 6px 0; }
+.findings { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.findings li { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--s1); border-radius: 6px; padding: 10px 14px; }
+.findings b { font-weight: 600; }
+.controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+select { font: inherit; font-size: 14px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); max-width: 100%; }
+select:focus-visible { outline: 2px solid var(--s1); outline-offset: 1px; }
+.meaning { color: var(--ink-2); }
+.grid-sm { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.sm { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; display: grid; gap: 2px; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.sm:hover, .sm:focus-visible { border-color: var(--s1); outline: none; }
+.sm .n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sm .v { font-size: 16px; font-weight: 600; }
+.sm .v small { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 3px; }
+.sm svg { width: 100%; height: 34px; display: block; }
+.group-h { margin: 18px 0 8px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.cluster { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; display: grid; gap: 6px; }
+.cluster .k { font-weight: 600; }
+.cluster dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 2px 10px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cluster dt { color: var(--ink-2); } .cluster dd { margin: 0; text-align: right; }
+.cluster .devs { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.4; }
+#tip { position: fixed; z-index: 50; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,.12); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; display: none; max-width: 300px; }
+#tip .t { color: var(--muted); margin-bottom: 4px; }
+#tip .r { display: flex; justify-content: space-between; gap: 12px; }
+#tip .r b { font-weight: 600; font-variant-numeric: tabular-nums; }
+#tip .r span { color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+#tip .r i { width: 10px; height: 2px; display: inline-block; }
+.methods { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.methods div { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 14px; }
+.methods h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+.methods ul { margin: 0; padding-left: 18px; color: var(--ink-2); }
+code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); padding: 1px 4px; border-radius: 3px; }
+.note { color: var(--ink-2); font-size: 13px; max-width: 72ch; }
+@media (prefers-reduced-motion: no-preference) { .sm, figure.chart .toggle { transition: border-color .15s; } }
+@media (max-width: 560px) { .row.two { grid-template-columns: 1fr; } .tile .value { font-size: 22px; } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Propagation-aware predictive health monitoring · dataset profile</div>
+  <h1>Smart-Sign Telemetry Profile</h1>
+  <p class="lede" id="lede"></p>
+  <div class="stamp" id="stamp"></div>
+</header>
+</div>
+
+<nav class="sections"><ul>
+  <li><a href="#overview">Overview</a></li><li><a href="#fleet">Fleet</a></li><li><a href="#quality">Data quality</a></li>
+  <li><a href="#explorer">Metric explorer</a></li><li><a href="#glance">All metrics</a></li><li><a href="#devices">Devices</a></li>
+  <li><a href="#cross">Cross-metric</a></li><li><a href="#season">Seasonality</a></li><li><a href="#fft">Periodicity (FFT)</a></li><li><a href="#dynamics">Regime changes</a></li>
+  <li><a href="#anomalies">Anomalies</a></li><li><a href="#forecast">Forecastability</a></li><li><a href="#methods">Methods</a></li>
+</ul></nav>
+
+<div class="wrap">
+
+<section id="overview">
+  <h2>Overview</h2>
+  <p class="sub">Every stored Prometheus sample was streamed once, in time order, through River estimators. Nothing was resampled before the statistics below; the hourly table used for cross-metric work is derived from the same pass.</p>
+  <div class="tiles" id="kpis"></div>
+  <ul class="findings" id="findings"></ul>
+</section>
+
+<section id="fleet">
+  <h2>Fleet over time</h2>
+  <p class="sub">Device reachability comes from the <code>up</code> series of the <code>edge</code> scrape job; a device counts as reporting on a day when any sample of it exists.</p>
+  <div class="row" id="fleet-row"></div>
+</section>
+
+<section id="quality">
+  <h2>Data quality</h2>
+  <p class="sub">Samples are kept exactly as stored. Placeholder codes documented in the dataset README (GPU −256 °C, battery temperature 3277x, exact 100 on MPPT fields, state of charge above 100 %) were counted and excluded from value statistics. A gap is any interval between consecutive samples of one series longer than the 120 s scrape cadence.</p>
+  <div class="row two" id="quality-row"></div>
+  <figure class="chart" id="quality-table"></figure>
+</section>
+
+<section id="explorer">
+  <h2>Metric explorer</h2>
+  <p class="sub">Pick a metric to see its distribution, its daily cycle, how the fleet moved over the seven months, and every device's own statistics.</p>
+  <div class="controls">
+    <label for="metric-select" class="eyebrow">Metric</label>
+    <select id="metric-select"></select>
+    <span class="meaning" id="metric-meaning"></span>
+  </div>
+  <div class="tiles" id="metric-tiles"></div>
+  <div class="row two" id="metric-charts"></div>
+  <figure class="chart" id="metric-devices" style="margin-top:16px"></figure>
+</section>
+
+<section id="glance">
+  <h2>All 42 metrics at a glance</h2>
+  <p class="sub">Daily fleet mean over the whole history, one tile per metric. The value is the fleet median; click a tile to open it in the explorer.</p>
+  <div id="glance-grid"></div>
+</section>
+
+<section id="devices">
+  <h2>Devices</h2>
+  <p class="sub">Each device was summarised by the median of its hourly values on the eleven metrics the whole fleet reports, standardised, and clustered with River's streaming k-means (4 clusters, 25 passes). Devices with fewer than seven days of data are unclustered.</p>
+  <div class="row" id="cluster-row"></div>
+  <div class="row two" id="device-row" style="margin-top:16px"></div>
+  <figure class="chart" id="device-table" style="margin-top:16px"></figure>
+</section>
+
+<section id="cross">
+  <h2>Cross-metric structure</h2>
+  <p class="sub">Pearson correlation between hourly device means, estimated with River's streaming <code>EmpiricalCovariance</code> over all device-hours (pairwise where both metrics exist). The second chart asks the same question inside each device.</p>
+  <div class="row two" id="cross-row"></div>
+</section>
+
+<section id="season">
+  <h2>Daily seasonality</h2>
+  <p class="sub">Autocorrelation of each device's hourly series at a 24-hour lag. Values near 1 mean yesterday at this hour predicts today at this hour; the daily cycle dominates most physical signals.</p>
+  <div id="season-row"></div>
+</section>
+
+<section id="fft">
+  <h2>Periodicity (FFT)</h2>
+  <p class="sub">Fourier power spectrum of every metric, per device: the longest gap-free run of hourly values (gaps up to 6 h filled, at least 21 days), linearly detrended, Hann-windowed, then the share of the series' variance that falls at each period. Periods run from 2 h (the shortest an hourly series can show) to 45 days.</p>
+  <div class="tiles" id="fft-tiles"></div>
+  <figure class="chart" id="fft-heat"></figure>
+  <figure class="chart" id="fft-table" style="margin-top:16px"></figure>
+</section>
+
+<section id="dynamics">
+  <h2>Regime changes and slow trends</h2>
+  <p class="sub">ADWIN (δ = 0.002) ran over each device's <em>daily mean</em> of eight health metrics, so the day/night cycle does not trigger it; a detection is a sustained level shift. The slope is a streaming least-squares fit of daily means against time.</p>
+  <div class="row two" id="regime-row"></div>
+  <div class="row two" id="trend-row" style="margin-top:16px"></div>
+</section>
+
+<section id="anomalies">
+  <h2>Point anomalies</h2>
+  <p class="sub">Per device, per metric: HalfSpaceTrees (10 trees, depth 6, one-day window) scored every raw sample on value and time-of-day; samples above the running 99.5 % score quantile are flagged. The rate is relative within each device, so a high rate means an unusually irregular series rather than an absolute fault count.</p>
+  <div class="row" id="anom-row"></div>
+</section>
+
+<section id="forecast">
+  <h2>Forecastability</h2>
+  <p class="sub">Progressive validation on hourly series of the eight best-covered devices per metric: at every hour the model forecasts the next 12 hours, is scored, then learns the true value. Holt-Winters (α 0.3, β 0.05, γ 0.5, period 24) and SNARIMAX (p 3, d 1, seasonal p 1, m 24) against two baselines.</p>
+  <div class="row two" id="forecast-row"></div>
+</section>
+
+<section id="methods">
+  <h2>Methods and caveats</h2>
+  <div class="methods" id="methods"></div>
+</section>
+
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = __DATA__;
+(() => {
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const NS = 'http://www.w3.org/2000/svg';
+const sv = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const COLORS = ['--s1', '--s2', '--s3', '--s4'];
+const byShort = Object.fromEntries(D.metrics.map(m => [m.short, m]));
+const M = s => byShort[s];
+const fmtN = (v, d) => {
+  if (v == null || Number.isNaN(v)) return '–';
+  const a = Math.abs(v);
+  if (d == null) { if (a >= 1e6) return (v / 1e6).toFixed(a >= 1e7 ? 0 : 1) + 'M'; if (a >= 1e4) return (v / 1e3).toFixed(0) + 'k'; if (a >= 100) return v.toFixed(0); if (a >= 10) return v.toFixed(1); if (a >= 1) return v.toFixed(2); if (a === 0) return '0'; return v.toFixed(3); }
+  return v.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+};
+const fmtInt = v => v == null ? '–' : Math.round(v).toLocaleString('en-US');
+const pct = (v, d = 0) => v == null ? '–' : (100 * v).toFixed(d) + '%';
+const dateOf = s => new Date(s + 'T00:00:00Z');
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmtDate = t => { const d = new Date(t); return `${d.getUTCDate()} ${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const fmtTs = t => { const d = new Date(t); return `${d.getUTCDate()} ${MON[d.getUTCMonth()]} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} UTC`; };
+const median = a => { const s = a.filter(v => v != null && !Number.isNaN(v)).sort((x, y) => x - y); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : null; };
+const quantile = (a, q) => { const s = a.filter(v => v != null).sort((x, y) => x - y); if (!s.length) return null; const i = q * (s.length - 1); const lo = Math.floor(i); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (i - lo); };
+function niceTicks(lo, hi, n = 4) {
+  if (!(hi > lo)) { hi = lo + 1; }
+  const span = hi - lo, step0 = Math.pow(10, Math.floor(Math.log10(span / n)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * step0).find(s => span / s <= n + 1) || step0 * 10;
+  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(10)); return t;
+}
+// ---- tooltip -----------------------------------------------------------------------------
+const tip = $('#tip');
+function showTip(x, y, title, rows) {
+  tip.replaceChildren();
+  if (title) tip.appendChild(el('div', 't', title));
+  for (const r of rows) {
+    const row = el('div', 'r'); const lab = el('span');
+    if (r.color) { const i = el('i'); i.style.background = r.color; lab.appendChild(i); }
+    lab.appendChild(document.createTextNode(r.label)); row.appendChild(lab); row.appendChild(el('b', null, r.value)); tip.appendChild(row);
+  }
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+  tip.style.left = Math.min(x + 14, vw - w - 8) + 'px';
+  tip.style.top = (y + 16 + h > vh ? y - h - 10 : y + 16) + 'px';
+}
+const hideTip = () => { tip.style.display = 'none'; };
+// ---- figure shell with table twin ------------------------------------------------------------------
+const charts = [];
+function figure(parent, { title, caption, render, table }) {
+  const fig = parent.classList && parent.classList.contains('chart') ? parent : el('figure', 'chart');
+  if (fig !== parent) parent.appendChild(fig);
+  fig.replaceChildren();
+  const head = el('div', 'head'); head.appendChild(el('div', 'title', title));
+  const body = el('div', 'body'); let showTable = false;
+  const tog = el('button', 'toggle', 'Table'); tog.type = 'button';
+  const draw = () => { body.replaceChildren(); if (showTable) renderTable(body, table); else render(body); tog.textContent = showTable ? 'Chart' : 'Table'; };
+  tog.addEventListener('click', () => { showTable = !showTable; draw(); });
+  head.appendChild(tog); fig.appendChild(head); fig.appendChild(body);
+  if (caption) { const c = el('p', 'cap', caption); fig.appendChild(c); }
+  charts.push({ draw: () => { if (!showTable) draw(); } });
+  draw();
+  return fig;
+}
+function renderTable(parent, { cols, rows, maxRows = 60, sortable = true }) {
+  const wrap = el('div', 'tablewrap'); const t = el('table', 'data'); const thead = el('thead'); const trh = el('tr');
+  let sortKey = null, sortDir = -1, limit = maxRows;
+  const tbody = el('tbody');
+  const build = () => {
+    tbody.replaceChildren();
+    let rs = rows.slice();
+    if (sortKey) rs.sort((a, b) => { const x = a[sortKey], y = b[sortKey]; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * sortDir; });
+    rs.slice(0, limit).forEach(r => { const tr = el('tr'); cols.forEach(c => { const td = el('td', c.cls || (c.left ? 'l' : null), c.fmt ? c.fmt(r[c.key], r) : (r[c.key] ?? '–')); tr.appendChild(td); }); tbody.appendChild(tr); });
+    more.hidden = rows.length <= limit; more.textContent = `Show all ${rows.length} rows`;
+  };
+  cols.forEach(c => { const th = el('th', c.left ? 'l' : null, c.label); if (sortable) th.addEventListener('click', () => { if (sortKey === c.key) sortDir *= -1; else { sortKey = c.key; sortDir = typeof rows[0]?.[c.key] === 'string' ? 1 : -1; } build(); }); trh.appendChild(th); });
+  thead.appendChild(trh); t.appendChild(thead); t.appendChild(tbody); wrap.appendChild(t); parent.appendChild(wrap);
+  const more = el('button', 'more'); more.type = 'button'; more.addEventListener('click', () => { limit = rows.length; build(); }); parent.appendChild(more);
+  build();
+}
+function legend(parent, items) {
+  const lg = el('div', 'legend');
+  items.forEach(it => { const s = el('span'); const i = el('i', it.rect ? 'rect' : null); i.style.background = it.color; s.appendChild(i); s.appendChild(document.createTextNode(it.name)); lg.appendChild(s); });
+  parent.appendChild(lg);
+}
+// ---- line chart -----------------------------------------------------------------------------
+function lineChart(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = o.height || 210;
+  const m = { t: 10, r: o.directLabel ? 70 : 14, b: 26, l: 46 };
+  const ser = o.series.filter(s => s.points.length);
+  let xs = [], ys = [];
+  ser.forEach(s => s.points.forEach(p => { if (p[1] != null) { xs.push(p[0]); ys.push(p[1]); } }));
+  if (o.band) o.band.forEach(p => { xs.push(p[0]); ys.push(p[1], p[2]); });
+  if (!xs.length) { parent.appendChild(el('p', 'note', 'No data.')); return; }
+  const xmin = o.x?.min ?? Math.min(...xs), xmax = o.x?.max ?? Math.max(...xs);
+  let ymin = o.y?.min ?? Math.min(...ys), ymax = o.y?.max ?? Math.max(...ys);
+  if (ymax === ymin) { ymax += 1; ymin -= 1; }
+  if (o.y?.min == null) ymin -= (ymax - ymin) * 0.06; if (o.y?.max == null) ymax += (ymax - ymin) * 0.06;
+  const yt = niceTicks(ymin, ymax, 4); ymin = Math.min(ymin, yt[0]); ymax = Math.max(ymax, yt[yt.length - 1]);
+  const sx = x => m.l + (x - xmin) / (xmax - xmin || 1) * (W - m.l - m.r), sy = y => m.t + (1 - (y - ymin) / (ymax - ymin)) * (H - m.t - m.b);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'line chart' }, parent);
+  yt.forEach(v => { sv('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), stroke: css('--grid'), 'stroke-width': 1 }, svg); sv('text', { x: m.l - 6, y: sy(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = o.y?.fmt ? o.y.fmt(v) : fmtN(v); });
+  sv('line', { x1: m.l, x2: W - m.r, y1: sy(ymin), y2: sy(ymin), stroke: css('--axis') }, svg);
+  const xt = o.x?.ticks || (o.x?.type === 'time' ? monthTicks(xmin, xmax) : niceTicks(xmin, xmax, 6).map(v => [v, fmtN(v)]));
+  xt.forEach(([v, lab]) => { if (v < xmin || v > xmax) return; sv('line', { x1: sx(v), x2: sx(v), y1: sy(ymin), y2: sy(ymin) + 4, stroke: css('--axis') }, svg); sv('text', { x: sx(v), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = lab; });
+  if (o.band) {
+    const up = o.band.map(p => `${sx(p[0]).toFixed(1)},${sy(p[2]).toFixed(1)}`), lo = o.band.slice().reverse().map(p => `${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`);
+    sv('path', { d: 'M' + up.concat(lo).join('L') + 'Z', fill: css(o.bandColor || '--s1'), opacity: 0.14 }, svg);
+  }
+  ser.forEach((s, i) => {
+    const color = s.color || css(COLORS[i % COLORS.length]);
+    let d = '', pen = false;
+    s.points.forEach(p => { if (p[1] == null) { pen = false; return; } d += (pen ? 'L' : 'M') + sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1); pen = true; });
+    if (s.area) { const first = s.points.find(p => p[1] != null), last = [...s.points].reverse().find(p => p[1] != null); sv('path', { d: d + `L${sx(last[0]).toFixed(1)},${sy(ymin)}L${sx(first[0]).toFixed(1)},${sy(ymin)}Z`, fill: color, opacity: 0.1 }, svg); }
+    sv('path', { d, fill: 'none', stroke: color, 'stroke-width': s.width || 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': s.dashed ? '4 3' : null }, svg);
+    const last = [...s.points].reverse().find(p => p[1] != null);
+    if (last && s.points.length < 400) { sv('circle', { cx: sx(last[0]), cy: sy(last[1]), r: 4, fill: color, stroke: css('--surface'), 'stroke-width': 2 }, svg); }
+    if (o.directLabel && last) sv('text', { x: sx(last[0]) + 8, y: sy(last[1]) + 4, 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = s.name;
+  });
+  // crosshair
+  const cross = sv('line', { y1: m.t, y2: H - m.b, stroke: css('--axis'), 'stroke-width': 1, opacity: 0 }, svg);
+  const dots = ser.map((s, i) => sv('circle', { r: 4, fill: s.color || css(COLORS[i % COLORS.length]), stroke: css('--surface'), 'stroke-width': 2, opacity: 0 }, svg));
+  const hit = sv('rect', { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: 'transparent' }, svg);
+  const move = ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width, x = xmin + (px - m.l) / (W - m.l - m.r) * (xmax - xmin);
+    const rows = []; let xr = null;
+    ser.forEach((s, i) => { let best = null, bd = Infinity; s.points.forEach(p => { if (p[1] == null) return; const d = Math.abs(p[0] - x); if (d < bd) { bd = d; best = p; } }); if (best) { if (xr == null) xr = best[0]; dots[i].setAttribute('cx', sx(best[0])); dots[i].setAttribute('cy', sy(best[1])); dots[i].setAttribute('opacity', 1); rows.push({ label: s.name, value: (o.y?.tipFmt || o.y?.fmt || fmtN)(best[1]), color: s.color || css(COLORS[i % COLORS.length]) }); } });
+    if (o.band && xr != null) { const b = o.band.reduce((a, p) => Math.abs(p[0] - xr) < Math.abs(a[0] - xr) ? p : a); rows.push({ label: o.bandName || 'p10–p90', value: `${fmtN(b[1])} – ${fmtN(b[2])}` }); }
+    if (xr == null) return;
+    cross.setAttribute('x1', sx(xr)); cross.setAttribute('x2', sx(xr)); cross.setAttribute('opacity', 1);
+    showTip(ev.clientX, ev.clientY, o.x?.tipFmt ? o.x.tipFmt(xr) : (o.x?.type === 'time' ? fmtDate(xr) : String(xr)), rows);
+  };
+  hit.addEventListener('pointermove', move); hit.addEventListener('pointerleave', () => { cross.setAttribute('opacity', 0); dots.forEach(d => d.setAttribute('opacity', 0)); hideTip(); });
+  if (ser.length >= 2 && o.legend !== false) legend(parent, ser.map((s, i) => ({ name: s.name, color: s.color || css(COLORS[i % COLORS.length]) })));
+  if (o.band && o.bandLegend) legend(parent, [{ name: o.bandLegend, color: css(o.bandColor || '--s1'), rect: true }]);
+}
+function monthTicks(xmin, xmax) {
+  const t = []; const d = new Date(xmin); d.setUTCDate(1); d.setUTCHours(0, 0, 0, 0);
+  if (d.getTime() < xmin) d.setUTCMonth(d.getUTCMonth() + 1);
+  while (d.getTime() <= xmax) { t.push([d.getTime(), MON[d.getUTCMonth()]]); d.setUTCMonth(d.getUTCMonth() + 1); }
+  return t;
+}
+// ---- horizontal bar chart ----------------------------------------------------------------------
+function barChart(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600);
+  const rowH = o.rowH || 22, labW = o.labW || Math.min(190, W * 0.38), m = { t: 6, r: o.valueLabels ? 56 : 14, b: 22, l: labW };
+  const H = m.t + o.items.length * rowH + m.b;
+  const vmax = (o.max ?? Math.max(0, ...o.items.map(i => i.value || 0))) || 1, vmin = Math.min(0, ...o.items.map(i => i.value || 0));
+  const sx = v => m.l + (v - vmin) / (vmax - vmin || 1) * (W - m.l - m.r);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'bar chart' }, parent);
+  niceTicks(vmin, vmax, 4).forEach(v => { sv('line', { x1: sx(v), x2: sx(v), y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); sv('text', { x: sx(v), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = o.fmt ? o.fmt(v) : fmtN(v); });
+  sv('line', { x1: sx(0), x2: sx(0), y1: m.t, y2: H - m.b, stroke: css('--axis') }, svg);
+  o.items.forEach((it, i) => {
+    const y = m.t + i * rowH + (rowH - 16) / 2, x0 = sx(0), x1 = sx(it.value || 0), color = it.color || css('--s1');
+    const lab = sv('text', { x: m.l - 8, y: y + 12, 'text-anchor': 'end', 'font-size': 12, fill: css('--ink-2'), 'font-family': it.mono ? css('--mono') : css('--font') }, svg); lab.textContent = it.label.length > 28 ? it.label.slice(0, 27) + '…' : it.label;
+    const w = Math.abs(x1 - x0), r = Math.min(4, w);
+    const d = x1 >= x0 ? `M${x0},${y}H${x1 - r}a${r},${r},0,0,1,${r},${r}v${16 - 2 * r}a${r},${r},0,0,1,-${r},${r}H${x0}Z` : `M${x0},${y}H${x1 + r}a${r},${r},0,0,0,-${r},${r}v${16 - 2 * r}a${r},${r},0,0,0,${r},${r}H${x0}Z`;
+    sv('path', { d, fill: color }, svg);
+    if (o.valueLabels) sv('text', { x: Math.max(x0, x1) + 6, y: y + 12, 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--font'), 'font-variant-numeric': 'tabular-nums' }, svg).textContent = o.fmt ? o.fmt(it.value) : fmtN(it.value);
+    const hit = sv('rect', { x: 0, y: m.t + i * rowH, width: W, height: rowH, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, it.label, [{ label: o.valueName || 'value', value: o.fmt ? o.fmt(it.value) : fmtN(it.value), color }].concat(it.extra || [])));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+}
+// ---- histogram ------------------------------------------------------------------------------------
+function histChart(parent, mm) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = 200, m = { t: 18, r: 14, b: 26, l: 46 };
+  const h = mm.hist, n = h.counts.length, total = h.counts.reduce((a, b) => a + b, 0) + h.below + h.above;
+  const cmax = Math.max(...h.counts) || 1;
+  const sy = c => m.t + (1 - c / cmax) * (H - m.t - m.b);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'histogram' }, parent);
+  niceTicks(0, cmax, 3).forEach(v => { sv('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), stroke: css('--grid') }, svg); sv('text', { x: m.l - 6, y: sy(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = fmtN(v); });
+  const plotW = W - m.l - m.r, bw = plotW / n;
+  const sx = v => m.l + (v - h.lo) / (h.hi - h.lo || 1) * plotW;
+  if (h.binary) {
+    [0, 1].forEach((v, i) => { const x = m.l + plotW * (i ? 0.6 : 0.2), w = plotW * 0.2, c = h.counts[i]; sv('rect', { x, y: sy(c), width: w, height: Math.max(0, sy(0) - sy(c)), fill: css('--s1'), rx: 3 }, svg); sv('text', { x: x + w / 2, y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = String(v); sv('text', { x: x + w / 2, y: sy(c) - 5, 'text-anchor': 'middle', 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = `${fmtN(c)} (${pct(c / total, 1)})`; });
+    sv('line', { x1: m.l, x2: W - m.r, y1: sy(0), y2: sy(0), stroke: css('--axis') }, svg);
+    return;
+  }
+  h.counts.forEach((c, i) => {
+    const x = m.l + i * bw + 1, y = sy(c);
+    sv('rect', { x, y, width: Math.max(0.5, bw - 2), height: Math.max(0, sy(0) - y), fill: css('--s1') }, svg);
+    const hit = sv('rect', { x: m.l + i * bw, y: m.t, width: bw, height: H - m.t - m.b, fill: 'transparent' }, svg);
+    const lo = h.lo + i * (h.hi - h.lo) / n, hi = lo + (h.hi - h.lo) / n;
+    hit.addEventListener('pointermove', ev => { hit.previousSibling.setAttribute('opacity', 0.7); showTip(ev.clientX, ev.clientY, `${fmtN(lo)} – ${fmtN(hi)} ${mm.unit}`, [{ label: 'samples', value: fmtN(c) }, { label: 'share', value: pct(c / total, 2) }]); });
+    hit.addEventListener('pointerleave', () => { hit.previousSibling.setAttribute('opacity', 1); hideTip(); });
+  });
+  sv('line', { x1: m.l, x2: W - m.r, y1: sy(0), y2: sy(0), stroke: css('--axis') }, svg);
+  niceTicks(h.lo, h.hi, 6).forEach(v => { if (v < h.lo || v > h.hi) return; sv('text', { x: sx(v), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = fmtN(v); });
+  [['p01', mm.p01], ['median', mm.p50], ['p99', mm.p99]].forEach(([lab, v], i) => { if (v == null || v < h.lo || v > h.hi) return; sv('line', { x1: sx(v), x2: sx(v), y1: m.t - 4, y2: sy(0), stroke: css('--ink-2'), 'stroke-width': 1 }, svg); sv('text', { x: sx(v), y: m.t - 7, 'text-anchor': i === 0 ? 'start' : i === 2 ? 'end' : 'middle', 'font-size': 10.5, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = `${lab} ${fmtN(v)}`; });
+  if (h.below || h.above) parent.appendChild(el('p', 'cap', `Outside the shown range: ${fmtN(h.below)} samples below, ${fmtN(h.above)} above (${pct((h.below + h.above) / total, 2)} of samples).`));
+}
+// ---- heatmap (diverging) ---------------------------------------------------------------------------
+function hex2rgb(h) { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); }
+function mix(a, b, t) { return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`; }
+function heatmap(parent, { names, matrix, labels }) {
+  const W = Math.max(300, parent.clientWidth || parent.parentElement.clientWidth || 560);
+  const n = names.length, labW = 120, top = 112, cell = Math.max(10, Math.min(26, (W - labW - 10) / n)), H = top + n * cell + 8;
+  const neg = hex2rgb(css('--div-neg')), mid = hex2rgb(css('--div-mid')), pos = hex2rgb(css('--div-pos'));
+  const color = r => r == null ? css('--wash') : r < 0 ? mix(mid, neg, Math.min(1, -r)) : mix(mid, pos, Math.min(1, r));
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'correlation heatmap' }, parent);
+  names.forEach((nm, i) => {
+    sv('text', { x: labW - 6, y: top + i * cell + cell / 2 + 4, 'text-anchor': 'end', 'font-size': Math.min(11, cell - 1), fill: css('--ink-2'), 'font-family': css('--mono') }, svg).textContent = labels[nm] || nm;
+    const tx = sv('text', { x: labW + i * cell + cell / 2, y: top - 6, 'font-size': Math.min(11, cell - 1), fill: css('--ink-2'), 'font-family': css('--mono'), transform: `rotate(-60 ${labW + i * cell + cell / 2} ${top - 6})` }, svg); tx.textContent = labels[nm] || nm;
+  });
+  names.forEach((a, i) => names.forEach((b, j) => {
+    const r = matrix[i][j];
+    const rc = sv('rect', { x: labW + j * cell + 1, y: top + i * cell + 1, width: cell - 2, height: cell - 2, fill: color(r), rx: 2 }, svg);
+    if (r != null && Math.abs(r) >= 0.7 && i !== j && cell >= 18) sv('text', { x: labW + j * cell + cell / 2, y: top + i * cell + cell / 2 + 3.5, 'text-anchor': 'middle', 'font-size': 9, fill: Math.abs(r) > 0.6 ? '#fff' : css('--ink'), 'font-family': css('--font'), 'pointer-events': 'none' }, svg).textContent = r.toFixed(1).replace('0.', '.');
+    rc.addEventListener('pointermove', ev => { rc.setAttribute('stroke', css('--ink')); showTip(ev.clientX, ev.clientY, `${labels[a] || a} × ${labels[b] || b}`, [{ label: 'r', value: r == null ? 'n/a' : r.toFixed(2) }]); });
+    rc.addEventListener('pointerleave', () => { rc.removeAttribute('stroke'); hideTip(); });
+  }));
+  const lg = el('div', 'legend'); [['−1', neg], ['0', mid], ['+1', pos]].forEach(([t, c]) => { const s = el('span'); const i = el('i', 'rect'); i.style.background = `rgb(${c.join(',')})`; s.appendChild(i); s.appendChild(document.createTextNode(t)); lg.appendChild(s); }); lg.prepend(el('span', null, 'Pearson r')); parent.appendChild(lg);
+}
+// ---- strip chart (one row per group, dots = devices) -------------------------------------------------
+function stripChart(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), rowH = o.rowH || 24, labW = o.labW || Math.min(200, W * 0.38), m = { t: 8, r: 16, b: 24, l: labW };
+  const H = m.t + o.rows.length * rowH + m.b, [lo, hi] = o.domain;
+  const sx = v => m.l + (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * (W - m.l - m.r);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'strip chart' }, parent);
+  niceTicks(lo, hi, 5).forEach(v => { sv('line', { x1: sx(v), x2: sx(v), y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); sv('text', { x: sx(v), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = o.fmt ? o.fmt(v) : fmtN(v); });
+  if (o.zero != null && o.zero >= lo && o.zero <= hi) sv('line', { x1: sx(o.zero), x2: sx(o.zero), y1: m.t, y2: H - m.b, stroke: css('--axis') }, svg);
+  o.rows.forEach((row, i) => {
+    const cy = m.t + i * rowH + rowH / 2;
+    const lab = sv('text', { x: m.l - 8, y: cy + 4, 'text-anchor': 'end', 'font-size': 12, fill: css('--ink-2'), 'font-family': o.mono ? css('--mono') : css('--font') }, svg); lab.textContent = row.label.length > 26 ? row.label.slice(0, 25) + '…' : row.label;
+    row.values.forEach(([dev, v]) => {
+      if (v == null) return;
+      const clipped = v < lo || v > hi;
+      const c = sv('circle', { cx: sx(v), cy, r: 4, fill: css('--s1'), stroke: css('--surface'), 'stroke-width': 1.5, opacity: 0.75 }, svg);
+      if (clipped) c.setAttribute('fill', css('--s2'));
+      const hit = sv('circle', { cx: sx(v), cy, r: 10, fill: 'transparent' }, svg);
+      hit.addEventListener('pointermove', ev => { c.setAttribute('r', 6); showTip(ev.clientX, ev.clientY, dev, [{ label: row.label, value: (o.tipFmt || o.fmt || fmtN)(v) + (clipped ? ' (off scale)' : '') }]); });
+      hit.addEventListener('pointerleave', () => { c.setAttribute('r', 4); hideTip(); });
+    });
+    const med = row.median ?? median(row.values.map(v => v[1]));
+    if (med != null) sv('line', { x1: sx(med), x2: sx(med), y1: cy - 9, y2: cy + 9, stroke: css('--ink'), 'stroke-width': 2 }, svg);
+    if (o.valueLabels && med != null) sv('text', { x: m.l - 8, y: cy + 4, 'font-size': 11 }, svg);
+  });
+  legend(parent, [{ name: 'one device', color: css('--s1'), rect: true }, { name: 'median (bar)', color: css('--ink') }].concat(o.extraLegend || []));
+}
+function sparkline(parent, pts, color) {
+  const W = 150, H = 34; const vals = pts.map(p => p[1]).filter(v => v != null); if (!vals.length) return;
+  const lo = Math.min(...vals), hi = Math.max(...vals), xs = pts.map((_, i) => i);
+  const sx = i => 2 + i / (pts.length - 1 || 1) * (W - 4), sy = v => 3 + (1 - (v - lo) / (hi - lo || 1)) * (H - 6);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none' }, parent);
+  let d = '', pen = false; pts.forEach((p, i) => { if (p[1] == null) { pen = false; return; } d += (pen ? 'L' : 'M') + sx(i).toFixed(1) + ',' + sy(p[1]).toFixed(1); pen = true; });
+  sv('path', { d, fill: 'none', stroke: color || css('--s1'), 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke' }, svg);
+}
+function tile(parent, label, value, sub, hero) { const t = el('div', 'tile'); t.appendChild(el('div', 'label', label)); t.appendChild(el('div', hero ? 'value hero' : 'value', value)); if (sub) t.appendChild(el('div', 'sub', sub)); parent.appendChild(t); return t; }
+
+// ====================================================================================================
+// Derived facts used by the narrative
+const O = D.overview;
+const days = Math.round((dateOf(O.last_day) - dateOf(O.first_day)) / 864e5) + 1;
+const upM = M('up'), volt = M('input_voltage_volts'), cpu = M('cpu_temp_celsius'), stor = M('storage_free_gb'), mem = M('memory_free_gb'), batt = M('battery_remaining_capacity');
+const uptimes = D.devices.map(d => d.uptime).filter(v => v != null);
+const dead = D.devices.filter(d => d.uptime != null && d.uptime < 0.05).length;
+const hv = volt.series.filter(s => s.p50 > 20); const hvSet = new Set(hv.map(s => s.dev));
+const cpuHV = median(cpu.series.filter(s => hvSet.has(s.dev)).map(s => s.p50)), cpuLV = median(cpu.series.filter(s => !hvSet.has(s.dev)).map(s => s.p50));
+const hot = cpu.series.filter(s => s.p50 >= 70).length;
+const lowDisk = stor.series.filter(s => s.p50 != null && s.p50 < 10).length;
+const storTrend = D.trends.storage_free_gb, fastFill = storTrend ? storTrend.all.filter(a => a[1] < -5).length : 0;
+const corrIdx = Object.fromEntries(D.corr.names.map((n, i) => [n, i])); const rOf = (a, b) => D.corr.matrix[corrIdx[a]]?.[corrIdx[b]];
+const flagTop = D.metrics.filter(m => m.quality.flagged).sort((a, b) => b.quality.flagged - a.quality.flagged);
+const sameDay = D.regimes.same_day[0];
+const fc = D.forecasts.board_temp_celsius;
+const avDays = Object.entries(D.availability.fleet_daily).sort();
+const devDays = Object.entries(D.availability.devices_per_day_by_metric.up).sort();
+const seasonMed = Object.fromEntries(D.metrics.filter(m => m.season24.length).map(m => [m.short, median(m.season24.map(v => v[1]))]));
+
+$('#lede').textContent = `${fmtN(O.rows)} raw Prometheus samples from ${O.devices} smart bus-stop signs across ${Object.keys(O.agencies).length} transit agencies, ${fmtDate(dateOf(O.first_day))} to ${fmtDate(dateOf(O.last_day))}. Streaming statistics, drift and anomaly detection, correlation, clustering and forecasting, all computed with River.`;
+$('#stamp').textContent = `Generated ${D.generated} · 42 metrics · ${days} days · ${fmtN(O.hourly_rows)} device-hour aggregates`;
+
+// ---- overview tiles + findings
+{
+  const k = $('#kpis');
+  tile(k, 'Raw samples', fmtN(O.rows), `${fmtN(O.rows / days)} per day on average`);
+  tile(k, 'Devices', String(O.devices), `${Object.keys(O.agencies).length} agencies · ${devDays[devDays.length - 1][1]} reporting on the last day`);
+  tile(k, 'Median device uptime', pct(median(uptimes)), `${dead} devices reachable < 5 % of the time`);
+  tile(k, 'Scrape cadence', '120 s', `${fmtN(M('cpu_temp_celsius').quality.gaps.normal / (M('cpu_temp_celsius').quality.gaps.normal + M('cpu_temp_celsius').quality.gaps.missed + M('cpu_temp_celsius').quality.gaps.lt_1h + M('cpu_temp_celsius').quality.gaps.lt_1d + M('cpu_temp_celsius').quality.gaps.ge_1d) * 100, 1)}% of CPU-temperature intervals on cadence`);
+  tile(k, 'Placeholder values', fmtN(O.flagged), `${pct(O.flagged / O.rows, 2)} of samples · ${O.nan} NaN · ${O.dup} duplicate timestamps`);
+  tile(k, 'Regime changes', String(D.regimes.total), 'sustained level shifts in daily means (ADWIN)');
+  const f = $('#findings');
+  const add = (b, t) => { const li = el('li'); li.appendChild(el('b', null, b + ' ')); li.appendChild(document.createTextNode(t)); f.appendChild(li); };
+  add('The fleet roughly doubled, but a tail of devices is never reachable.', `${devDays[0][1]} devices reported on ${fmtDate(dateOf(devDays[0][0]))}, ${devDays[devDays.length - 1][1]} on ${fmtDate(dateOf(devDays[devDays.length - 1][0]))}. Daily availability of the edge scrape job stayed near ${pct(median(avDays.map(a => a[1][0])))} the whole time because ${dead} devices answer fewer than 5 % of scrapes; the median device answers ${pct(median(uptimes))}.`);
+  add('Two power populations.', `${hv.length} devices sit at ~56 V input (median ${fmtN(median(hv.map(s => s.p50)), 1)} V) while the rest run on a 12–14 V battery bus (fleet median ${fmtN(volt.p50, 2)} V). The 56 V devices run much hotter: median CPU temperature ${fmtN(cpuHV, 0)} °C versus ${fmtN(cpuLV, 0)} °C.`);
+  add('Thermal ceiling.', `Fleet CPU temperature p99 is ${fmtN(cpu.p99, 0)} °C; ${hot} devices have a median CPU temperature of 70 °C or more and spend most of their time near the throttling limit. GPU and CPU temperature are interchangeable (r = ${rOf('cpu_temp_celsius', 'gpu_temp_celsius')?.toFixed(2)}).`);
+  add('Disks are filling.', `Median trend of free disk is ${fmtN(storTrend?.median_slope_30d, 1)} GB per 30 days; ${fastFill} devices lose more than 5 GB a month and ${lowDisk} already have a median below 10 GB free. Free disk is also the metric with the most regime changes (${D.regimes.by_metric.storage_free_gb}).`);
+  add('The video-analytics app decides memory and power.', `When DeepStream runs, free RAM collapses (r = ${rOf('deepstream_app_running', 'memory_free_gb')?.toFixed(2)} with memory_free) and input power rises (r = ${rOf('deepstream_app_running', 'input_power_watts')?.toFixed(2)}): the k-means clusters split the fleet mainly along this line, ~${fmtN(D.clusters['0']?.centroid.memory_free_gb, 1)} GB free when idle versus ~${fmtN(D.clusters['3']?.centroid.memory_free_gb, 1)} GB when running.`);
+  add('Strong 24-hour cycles everywhere.', `Lag-24 h autocorrelation of hourly series: solar voltage ${seasonMed.mppt_solar_voltage?.toFixed(2)}, humidity ${seasonMed.humidity?.toFixed(2)}, light ${seasonMed.lightsensor?.toFixed(2)}, CPU temperature ${seasonMed.cpu_temp_celsius?.toFixed(2)}, input power ${seasonMed.input_power_watts?.toFixed(2)}. Any model that ignores time of day will mostly be learning the sun.`);
+  { const sp = s => M(s)?.spectrum?.share_median; const l = sp('lightsensor'), c = sp('cpu_temp_celsius'), w = sp('input_power_watts'), wk = Math.max(...D.metrics.filter(m => m.spectrum && m.type !== 'binary').map(m => m.spectrum.share_median['168h']));
+    if (l && c && w) add('The FFT finds one clock: the day.', `The 24 h period carries ${pct(l['24h'])} of light-sensor variance, ${pct(c['24h'])} of CPU temperature and only ${pct(w['24h'])} of input power, whose variance is mostly irregular. No metric has a weekly cycle above ${pct(wk, 1)} of its variance, so weekday transit schedules leave no visible mark on device health.`); }
+  add('Forecasting: the next hour is easy, the next day is not.', `For board temperature the naive last-value forecast has a 1-hour MAE of ${fmtN(fc?.mae_by_horizon.naive[0], 2)} °C, but after ~3 hours the 24-hours-ago baseline (MAE ${fmtN(fc?.mae_by_horizon.seasonal_naive[11], 2)} °C at 12 h) beats both Holt-Winters (${fmtN(fc?.mae_by_horizon.holt_winters[11], 2)}) and SNARIMAX (${fmtN(fc?.mae_by_horizon.snarimax[11], 2)}).`);
+  add('Data quality is high in form, messy in content.', `No NaN or duplicate timestamps anywhere. ${fmtN(O.flagged)} placeholder samples were excluded, ${pct(flagTop[0].quality.flagged / O.flagged)} of them the 3277x code in ${flagTop[0].short}. The five running totals reset about once a day (${fmtN(D.metrics.filter(m => m.type === 'counter').reduce((a, m) => a + m.quality.resets, 0))} resets in total), as documented.`);
+  if (sameDay) add('Fleet-wide events show up as synchronised regime changes.', `On ${fmtDate(dateOf(sameDay.day))}, ${sameDay.n} devices shifted their daily mean ${sameDay.metric} on the same day, which points to a software or configuration change rather than hardware.`);
+}
+
+// ---- fleet over time
+{
+  const row = $('#fleet-row');
+  figure(row, { title: 'Devices reporting per day', caption: 'Count of devices with at least one edge-job up sample that day.',
+    render: p => lineChart(p, { series: [{ name: 'devices', points: devDays.map(([d, n]) => [dateOf(d).getTime(), n]), area: true }], x: { type: 'time' }, y: { min: 0, fmt: v => fmtN(v, 0) } }),
+    table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'n', label: 'Devices' }], rows: devDays.map(([day, n]) => ({ day, n })) } });
+  figure(row, { title: 'Fleet availability per day', caption: 'Mean of per-device daily availability (share of successful scrapes), edge job only.',
+    render: p => lineChart(p, { series: [{ name: 'availability', points: avDays.map(([d, v]) => [dateOf(d).getTime(), v[0] * 100]) }], x: { type: 'time' }, y: { min: 0, max: 100, fmt: v => v + '%' } }),
+    table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'v', label: 'Availability', fmt: v => pct(v, 1) }, { key: 'n', label: 'Devices' }], rows: avDays.map(([day, v]) => ({ day, v: v[0], n: v[1] })) } });
+  const perDay = {}; D.metrics.forEach(m => m.daily.forEach(([d, , n]) => { perDay[d] = (perDay[d] || 0) + n; }));
+  const pd = Object.entries(perDay).sort();
+  figure(row, { title: 'Samples stored per day, all metrics', caption: 'Includes every metric and scrape job; the last day is partial.',
+    render: p => lineChart(p, { series: [{ name: 'samples', points: pd.map(([d, n]) => [dateOf(d).getTime(), n]), area: true }], x: { type: 'time' }, y: { min: 0, fmt: v => fmtN(v) } }),
+    table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'n', label: 'Samples', fmt: fmtInt }], rows: pd.map(([day, n]) => ({ day, n })) } });
+  const ag = Object.entries(O.agencies);
+  figure(row, { title: 'Devices per agency', caption: 'Agency label as recorded; two labels differ only by letter case and were merged.',
+    render: p => barChart(p, { items: ag.map(([k, v]) => ({ label: k, value: v })), valueLabels: true, fmt: v => fmtN(v, 0), valueName: 'devices' }),
+    table: { cols: [{ key: 'agency', label: 'Agency', left: true }, { key: 'n', label: 'Devices' }], rows: ag.map(([agency, n]) => ({ agency, n })) } });
+  const bins = Array.from({ length: 10 }, (_, i) => ({ label: `${i * 10}–${i * 10 + 10}%`, value: 0 }));
+  uptimes.forEach(u => bins[Math.min(9, Math.floor(u * 10))].value++);
+  figure(row, { title: 'Per-device uptime distribution', caption: 'Share of successful edge-job scrapes over each device\'s whole life.',
+    render: p => barChart(p, { items: bins, valueLabels: true, fmt: v => fmtN(v, 0), valueName: 'devices' }),
+    table: { cols: [{ key: 'label', label: 'Uptime band', left: true }, { key: 'value', label: 'Devices' }], rows: bins } });
+  const other = upM.other_up || {};
+  figure(row, { title: 'Other scrape targets (up)', caption: 'Non-device targets and the high-frequency device job, for completeness.',
+    render: p => barChart(p, { items: Object.entries(other).map(([j, v]) => ({ label: `${j} (${v.series})`, value: v.mean * 100, extra: [{ label: 'samples', value: fmtN(v.n) }] })), valueLabels: true, fmt: v => fmtN(v, 0) + '%', valueName: 'mean up', max: 100 }),
+    table: { cols: [{ key: 'job', label: 'Job', left: true }, { key: 'series', label: 'Series' }, { key: 'n', label: 'Samples', fmt: fmtInt }, { key: 'mean', label: 'Mean up', fmt: v => pct(v, 1) }], rows: Object.entries(other).map(([job, v]) => ({ job, ...v })) } });
+}
+
+// ---- data quality
+{
+  const row = $('#quality-row');
+  const gapShare = m => { const g = m.quality.gaps, t = g.normal + g.missed + g.lt_1h + g.lt_1d + g.ge_1d; return t ? (g.missed + g.lt_1h + g.lt_1d + g.ge_1d) / t : 0; };
+  const gs = D.metrics.map(m => ({ label: m.short, value: gapShare(m) * 100, mono: true, extra: [{ label: 'outages ≥ 1 day', value: fmtN(m.quality.gaps.ge_1d, 0) }] })).sort((a, b) => b.value - a.value);
+  figure(row, { title: 'Share of sample intervals that are gaps, by metric', caption: 'A gap is any interval longer than 150 s between consecutive samples of a series. The heater/environment sensors are simply scraped less regularly.',
+    render: p => barChart(p, { items: gs, rowH: 17, fmt: v => fmtN(v, 1) + '%', valueName: 'gap share', valueLabels: true, labW: 230 }),
+    table: { cols: [{ key: 'label', label: 'Metric', left: true, cls: 'id l' }, { key: 'value', label: 'Gap share', fmt: v => v.toFixed(2) + '%' }], rows: gs } });
+  const fl = flagTop.map(m => ({ label: m.short, value: m.quality.flagged / m.rows * 100, mono: true, extra: [{ label: 'samples', value: fmtN(m.quality.flagged) }] }));
+  figure(row, { title: 'Placeholder / impossible values excluded, by metric', caption: `${fmtN(O.flagged)} samples in total. Only metrics with documented placeholder codes are affected.`,
+    render: p => barChart(p, { items: fl, fmt: v => fmtN(v, 1) + '%', valueLabels: true, valueName: 'share of samples', labW: 250 }),
+    table: { cols: [{ key: 'label', label: 'Metric', left: true, cls: 'id l' }, { key: 'value', label: 'Share', fmt: v => v.toFixed(3) + '%' }], rows: fl } });
+  const rows = D.metrics.map(m => { const g = m.quality.gaps; return { metric: m.short, group: m.group, type: m.type, rows: m.rows, devices: m.n_series, flagged: m.quality.flagged, resets: m.quality.resets, gap: gapShare(m), out1d: g.ge_1d, cov: median(m.series.map(s => s.coverage)), p01: m.p01, p50: m.p50, p99: m.p99, unit: m.unit }; });
+  figure($('#quality-table'), { title: 'Per-metric quality and range', caption: 'Coverage is samples received over samples expected at a 120 s cadence between a device\'s first and last sample (median over devices); three devices scraped at high frequency exceed 1. Click a header to sort.',
+    render: p => renderTable(p, { cols: qcols(), rows, maxRows: 42 }), table: { cols: qcols(), rows, maxRows: 42 } });
+  function qcols() { return [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'group', label: 'Group', left: true }, { key: 'type', label: 'Type', left: true }, { key: 'rows', label: 'Samples', fmt: fmtInt }, { key: 'devices', label: 'Devices' }, { key: 'flagged', label: 'Excluded', fmt: fmtInt }, { key: 'resets', label: 'Resets', fmt: fmtInt }, { key: 'gap', label: 'Gap share', fmt: v => pct(v, 2) }, { key: 'out1d', label: 'Outages ≥ 1 d', fmt: fmtInt }, { key: 'cov', label: 'Coverage', fmt: v => fmtN(v, 2) }, { key: 'p01', label: 'p01', fmt: v => fmtN(v) }, { key: 'p50', label: 'median', fmt: v => fmtN(v) }, { key: 'p99', label: 'p99', fmt: v => fmtN(v) }, { key: 'unit', label: 'Unit', left: true }]; }
+}
+
+// ---- metric explorer
+const sel = $('#metric-select');
+{
+  const groups = {}; D.metrics.forEach(m => (groups[m.group] = groups[m.group] || []).push(m));
+  Object.entries(groups).forEach(([g, ms]) => { const og = document.createElement('optgroup'); og.label = g; ms.forEach(m => { const o = document.createElement('option'); o.value = m.short; o.textContent = `${m.short} (${m.unit})`; og.appendChild(o); }); sel.appendChild(og); });
+  sel.value = 'input_voltage_volts';
+  sel.addEventListener('change', () => renderMetric(sel.value));
+}
+function renderMetric(short) {
+  const m = M(short);
+  $('#metric-meaning').textContent = `${m.meaning}. ${m.group}, ${m.type}, unit ${m.unit}.`;
+  const t = $('#metric-tiles'); t.replaceChildren();
+  tile(t, 'Samples', fmtN(m.rows), `${m.n_series} devices`);
+  tile(t, 'Median', `${fmtN(m.p50)} ${m.unit}`, `mean ${fmtN(m.mean)} · sd ${fmtN(m.std)}`);
+  tile(t, 'Typical range (p01–p99)', `${fmtN(m.p01)} – ${fmtN(m.p99)}`, `IQR ${fmtN(m.p25)} – ${fmtN(m.p75)}`);
+  tile(t, 'Extremes', `${fmtN(m.min)} / ${fmtN(m.max)}`, 'min / max of kept samples');
+  tile(t, 'Excluded', fmtN(m.quality.flagged), `${m.quality.resets ? fmtN(m.quality.resets) + ' counter resets' : 'placeholder codes'}`);
+  const medAc = m.season24.length ? median(m.season24.map(v => v[1])) : null;
+  tile(t, 'Daily cycle strength', medAc == null ? 'n/a' : medAc.toFixed(2), 'median lag-24 h autocorrelation');
+  const row = $('#metric-charts'); row.replaceChildren();
+  figure(row, { title: `Distribution of all kept samples (${m.unit})`, caption: 'Equal-width bins over the p01–p99 bulk; built from the merged River histogram sketches.',
+    render: p => histChart(p, m),
+    table: { cols: [{ key: 'from', label: 'From', left: true, fmt: v => fmtN(v) }, { key: 'to', label: 'To', fmt: v => fmtN(v) }, { key: 'n', label: 'Samples', fmt: fmtInt }], rows: m.hist.binary ? [{ from: 0, to: 0, n: m.hist.counts[0] }, { from: 1, to: 1, n: m.hist.counts[1] }] : m.hist.counts.map((n, i) => ({ from: m.hist.lo + i * (m.hist.hi - m.hist.lo) / m.hist.counts.length, to: m.hist.lo + (i + 1) * (m.hist.hi - m.hist.lo) / m.hist.counts.length, n })) } });
+  const hm = m.hour_mean.map((v, h) => [h, v]);
+  figure(row, { title: 'Mean by hour of day (UTC)', caption: 'Fleet mean of all kept samples in each UTC hour over the whole history. Local time in North America is UTC−4/−5, in Barcelona UTC+2.',
+    render: p => lineChart(p, { series: [{ name: short, points: hm, area: true }], x: { ticks: [0, 6, 12, 18, 23].map(h => [h, `${h}:00`]), tipFmt: h => `${h}:00 UTC` }, y: { fmt: v => fmtN(v) } }),
+    table: { cols: [{ key: 'h', label: 'Hour (UTC)', left: true }, { key: 'v', label: 'Mean', fmt: v => fmtN(v) }], rows: hm.map(([h, v]) => ({ h, v })) } });
+  const daily = m.daily.map(([d, v]) => [dateOf(d).getTime(), v]);
+  const band = m.band.map(b => [dateOf(b[0]).getTime(), b[1], b[3]]);
+  const medS = m.band.map(b => [dateOf(b[0]).getTime(), b[2]]);
+  figure(row, { title: 'Fleet over the seven months', caption: m.band.length ? 'Band: 10th–90th percentile of per-device daily means; line: median device; the fleet mean of all samples is shown for comparison.' : 'Daily mean of all samples.',
+    render: p => lineChart(p, { series: [{ name: 'median device', points: medS }].filter(s => s.points.length).concat([{ name: 'fleet mean', points: daily, color: css('--s2') }]), band: band.length ? band : null, bandLegend: 'p10–p90 of devices', x: { type: 'time' }, y: { fmt: v => fmtN(v) } }),
+    table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'mean', label: 'Fleet mean', fmt: v => fmtN(v) }, { key: 'n', label: 'Samples', fmt: fmtInt }, { key: 'p10', label: 'p10 device', fmt: v => fmtN(v) }, { key: 'p50', label: 'median device', fmt: v => fmtN(v) }, { key: 'p90', label: 'p90 device', fmt: v => fmtN(v) }], rows: m.daily.map(([day, mean, n]) => { const b = m.band.find(x => x[0] === day); return { day, mean, n, p10: b?.[1], p50: b?.[2], p90: b?.[3] }; }) } });
+  if (m.spectrum) {
+    const S = m.spectrum, C = D.spectral.centers_h, lg = Math.log10;
+    const med = C.map((p, i) => [lg(p), 100 * S.median[i]]), band = C.map((p, i) => [lg(p), 100 * S.p25[i], 100 * S.p75[i]]);
+    const marks = [[2, '2 h'], [6, '6 h'], [12, '12 h'], [24, '24 h'], [168, '7 d'], [720, '30 d']].map(([h, l]) => [lg(h), l]);
+    const fmtP = x => { const h = Math.pow(10, x); return h >= 48 ? `${(h / 24).toFixed(1)} days` : `${h.toFixed(1)} h`; };
+    figure(row, { title: 'Power spectrum (FFT): where the variance sits', caption: `Median of ${S.n_devices} devices with at least 21 days of hourly data; band is the interquartile range. Share of variance at 24 h: ${pct(S.share_median['24h'], 0)}, 12 h: ${pct(S.share_median['12h'], 0)}, 7 days: ${pct(S.share_median['168h'], 1)}.`,
+      render: p => lineChart(p, { series: [{ name: 'median device', points: med, area: true }], band, bandLegend: 'middle 50 % of devices', x: { ticks: marks, tipFmt: fmtP }, y: { min: 0, fmt: v => fmtN(v, 0) + '%', tipFmt: v => fmtN(v, 2) + '%' } }),
+      table: { cols: [{ key: 'p', label: 'Period', left: true, fmt: v => fmtP(Math.log10(v)) }, { key: 'm', label: 'Median share', fmt: v => pct(v, 2) }, { key: 'a', label: 'p25', fmt: v => pct(v, 2) }, { key: 'b', label: 'p75', fmt: v => pct(v, 2) }], rows: C.map((p, i) => ({ p, m: S.median[i], a: S.p25[i], b: S.p75[i] })), maxRows: 60 } });
+  }
+  const devMed = m.series.filter(s => s.p50 != null).sort((a, b) => a.p50 - b.p50);
+  figure(row, { title: 'Median per device', caption: 'Each dot is one device\'s median; the bar is the fleet-wide median of those. Orange dots are off the shown scale.',
+    render: p => stripChart(p, { rows: [{ label: short, values: devMed.map(s => [s.dev, s.p50]) }], domain: [Math.min(...devMed.map(s => s.p50)), Math.max(...devMed.map(s => s.p50))], fmt: v => fmtN(v), rowH: 40, labW: 10 }),
+    table: { cols: [{ key: 'dev', label: 'Device', left: true, cls: 'id l' }, { key: 'p50', label: 'Median', fmt: v => fmtN(v) }], rows: devMed } });
+  const cols = [{ key: 'dev', label: 'Device', left: true, cls: 'id l' }, { key: 'agency', label: 'Agency', left: true }, { key: 'n', label: 'Samples', fmt: fmtInt }, { key: 'first', label: 'First', left: true }, { key: 'last', label: 'Last', left: true }, { key: 'coverage', label: 'Coverage', fmt: v => fmtN(v, 2) }, { key: 'gaps', label: 'Gaps > 10 min', fmt: fmtInt }, { key: 'downtime_h', label: 'Gap hours', fmt: v => fmtN(v, 0) }, { key: 'p01', label: 'p01', fmt: v => fmtN(v) }, { key: 'p50', label: 'median', fmt: v => fmtN(v) }, { key: 'p99', label: 'p99', fmt: v => fmtN(v) }, { key: 'std', label: 'sd', fmt: v => fmtN(v) }, { key: 'min', label: 'min', fmt: v => fmtN(v) }, { key: 'max', label: 'max', fmt: v => fmtN(v) }];
+  if (m.type === 'counter') cols.push({ key: 'resets', label: 'Resets', fmt: fmtInt }, { key: 'increase', label: 'Total increase', fmt: v => fmtN(v) });
+  if (m.quality.flagged) cols.push({ key: 'flagged', label: 'Excluded', fmt: fmtInt });
+  if (m.series.some(s => s.drifts != null)) cols.push({ key: 'drifts', label: 'ADWIN drifts (raw)', fmt: fmtInt });
+  if (m.series.some(s => s.anom != null)) cols.push({ key: 'anom', label: 'Anomalies', fmt: fmtInt });
+  if (m.series.some(s => s.ac1d != null)) cols.push({ key: 'ac1d', label: 'ac 720 samples', fmt: v => fmtN(v, 2) });
+  figure($('#metric-devices'), { title: `Every device on ${short}`, caption: 'Raw-stream ADWIN drifts count every distribution change at 120 s resolution, including the day/night cycle; see the regime section for daily-mean changes. "ac 720 samples" is River\'s running autocorrelation at a 720-sample lag (one day only when the series has no gaps).',
+    render: p => renderTable(p, { cols, rows: m.series, maxRows: 25 }), table: { cols, rows: m.series, maxRows: 25 } });
+  // mark the sticky nav / keep select in sync when opened from a tile
+  if (sel.value !== short) sel.value = short;
+}
+renderMetric(sel.value);
+
+// ---- all metrics at a glance
+{
+  const g = $('#glance-grid');
+  const groups = {}; D.metrics.forEach(m => (groups[m.group] = groups[m.group] || []).push(m));
+  Object.entries(groups).forEach(([name, ms]) => {
+    g.appendChild(el('div', 'group-h', name));
+    const grid = el('div', 'grid-sm');
+    ms.forEach(m => {
+      const b = el('button', 'sm'); b.type = 'button'; b.title = m.meaning;
+      b.appendChild(el('div', 'n', m.short));
+      const v = el('div', 'v', fmtN(m.p50)); const u = el('small', null, m.unit); v.appendChild(u); b.appendChild(v);
+      sparkline(b, m.daily.map(([d, val]) => [d, val]));
+      const vals = m.daily.map(d => d[1]).filter(x => x != null);
+      b.appendChild(el('div', 'sub', `daily mean ${fmtN(Math.min(...vals))} – ${fmtN(Math.max(...vals))}`)).style.cssText = 'font-size:11px;color:var(--muted)';
+      b.addEventListener('click', () => { renderMetric(m.short); document.getElementById('explorer').scrollIntoView({ behavior: 'smooth' }); });
+      grid.appendChild(b);
+    });
+    g.appendChild(grid);
+  });
+}
+
+// ---- devices
+{
+  const crow = $('#cluster-row');
+  const names = { input_voltage_volts: 'Input voltage (V)', input_power_watts: 'Input power (W)', cpu_gpu_power_watts: 'CPU+GPU power (W)', orin_power_watts: 'Orin power (W)', cpu_temp_celsius: 'CPU temp (°C)', gpu_temp_celsius: 'GPU temp (°C)', board_temp_celsius: 'Board temp (°C)', memory_free_gb: 'Free RAM (GB)', storage_free_gb: 'Free disk (GB)', deepstream_app_running: 'DeepStream running', up: 'Reachable' };
+  const titles = { '0': 'Idle, cool, reachable', '1': 'Running analytics, disks fuller', '2': '56 V supply, hot, rarely reachable', '3': 'Running analytics, memory-bound' };
+  Object.entries(D.clusters).forEach(([c, info]) => {
+    const card = el('div', 'cluster');
+    card.appendChild(el('div', 'eyebrow', `Cluster ${c} · ${info.n} devices`));
+    card.appendChild(el('div', 'k', titles[c] || `Cluster ${c}`));
+    const dl = el('dl'); Object.entries(info.centroid).forEach(([k, v]) => { dl.appendChild(el('dt', null, names[k] || k)); dl.appendChild(el('dd', null, k === 'up' || k === 'deepstream_app_running' ? pct(v) : fmtN(v))); }); card.appendChild(dl);
+    card.appendChild(el('div', 'devs', info.devices.join('  ')));
+    crow.appendChild(card);
+  });
+  const drow = $('#device-row');
+  const ov = D.devices.filter(d => d.fp).map(d => d.fp);
+  const scat = (xk, yk, title, caption, fx, fy) => figure(drow, { title, caption, render: p => scatter(p, { pts: D.devices.filter(d => d.fp).map(d => ({ x: d.fp[xk], y: d.fp[yk], id: d.id, c: d.cluster })), xl: fx, yl: fy }), table: { cols: [{ key: 'id', label: 'Device', left: true, cls: 'id l' }, { key: 'x', label: fx, fmt: v => fmtN(v) }, { key: 'y', label: fy, fmt: v => fmtN(v) }, { key: 'c', label: 'Cluster' }], rows: D.devices.filter(d => d.fp).map(d => ({ id: d.id, x: d.fp[xk], y: d.fp[yk], c: d.cluster })) } });
+  scat('input_power_watts', 'cpu_temp_celsius', 'Median input power vs median CPU temperature, one dot per device', 'Colour is the k-means cluster. The hot, high-voltage group separates cleanly from the rest.', 'Input power (W)', 'CPU temp (°C)');
+  scat('memory_free_gb', 'deepstream_app_running', 'Free RAM vs share of time DeepStream runs', 'Devices that run the analytics app most of the time live below 1 GB of free RAM.', 'Free RAM (GB)', 'DeepStream share');
+  const cols = [{ key: 'id', label: 'Device', left: true, cls: 'id l' }, { key: 'agency', label: 'Agency', left: true }, { key: 'cluster', label: 'Cluster' }, { key: 'first', label: 'First seen', left: true }, { key: 'last', label: 'Last seen', left: true }, { key: 'days', label: 'Span (d)', fmt: v => fmtN(v, 0) }, { key: 'metrics', label: 'Metrics' }, { key: 'uptime', label: 'Uptime', fmt: v => pct(v, 1) }, { key: 'v', label: 'Input V', fmt: v => fmtN(v, 1) }, { key: 'w', label: 'Input W', fmt: v => fmtN(v, 1) }, { key: 'cpu', label: 'CPU °C', fmt: v => fmtN(v, 0) }, { key: 'ram', label: 'Free GB', fmt: v => fmtN(v, 2) }, { key: 'disk', label: 'Disk GB', fmt: v => fmtN(v, 0) }, { key: 'ds', label: 'DeepStream', fmt: v => pct(v) }];
+  const rows = D.devices.map(d => ({ id: d.id, agency: d.agency, cluster: d.cluster, first: d.first, last: d.last, days: d.days, metrics: d.metrics, uptime: d.uptime, v: d.fp?.input_voltage_volts, w: d.fp?.input_power_watts, cpu: d.fp?.cpu_temp_celsius, ram: d.fp?.memory_free_gb, disk: d.fp?.storage_free_gb, ds: d.fp?.deepstream_app_running }));
+  figure($('#device-table'), { title: 'Device directory', caption: 'Medians of hourly values over each device\'s life. Click a header to sort.', render: p => renderTable(p, { cols, rows, maxRows: 30 }), table: { cols, rows, maxRows: 30 } });
+}
+function scatter(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = 260, m = { t: 10, r: 14, b: 30, l: 46 };
+  const xs = o.pts.map(p => p.x), ys = o.pts.map(p => p.y);
+  let xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys);
+  const px = (xmax - xmin) * 0.06 || 1, py = (ymax - ymin) * 0.06 || 1; xmin -= px; xmax += px; ymin -= py; ymax += py;
+  const sx = x => m.l + (x - xmin) / (xmax - xmin) * (W - m.l - m.r), sy = y => m.t + (1 - (y - ymin) / (ymax - ymin)) * (H - m.t - m.b);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'scatter plot' }, parent);
+  niceTicks(ymin, ymax, 4).forEach(v => { sv('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), stroke: css('--grid') }, svg); sv('text', { x: m.l - 6, y: sy(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = fmtN(v); });
+  niceTicks(xmin, xmax, 6).forEach(v => { sv('text', { x: sx(v), y: H - 12, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = fmtN(v); });
+  sv('text', { x: W - m.r, y: H - 1, 'text-anchor': 'end', 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = o.xl;
+  sv('text', { x: m.l + 4, y: m.t + 10, 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = o.yl;
+  const cc = { '0': css('--s1'), '1': css('--s2'), '2': css('--s3'), '3': css('--s4') };
+  o.pts.forEach(p => {
+    const c = sv('circle', { cx: sx(p.x), cy: sy(p.y), r: 5, fill: cc[p.c] || css('--de'), stroke: css('--surface'), 'stroke-width': 2 }, svg);
+    const hit = sv('circle', { cx: sx(p.x), cy: sy(p.y), r: 12, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', ev => { c.setAttribute('r', 7); showTip(ev.clientX, ev.clientY, `${p.id} · cluster ${p.c}`, [{ label: o.xl, value: fmtN(p.x) }, { label: o.yl, value: fmtN(p.y) }]); });
+    hit.addEventListener('pointerleave', () => { c.setAttribute('r', 5); hideTip(); });
+  });
+  legend(parent, Object.keys(D.clusters).map(c => ({ name: `cluster ${c}`, color: cc[c], rect: true })));
+}
+
+// ---- cross-metric
+{
+  const row = $('#cross-row');
+  const lab = Object.fromEntries(D.corr.names.map(n => [n, n.replace('_celsius', '').replace('_watts', '').replace('_volts', '').replace('_amperes', '').replace('_percent', '').replace('_gb', '')]));
+  const order = ['up', 'deepstream_app_running', 'input_power_watts', 'input_current_amperes', 'cpu_gpu_power_watts', 'orin_power_watts', 'power', 'memory_free_gb', 'storage_free_gb', 'cpu_temp_celsius', 'gpu_temp_celsius', 'board_temp_celsius', 'temperature', 'humidity', 'lightsensor', 'input_voltage_volts', 'input_soc_poly5_percent', 'battery_remaining_capacity', 'mppt_battery_voltage', 'mppt_charge_power', 'mppt_solar_voltage'].filter(n => n in corrIdx);
+  const mat = order.map(a => order.map(b => rOf(a, b)));
+  const pairsAll = []; order.forEach((a, i) => order.forEach((b, j) => { if (j > i && mat[i][j] != null) pairsAll.push({ a, b, r: mat[i][j] }); }));
+  figure(row, { title: 'Correlation of hourly means across the fleet', caption: 'Blue positive, red negative, grey none. Pairs are estimated on the device-hours where both metrics exist (solar and battery fields exist on 13–40 devices).',
+    render: p => heatmap(p, { names: order, matrix: mat, labels: lab }),
+    table: { cols: [{ key: 'a', label: 'Metric A', left: true, cls: 'id l' }, { key: 'b', label: 'Metric B', left: true, cls: 'id l' }, { key: 'r', label: 'r', fmt: v => v.toFixed(3) }], rows: pairsAll.sort((x, y) => Math.abs(y.r) - Math.abs(x.r)), maxRows: 40 } });
+  const prs = D.pairs.map(p => ({ label: `${lab[p.a] || p.a} × ${lab[p.b] || p.b}`, values: Object.entries(p.per_device), median: p.median_r }));
+  figure(row, { title: 'The same correlations inside each device', caption: 'One dot per device, Pearson r of its own hourly values (River PearsonCorr). Wide spread means the relationship is not universal: light vs charge power is strong on some solar devices and absent on others.',
+    render: p => stripChart(p, { rows: prs, domain: [-1, 1], zero: 0, rowH: 30, labW: 220, fmt: v => v.toFixed(1) }),
+    table: { cols: [{ key: 'pair', label: 'Pair', left: true }, { key: 'n', label: 'Devices' }, { key: 'median', label: 'Median r', fmt: v => v.toFixed(2) }, { key: 'min', label: 'Min r', fmt: v => v.toFixed(2) }, { key: 'mindev', label: 'Min device', left: true, cls: 'id l' }, { key: 'max', label: 'Max r', fmt: v => v.toFixed(2) }], rows: D.pairs.map(p => ({ pair: `${p.a} × ${p.b}`, n: p.n_devices, median: p.median_r, min: p.min_r, mindev: p.min_dev, max: p.max_r })) } });
+}
+
+// ---- seasonality
+{
+  const rows = D.metrics.filter(m => m.season24.length).map(m => ({ label: m.short, values: m.season24, median: median(m.season24.map(v => v[1])) })).sort((a, b) => b.median - a.median);
+  figure($('#season-row'), { title: 'Lag-24 h autocorrelation of hourly means, one dot per device', caption: 'Free disk scores 1.0 because it barely changes within a day, not because it cycles. DeepStream run state is the only signal without a daily rhythm.',
+    render: p => stripChart(p, { rows, domain: [-0.2, 1], zero: 0, rowH: 22, labW: 230, fmt: v => v.toFixed(1), mono: true }),
+    table: { cols: [{ key: 'label', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'median', label: 'Median', fmt: v => v.toFixed(2) }, { key: 'p10', label: 'p10', fmt: v => v.toFixed(2) }, { key: 'p90', label: 'p90', fmt: v => v.toFixed(2) }], rows: rows.map(r => ({ label: r.label, n: r.values.length, median: r.median, p10: quantile(r.values.map(v => v[1]), 0.1), p90: quantile(r.values.map(v => v[1]), 0.9) })) } });
+}
+
+// ---- periodicity (FFT)
+{
+  const C = D.spectral.centers_h || [], E = D.spectral.edges_h || [];
+  const withS = D.metrics.filter(m => m.spectrum).sort((a, b) => b.spectrum.share_median['24h'] - a.spectrum.share_median['24h']);
+  const fmtH = h => h >= 48 ? `${(h / 24).toFixed(h >= 240 ? 0 : 1)} d` : `${h >= 10 ? h.toFixed(0) : h.toFixed(1)} h`;
+  const domMed = m => median(m.spectrum.dominant.map(d => d[1]));
+  {
+    const t = $('#fft-tiles');
+    const strong = withS.filter(m => m.spectrum.share_median['24h'] >= 0.3).length;
+    const weekly = withS.filter(m => m.spectrum.share_median['168h'] >= 0.02).length;
+    const daily = withS.filter(m => { const d = domMed(m); return d > 22 && d < 26; }).length;
+    tile(t, 'Metrics with a spectrum', String(withS.length), 'constant or too-gappy metrics have none');
+    tile(t, 'Dominant period is ~24 h', `${daily} of ${withS.length}`, 'median over devices of the strongest period');
+    tile(t, '24 h holds ≥ 30 % of variance', String(strong), 'mostly sun-driven: light, solar, temperatures, battery');
+    tile(t, 'Weekly cycle ≥ 2 % of variance', String(weekly), 'no transit-schedule weekly rhythm in the telemetry');
+  }
+  figure($('#fft-heat'), { title: 'Share of variance by period, median device, every metric', caption: 'Darker cells hold more of the metric\'s variance. Colour uses a square-root scale so small peaks stay visible; hover a cell for the exact share. Rows are sorted by the strength of the 24 h cycle.',
+    render: p => spectroHeat(p, withS),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }].concat([[2, 3], [5.5, 6.5], [7.5, 8.6], [11.5, 13], [22, 26], [160, 180]].map(([a, b]) => ({ key: `b${a}`, label: `${fmtH(a)}–${fmtH(b)}`, fmt: v => pct(v, 1) }))), rows: withS.map(m => { const r = { metric: m.short }; [[2, 3], [5.5, 6.5], [7.5, 8.6], [11.5, 13], [22, 26], [160, 180]].forEach(([a, b]) => { r[`b${a}`] = C.reduce((s, c, i) => s + (c >= a && c <= b ? m.spectrum.median[i] : 0), 0); }); return r; }), maxRows: 42 } });
+  const rows = withS.map(m => ({ metric: m.short, unit: m.unit, n: m.spectrum.n_devices, dom: domMed(m), s24: m.spectrum.share_median['24h'], s12: m.spectrum.share_median['12h'], s8: m.spectrum.share_median['8h'], s168: m.spectrum.share_median['168h'], top: m.spectrum.top_bins.map(b => fmtH(b[0])).join(', ') }));
+  const cols = [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'dom', label: 'Dominant period', fmt: v => fmtH(v) }, { key: 's24', label: '24 h share', fmt: v => pct(v, 1) }, { key: 's12', label: '12 h', fmt: v => pct(v, 1) }, { key: 's8', label: '8 h', fmt: v => pct(v, 1) }, { key: 's168', label: '7 d', fmt: v => pct(v, 1) }, { key: 'top', label: 'Strongest period bins', left: true }];
+  figure($('#fft-table'), { title: 'Dominant periods per metric', caption: 'Dominant period: median over devices of each device\'s strongest period up to 30 days. Shares: median over devices of the variance within ±4 % of that period. 12 h and 8 h are mostly harmonics of the daily cycle (a day/night shape that is not a pure sine), not separate cycles.',
+    render: p => renderTable(p, { cols, rows, maxRows: 42 }), table: { cols, rows, maxRows: 42 } });
+  function spectroHeat(parent, ms) {
+    const W = Math.max(300, parent.clientWidth || parent.parentElement.clientWidth || 700), labW = Math.min(250, W * 0.36), rowH = 15, top = 6, bottom = 30;
+    const n = C.length, H = top + ms.length * rowH + bottom, cw = (W - labW - 8) / n;
+    const lo = Math.log10(E[0]), hi = Math.log10(E[E.length - 1]), sx = h => labW + (Math.log10(h) - lo) / (hi - lo) * (W - labW - 8);
+    const vmax = Math.max(...ms.flatMap(m => m.spectrum.median));
+    const surf = hex2rgb(css('--surface')), dark = hex2rgb(css('--seq-7'));
+    const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'spectrum heatmap' }, parent);
+    ms.forEach((m, r) => {
+      const y = top + r * rowH;
+      sv('text', { x: labW - 6, y: y + rowH - 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--ink-2'), 'font-family': css('--mono') }, svg).textContent = m.short.length > 30 ? m.short.slice(0, 29) + '…' : m.short;
+      m.spectrum.median.forEach((v, i) => {
+        const x = sx(E[i]), w = sx(E[i + 1]) - x;
+        const c = sv('rect', { x: x + 0.5, y: y + 1, width: Math.max(0.5, w - 1), height: rowH - 2, fill: mix(surf, dark, Math.sqrt(v / vmax)) }, svg);
+        c.addEventListener('pointermove', ev => { c.setAttribute('stroke', css('--ink')); showTip(ev.clientX, ev.clientY, `${m.short} · ${fmtH(E[i])}–${fmtH(E[i + 1])}`, [{ label: 'share of variance', value: pct(v, 2) }, { label: 'devices', value: String(m.spectrum.n_devices) }]); });
+        c.addEventListener('pointerleave', () => { c.removeAttribute('stroke'); hideTip(); });
+      });
+    });
+    [[2, '2 h'], [6, '6 h'], [12, '12 h'], [24, '24 h'], [168, '7 d'], [720, '30 d']].forEach(([h, l]) => { const x = sx(h); sv('line', { x1: x, x2: x, y1: top, y2: H - bottom + 4, stroke: css('--axis'), 'stroke-width': 1, opacity: 0.6, 'pointer-events': 'none' }, svg); sv('text', { x, y: H - 10, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = l; });
+    const lgd = el('div', 'legend'); lgd.appendChild(el('span', null, 'Share of variance'));
+    [0, 0.25, 1].forEach(t => { const s = el('span'); const i = el('i', 'rect'); i.style.background = mix(surf, dark, Math.sqrt(t)); s.appendChild(i); s.appendChild(document.createTextNode(pct(t * vmax, 0))); lgd.appendChild(s); });
+    parent.appendChild(lgd);
+  }
+}
+
+// ---- regimes & trends
+{
+  const row = $('#regime-row');
+  const bm = Object.entries(D.regimes.by_metric).sort((a, b) => b[1] - a[1]);
+  figure(row, { title: 'Regime changes detected per metric (daily means, all devices)', caption: `${D.regimes.total} detections across ${bm.length} health metrics and up to 86 devices over ${days} days.`,
+    render: p => barChart(p, { items: bm.map(([k, v]) => ({ label: k, value: v, mono: true })), valueLabels: true, fmt: v => fmtN(v, 0), valueName: 'changes', labW: 210 }),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Changes' }], rows: bm.map(([metric, n]) => ({ metric, n })) } });
+  const weeks = [...new Set(Object.values(D.regimes.weekly).flatMap(w => Object.keys(w)))].sort();
+  const series = bm.slice(0, 4).map(([k], i) => ({ name: k, points: weeks.map(w => [dateOf(w).getTime(), D.regimes.weekly[k]?.[w] || 0]) }));
+  figure(row, { title: 'When the changes happened (per week, top four metrics)', caption: 'Spikes shared by several metrics mark fleet-wide events such as rollouts or seasonal turns.',
+    render: p => lineChart(p, { series, x: { type: 'time', tipFmt: t => 'week of ' + fmtDate(t) }, y: { min: 0, fmt: v => fmtN(v, 0) } }),
+    table: { cols: [{ key: 'week', label: 'Week of', left: true }].concat(series.map(s => ({ key: s.name, label: s.name }))), rows: weeks.map((w, i) => Object.assign({ week: w }, Object.fromEntries(series.map(s => [s.name, s.points[i][1]])))) } });
+  const sd = D.regimes.same_day;
+  figure(row, { title: 'Days when many devices shifted together', caption: 'Same metric, same day, three or more devices.',
+    render: p => renderTable(p, { cols: sdCols(), rows: sd, maxRows: 12 }), table: { cols: sdCols(), rows: sd, maxRows: 12 } });
+  function sdCols() { return [{ key: 'day', label: 'Day', left: true }, { key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'devices', label: 'Which', left: true, cls: 'id l', fmt: v => v.slice(0, 6).join(', ') + (v.length > 6 ? ` +${v.length - 6}` : '') }]; }
+  const bg = D.regimes.biggest.slice(0, 15);
+  figure(row, { title: 'Largest level shifts, relative to each metric\'s typical range', caption: 'ADWIN window mean just before and after the detection.',
+    render: p => renderTable(p, { cols: bgCols(), rows: bg, maxRows: 15 }), table: { cols: bgCols(), rows: bg, maxRows: 15 } });
+  function bgCols() { return [{ key: 'device', label: 'Device', left: true, cls: 'id l' }, { key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'day', label: 'Day', left: true }, { key: 'before', label: 'Before', fmt: v => fmtN(v) }, { key: 'after', label: 'After', fmt: v => fmtN(v) }]; }
+  const trow = $('#trend-row');
+  const tr = Object.entries(D.trends).map(([k, t]) => ({ label: k, values: t.all.map(a => [a[0], a[1]]), median: t.median_slope_30d, scale: (M(k).p99 - M(k).p01) || 1 }));
+  figure(trow, { title: 'Slope of daily means per device, as a share of the metric\'s typical range per 30 days', caption: 'Negative means falling. A value of −0.1 means the device moved by a tenth of the fleet\'s p01–p99 range in a month. Orange dots are off scale.',
+    render: p => stripChart(p, { rows: tr.map(r => ({ label: r.label, values: r.values.map(([d, v]) => [d, v / r.scale]), median: r.median / r.scale })), domain: [-0.3, 0.3], zero: 0, rowH: 26, labW: 230, fmt: v => (v > 0 ? '+' : '') + v.toFixed(1), mono: true }),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'median', label: 'Median slope / 30 d', fmt: v => fmtN(v) }, { key: 'unit', label: 'Unit', left: true }], rows: Object.entries(D.trends).map(([k, t]) => ({ metric: k, n: t.n, median: t.median_slope_30d, unit: M(k).unit })) } });
+  const pick = [['storage_free_gb', 'falling', 'Free disk: fastest-filling devices'], ['memory_free_gb', 'falling', 'Free RAM: steepest decline'], ['battery_remaining_capacity', 'falling', 'Battery state of charge: steepest decline'], ['input_voltage_volts', 'falling', 'Input voltage: steepest decline']];
+  pick.forEach(([k, dir, title]) => { const t = D.trends[k]; if (!t) return; const rows = t[dir].map(x => ({ device: x.device, days: x.days, first: x.first, last: x.last, slope: x.slope_per_30d })); const cols = [{ key: 'device', label: 'Device', left: true, cls: 'id l' }, { key: 'days', label: 'Days' }, { key: 'first', label: 'First day', fmt: v => fmtN(v) }, { key: 'last', label: 'Last day', fmt: v => fmtN(v) }, { key: 'slope', label: `${M(k).unit} / 30 d`, fmt: v => fmtN(v) }]; figure(trow, { title, caption: `Unit ${M(k).unit}. Daily means from the first to the last day with data.`, render: p => renderTable(p, { cols, rows, maxRows: 6, sortable: false }), table: { cols, rows } }); });
+}
+
+// ---- anomalies
+{
+  const row = $('#anom-row');
+  D.metrics.filter(m => m.series.some(s => s.anom != null)).forEach(m => {
+    const rows = m.series.filter(s => s.anom != null && s.n > 5000).map(s => ({ dev: s.dev, rate: s.anom / s.n, anom: s.anom, n: s.n })).sort((a, b) => b.rate - a.rate);
+    const top = rows.slice(0, 10);
+    const ex = m.anoms.map(a => ({ dev: a[3], when: fmtTs(a[1]), value: a[2], score: a[0] }));
+    figure(row, { title: `${m.short}: devices with the most irregular series`, caption: `Share of samples flagged (fleet median ${pct(median(rows.map(r => r.rate)), 2)}). Examples (highest scores): ${ex.slice(0, 3).map(e => `${e.dev} ${e.when} at ${fmtN(e.value)} ${m.unit}`).join('; ')}.`,
+      render: p => barChart(p, { items: top.map(r => ({ label: r.dev, value: r.rate * 100, mono: true, extra: [{ label: 'flagged', value: fmtN(r.anom, 0) }, { label: 'samples', value: fmtN(r.n) }] })), valueLabels: true, fmt: v => fmtN(v, 2) + '%', valueName: 'flagged share', labW: 150 }),
+      table: { cols: [{ key: 'dev', label: 'Device', left: true, cls: 'id l' }, { key: 'rate', label: 'Flagged share', fmt: v => pct(v, 2) }, { key: 'anom', label: 'Flagged', fmt: fmtInt }, { key: 'n', label: 'Samples', fmt: fmtInt }], rows } });
+  });
+}
+
+// ---- forecasting
+{
+  const row = $('#forecast-row');
+  const nice = { naive: 'last value', seasonal_naive: '24 h ago', holt_winters: 'Holt-Winters', snarimax: 'SNARIMAX' };
+  Object.entries(D.forecasts).forEach(([k, f]) => {
+    const unit = M(k).unit;
+    const series = Object.entries(f.mae_by_horizon).map(([model, v]) => ({ name: nice[model] || model, points: v.map((e, h) => [h + 1, e]) }));
+    const ymax = Math.min(Math.max(...series.flatMap(s => s.points.map(p => p[1]))), 3 * Math.max(...f.mae_by_horizon.seasonal_naive));
+    figure(row, { title: `${k}: error by forecast horizon (${f.n_devices} devices)`, caption: `Mean absolute error in ${unit}; typical level ${fmtN(f.scale_p50)} ${unit}. The y-axis is capped at three times the 24-h-ago error so the baselines stay readable.`,
+      render: p => lineChart(p, { series, directLabel: true, x: { ticks: [1, 3, 6, 9, 12].map(h => [h, h + ' h']), tipFmt: h => `${h} h ahead` }, y: { min: 0, max: ymax, fmt: v => fmtN(v) } }),
+      table: { cols: [{ key: 'h', label: 'Horizon (h)', left: true }].concat(series.map(s => ({ key: s.name, label: s.name, fmt: v => fmtN(v) }))), rows: Array.from({ length: 12 }, (_, h) => Object.assign({ h: h + 1 }, Object.fromEntries(series.map(s => [s.name, s.points[h][1]])))) } });
+    if (f.example) {
+      const t0 = Date.parse(f.example.start), pts = f.example.points;
+      const act = pts.map((p, i) => [t0 + i * 36e5, p[0]]), hw1 = pts.map((p, i) => [t0 + i * 36e5, p[1]]), hw12 = pts.map((p, i) => [t0 + (i + 11) * 36e5, p[2]]);
+      figure(row, { title: `${k}: last week of ${f.example.device}, actual vs Holt-Winters`, caption: 'Forecasts made 1 h and 12 h before each point. The 12 h forecast mostly repeats yesterday\'s shape.',
+        render: p => lineChart(p, { series: [{ name: 'actual', points: act }, { name: 'forecast 1 h ahead', points: hw1 }, { name: 'forecast 12 h ahead', points: hw12, dashed: true }], x: { type: 'time', tipFmt: fmtTs, ticks: act.filter((_, i) => i % 24 === 0).map(p => [p[0], fmtDate(p[0]).slice(0, 6)]) }, y: { fmt: v => fmtN(v) } }),
+        table: { cols: [{ key: 'when', label: 'Hour', left: true }, { key: 'a', label: 'Actual', fmt: v => fmtN(v) }, { key: 'h1', label: '1 h ahead', fmt: v => fmtN(v) }, { key: 'h12', label: '12 h ahead', fmt: v => fmtN(v) }], rows: pts.map((p, i) => ({ when: fmtTs(t0 + i * 36e5), a: p[0], h1: p[1], h12: p[2] })) } });
+    }
+  });
+}
+
+// ---- methods
+{
+  const m = $('#methods');
+  const box = (h, items) => { const d = el('div'); d.appendChild(el('h3', null, h)); const ul = el('ul'); items.forEach(t => ul.appendChild(el('li', null, t))); d.appendChild(ul); m.appendChild(d); };
+  box('Streaming pass (profile_stream.py)', [
+    'One pass per (metric, device shard) over the Parquet files in time order; 191 tasks, all 274 M samples in under two minutes on 90 cores.',
+    'Per metric: river.stats Mean, Var, Min, Max; sketch.Histogram(256) per shard, merged on weighted centroids; mean by UTC hour; mean per day.',
+    'Per device: Count, Mean, Var, Min, Max, Quantile(0.01/0.5/0.99), AutoCorr(lag 720), first/last sample, gap and duplicate counters, counter resets and total increase.',
+    'Series key is device_id (instance for non-device targets); up is additionally keyed by scrape job.',
+  ]);
+  box('Dynamics', [
+    'drift.ADWIN(δ 0.002) on raw samples of 14 metrics (reported per device as a rate) and on per-device daily means of 8 health metrics (reported as regime changes).',
+    'anomaly.HalfSpaceTrees(10 trees, height 6, window 720) behind preprocessing.MinMaxScaler and anomaly.QuantileFilter(q 0.995), features: value, sin/cos of time of day.',
+    'Trend: streaming Cov/Var of daily mean against day index; slope reported per 30 days.',
+  ]);
+  box('Cross-metric and fleet (cross_metric.py)', [
+    'Hourly mean per device and metric for 21 metrics (436,658 device-hours, 5.07 M rows), saved as analysis/out/hourly.parquet.',
+    'covariance.EmpiricalCovariance over all device-hour vectors; stats.PearsonCorr per device for eight pairs.',
+    'Device fingerprint: median of 11 fleet-wide metrics, preprocessing.StandardScaler, cluster.KMeans(4, halflife 0.3, seed 42), 25 shuffled passes.',
+    'Periodicity: numpy real FFT (River has no spectral estimator) on each device\'s longest gap-free hourly run of ≥ 21 days from features.parquet, linear detrend, Hann window, power normalized to share of variance and summed into 60 log-spaced period bins (spectral.py).',
+    'Forecasting: time_series.HoltWinters and SNARIMAX versus last-value and 24-h-ago baselines, progressive validation with horizon 12 on the longest gap-free hourly segment (gaps ≤ 6 h interpolated), eight devices per metric.',
+  ]);
+  box('Caveats', [
+    'Units and meanings follow the dataset README\'s reading of the metric names; the exporter documents none.',
+    'Three buspas devices are scraped under an edge_high_freq job at 5–10 s, so their sample counts and raw-stream statistics are not comparable with the 120 s fleet.',
+    'Device IDs and agency labels change letter case over some devices\' lives (BP3235300111 → bp3235300111); IDs are lower-cased, giving 109 devices. BP3235300123 was scraped as two targets at once from 29 Sep; the earlier-arriving sample of each pair is kept and the other counted as a duplicate.',
+    'Histogram quantiles are sketch approximations (within a bin width); per-device quantiles use River\'s P² estimator.',
+    'The newest month is partial (export cut on 6 Oct 21:27 UTC).',
+  ]);
+}
+
+// re-render charts on resize
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => charts.forEach(c => c.draw()), 200); });
+})();
+</script>

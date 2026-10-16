@@ -1,0 +1,10 @@
+[project]
+name = "buspas"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=3.0.6",
+    "pyarrow>=26.0.0",
+    "river>=0.26.1",
+]

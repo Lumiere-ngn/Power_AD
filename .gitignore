@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Data
+dataset/
+
+# Large analysis outputs (regenerate with the pipeline)
+analysis/out/*.parquet
+analysis/out/profile/
+analysis/out/*.log
