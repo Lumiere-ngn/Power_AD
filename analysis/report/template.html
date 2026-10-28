@@ -1,6 +1,7 @@
 <title>Smart-Sign Telemetry Profile</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/* KIT-CSS-START (shared with influence.html via influence_report.py) */
 /* Layout: one reading column of stacked sections, a sticky section nav, charts on raised surfaces. */
 :root {
   --bg: #f4f5f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
@@ -40,8 +41,10 @@ section > .sub { color: var(--ink-2); margin: 0 0 18px; max-width: 72ch; }
 .tile .value { font-size: 26px; font-weight: 600; line-height: 1.15; }
 .tile .sub { color: var(--muted); font-size: 12px; }
 .hero { font-size: 48px; font-weight: 600; line-height: 1.05; }
-figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px 10px; display: grid; gap: 6px; min-width: 0; }
+figure.chart { margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px 10px; display: grid; gap: 6px; min-width: 0; align-content: start; resize: vertical; overflow: auto; min-height: 150px; }
+figure.chart.wide { grid-column: 1 / -1; }
 figure.chart .head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+figure.chart .btns { display: flex; gap: 6px; flex: none; }
 figure.chart .title { font-weight: 500; font-size: 14px; }
 figure.chart .cap { color: var(--muted); font-size: 12px; margin: 0; }
 figure.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
@@ -101,6 +104,7 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); pad
 .note { color: var(--ink-2); font-size: 13px; max-width: 72ch; }
 @media (prefers-reduced-motion: no-preference) { .sm, figure.chart .toggle { transition: border-color .15s; } }
 @media (max-width: 560px) { .row.two { grid-template-columns: 1fr; } .tile .value { font-size: 22px; } }
+/* KIT-CSS-END */
 </style>
 
 <div class="wrap">
@@ -115,8 +119,8 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); pad
 <nav class="sections"><ul>
   <li><a href="#overview">Overview</a></li><li><a href="#fleet">Fleet</a></li><li><a href="#quality">Data quality</a></li>
   <li><a href="#explorer">Metric explorer</a></li><li><a href="#glance">All metrics</a></li><li><a href="#devices">Devices</a></li>
-  <li><a href="#cross">Cross-metric</a></li><li><a href="#season">Seasonality</a></li><li><a href="#fft">Periodicity (FFT)</a></li><li><a href="#dynamics">Regime changes</a></li>
-  <li><a href="#anomalies">Anomalies</a></li><li><a href="#forecast">Forecastability</a></li><li><a href="#methods">Methods</a></li>
+  <li><a href="#cross">Cross-metric</a></li><li><a href="#season">Seasonality</a></li><li><a href="#seasonal">Seasonal patterns</a></li><li><a href="#fft">Periodicity (FFT)</a></li><li><a href="#dynamics">Regime changes</a></li>
+  <li><a href="#anomalies">Anomaly detection</a></li><li><a href="#forecast">Forecastability</a></li><li><a href="#methods">Methods</a></li>
 </ul></nav>
 
 <div class="wrap">
@@ -180,6 +184,14 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); pad
   <div id="season-row"></div>
 </section>
 
+<section id="seasonal">
+  <h2>Seasonal patterns</h2>
+  <p class="sub">How the daily cycle changes over the seven months, for the twelve key health metrics. Hour-of-day profiles are medians per device and UTC hour within each calendar month, then the median across devices. Seasonal strength follows Hyndman: the share of within-day variation explained by a smooth hour-of-day component.</p>
+  <div class="tiles" id="seasonal-tiles"></div>
+  <div class="row two" id="seasonal-row"></div>
+  <div class="row two" id="seasonal-row2" style="margin-top:16px"></div>
+</section>
+
 <section id="fft">
   <h2>Periodicity (FFT)</h2>
   <p class="sub">Fourier power spectrum of every metric, per device: the longest gap-free run of hourly values (gaps up to 6 h filled, at least 21 days), linearly detrended, Hann-windowed, then the share of the series' variance that falls at each period. Periods run from 2 h (the shortest an hourly series can show) to 45 days.</p>
@@ -196,9 +208,11 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); pad
 </section>
 
 <section id="anomalies">
-  <h2>Point anomalies</h2>
-  <p class="sub">Per device, per metric: HalfSpaceTrees (10 trees, depth 6, one-day window) scored every raw sample on value and time-of-day; samples above the running 99.5 % score quantile are flagged. The rate is relative within each device, so a high rate means an unusually irregular series rather than an absolute fault count.</p>
-  <div class="row" id="anom-row"></div>
+  <h2>Anomaly detection: contextual and fleet-relative</h2>
+  <p class="sub">Per device and metric, an online Holt-Winters model (period 24 h) forecasts each hour; the residual is divided by a robust running scale for that hour of day, so a flag means "unusual for this device at this time of day", not "unusual in absolute terms". Each flagged hour is then compared with the device's peers (same agency, else same cluster) at the same hour: when enough peers flag too, the event is <b>shared</b> and propagating across devices; otherwise it is <b>device-specific</b>.</p>
+  <div class="tiles" id="anom-tiles"></div>
+  <div class="row two" id="anom-row"></div>
+  <div class="row two" id="anom-row2" style="margin-top:16px"></div>
 </section>
 
 <section id="forecast">
@@ -219,6 +233,7 @@ code { font-family: var(--mono); font-size: 12.5px; background: var(--wash); pad
 const D = __DATA__;
 (() => {
 'use strict';
+// KIT-START (shared chart kit, inlined into influence.html by influence_report.py; needs D.metrics)
 const $ = (s, el = document) => el.querySelector(s);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const NS = 'http://www.w3.org/2000/svg';
@@ -271,13 +286,36 @@ function figure(parent, { title, caption, render, table }) {
   fig.replaceChildren();
   const head = el('div', 'head'); head.appendChild(el('div', 'title', title));
   const body = el('div', 'body'); let showTable = false;
+  const btns = el('div', 'btns');
   const tog = el('button', 'toggle', 'Table'); tog.type = 'button';
-  const draw = () => { body.replaceChildren(); if (showTable) renderTable(body, table); else render(body); tog.textContent = showTable ? 'Chart' : 'Table'; };
+  let capEl = null;
+  const draw = () => {
+    body.replaceChildren();
+    // after the user drags the card's corner the card has an explicit height: let the chart fill it
+    if (fig.style.height) body.dataset.height = Math.max(120, fig.clientHeight - head.offsetHeight - (capEl ? capEl.offsetHeight : 0) - 40);
+    else delete body.dataset.height;
+    if (showTable) renderTable(body, table); else render(body);
+    tog.textContent = showTable ? 'Chart' : 'Table';
+  };
   tog.addEventListener('click', () => { showTable = !showTable; draw(); });
-  head.appendChild(tog); fig.appendChild(head); fig.appendChild(body);
-  if (caption) { const c = el('p', 'cap', caption); fig.appendChild(c); }
+  if (fig.parentElement && getComputedStyle(fig.parentElement).display === 'grid') {
+    const wide = el('button', 'toggle', 'Wide'); wide.type = 'button'; wide.title = 'Span the full row';
+    wide.addEventListener('click', () => { const on = fig.classList.toggle('wide'); wide.textContent = on ? 'Narrow' : 'Wide'; });
+    btns.appendChild(wide);
+  }
+  btns.appendChild(tog); head.appendChild(btns); fig.appendChild(head); fig.appendChild(body);
+  fig.title = 'Drag the bottom-right corner to resize';
+  if (caption) { capEl = el('p', 'cap', caption); fig.appendChild(capEl); }
   charts.push({ draw: () => { if (!showTable) draw(); } });
   draw();
+  // redraw when the card's size changes: window resize, the Wide toggle, or the drag handle
+  let last = '', timer;
+  new ResizeObserver(() => {
+    const key = fig.clientWidth + 'x' + (fig.style.height ? fig.clientHeight : 'auto');
+    if (key === last) return;
+    last = key;
+    clearTimeout(timer); timer = setTimeout(() => { if (!showTable) draw(); }, 120);
+  }).observe(fig);
   return fig;
 }
 function renderTable(parent, { cols, rows, maxRows = 60, sortable = true }) {
@@ -303,7 +341,7 @@ function legend(parent, items) {
 }
 // ---- line chart -----------------------------------------------------------------------------
 function lineChart(parent, o) {
-  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = o.height || 210;
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = o.height || +(parent.dataset?.height || 0) || 210;
   const m = { t: 10, r: o.directLabel ? 70 : 14, b: 26, l: 46 };
   const ser = o.series.filter(s => s.points.length);
   let xs = [], ys = [];
@@ -382,7 +420,7 @@ function barChart(parent, o) {
 }
 // ---- histogram ------------------------------------------------------------------------------------
 function histChart(parent, mm) {
-  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = 200, m = { t: 18, r: 14, b: 26, l: 46 };
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = +(parent.dataset?.height || 0) || 200, m = { t: 18, r: 14, b: 26, l: 46 };
   const h = mm.hist, n = h.counts.length, total = h.counts.reduce((a, b) => a + b, 0) + h.below + h.above;
   const cmax = Math.max(...h.counts) || 1;
   const sy = c => m.t + (1 - c / cmax) * (H - m.t - m.b);
@@ -456,6 +494,30 @@ function stripChart(parent, o) {
   });
   legend(parent, [{ name: 'one device', color: css('--s1'), rect: true }, { name: 'median (bar)', color: css('--ink') }].concat(o.extraLegend || []));
 }
+// ---- sequential heatmap (rows × cols, one hue light→dark) ---------------------------------------------
+function seqHeat(parent, o) {
+  const W = Math.max(300, parent.clientWidth || parent.parentElement.clientWidth || 700);
+  const maxLab = Math.max(...o.cols.map(c => c.length)), top = Math.min(160, 24 + maxLab * 5.4);
+  const labW = o.labW || Math.min(150, W * 0.25), rowH = o.rowH || Math.max(6, Math.min(18, 620 / o.rows.length));
+  const n = o.cols.length, cw = (W - labW - 8) / n, H = top + o.rows.length * rowH + 8;
+  const vals = o.matrix.flat().filter(v => v != null), vmax = o.vmax ?? Math.max(1e-9, ...vals);
+  const surf = hex2rgb(css('--surface')), dark = hex2rgb(css('--seq-7'));
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'heatmap' }, parent);
+  o.cols.forEach((c, j) => { const x = labW + j * cw + cw / 2; sv('text', { x, y: top - 6, 'font-size': 10.5, fill: css('--ink-2'), 'font-family': css('--mono'), transform: `rotate(-55 ${x} ${top - 6})` }, svg).textContent = c; });
+  o.rows.forEach((r, i) => {
+    const y = top + i * rowH;
+    if (rowH >= 9) sv('text', { x: labW - 6, y: y + rowH - 2, 'text-anchor': 'end', 'font-size': Math.min(11, rowH - 1), fill: css('--ink-2'), 'font-family': css('--mono') }, svg).textContent = r;
+    o.cols.forEach((c, j) => {
+      const v = o.matrix[i][j];
+      const rc = sv('rect', { x: labW + j * cw + 0.5, y: y + 0.5, width: Math.max(0.5, cw - 1), height: Math.max(0.5, rowH - 1), fill: v == null ? css('--wash') : mix(surf, dark, Math.sqrt(v / vmax)) }, svg);
+      rc.addEventListener('pointermove', ev => { rc.setAttribute('stroke', css('--ink')); showTip(ev.clientX, ev.clientY, `${r} · ${c}`, [{ label: o.unit || 'value', value: v == null ? 'no data' : (o.fmt || fmtN)(v) }]); });
+      rc.addEventListener('pointerleave', () => { rc.removeAttribute('stroke'); hideTip(); });
+    });
+  });
+  const lgd = el('div', 'legend'); lgd.appendChild(el('span', null, o.unit || 'value'));
+  [0, 0.25, 1].forEach(t => { const s = el('span'); const i = el('i', 'rect'); i.style.background = mix(surf, dark, Math.sqrt(t)); s.appendChild(i); s.appendChild(document.createTextNode((o.fmt || fmtN)(t * vmax))); lgd.appendChild(s); });
+  parent.appendChild(lgd);
+}
 function sparkline(parent, pts, color) {
   const W = 150, H = 34; const vals = pts.map(p => p[1]).filter(v => v != null); if (!vals.length) return;
   const lo = Math.min(...vals), hi = Math.max(...vals), xs = pts.map((_, i) => i);
@@ -465,6 +527,7 @@ function sparkline(parent, pts, color) {
   sv('path', { d, fill: 'none', stroke: color || css('--s1'), 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke' }, svg);
 }
 function tile(parent, label, value, sub, hero) { const t = el('div', 'tile'); t.appendChild(el('div', 'label', label)); t.appendChild(el('div', hero ? 'value hero' : 'value', value)); if (sub) t.appendChild(el('div', 'sub', sub)); parent.appendChild(t); return t; }
+// KIT-END
 
 // ====================================================================================================
 // Derived facts used by the narrative
@@ -511,6 +574,9 @@ $('#stamp').textContent = `Generated ${D.generated} · 42 metrics · ${days} day
   add('Forecasting: the next hour is easy, the next day is not.', `For board temperature the naive last-value forecast has a 1-hour MAE of ${fmtN(fc?.mae_by_horizon.naive[0], 2)} °C, but after ~3 hours the 24-hours-ago baseline (MAE ${fmtN(fc?.mae_by_horizon.seasonal_naive[11], 2)} °C at 12 h) beats both Holt-Winters (${fmtN(fc?.mae_by_horizon.holt_winters[11], 2)}) and SNARIMAX (${fmtN(fc?.mae_by_horizon.snarimax[11], 2)}).`);
   add('Data quality is high in form, messy in content.', `No NaN or duplicate timestamps anywhere. ${fmtN(O.flagged)} placeholder samples were excluded, ${pct(flagTop[0].quality.flagged / O.flagged)} of them the 3277x code in ${flagTop[0].short}. The five running totals reset about once a day (${fmtN(D.metrics.filter(m => m.type === 'counter').reduce((a, m) => a + m.quality.resets, 0))} resets in total), as documented.`);
   if (sameDay) add('Fleet-wide events show up as synchronised regime changes.', `On ${fmtDate(dateOf(sameDay.day))}, ${sameDay.n} devices shifted their daily mean ${sameDay.metric} on the same day, which points to a software or configuration change rather than hardware.`);
+  if (D.seasonal) { const S = D.seasonal, tm = S.calendar.temperature_max?.fleet || {}, dl = S.calendar.daylight_hours?.fleet || {}; const mos = S.months.filter(mo => tm[mo] && dl[mo]); const lab = mo => MON[+mo.slice(5) - 1];
+    if (mos.length > 2) { const hot = mos.reduce((a, b) => tm[b][0] > tm[a][0] ? b : a); add('The season moves the whole operating envelope.', `Median daily maximum enclosure temperature goes from ${fmtN(tm[mos[0]][0], 0)} °C in ${lab(mos[0])} to ${fmtN(tm[hot][0], 0)} °C in ${lab(hot)} and back to ${fmtN(tm[mos[mos.length - 1]][0], 0)} °C in ${lab(mos[mos.length - 1])}; daylight runs from ${fmtN(dl[mos[0]][0], 0)} h to ${fmtN(Math.max(...mos.map(mo => dl[mo][0])), 0)} h a day. Weekend and weekday profiles differ by only ${pct(median(Object.values(S.weekend).map(w => w.ratio_median).filter(v => v != null)))} of the daily amplitude.`); } }
+  if (D.anomaly) { const T = D.anomaly.totals, sh = D.anomaly.events_shared[0]; add('Most flagged hours are shared, not device faults.', `After removing each device's daily cycle, ${pct(T.rate, 2)} of device-hours are flagged; ${pct(T.shared / Math.max(1, T.shared + T.device))} of those coincide with the device's peers flagging the same metric in the same hour, so they propagate from a shared cause${sh ? ` (largest: ${sh.n_devices} devices on ${sh.metric} starting ${sh.start} UTC)` : ''}. The device-specific remainder, ${fmtN(T.device)} hours in ${fmtN(T.n_device_events)} events, is where single-device faults live.`); }
 }
 
 // ---- fleet over time
@@ -663,7 +729,7 @@ renderMetric(sel.value);
   figure($('#device-table'), { title: 'Device directory', caption: 'Medians of hourly values over each device\'s life. Click a header to sort.', render: p => renderTable(p, { cols, rows, maxRows: 30 }), table: { cols, rows, maxRows: 30 } });
 }
 function scatter(parent, o) {
-  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = 260, m = { t: 10, r: 14, b: 30, l: 46 };
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = +(parent.dataset?.height || 0) || 260, m = { t: 10, r: 14, b: 30, l: 46 };
   const xs = o.pts.map(p => p.x), ys = o.pts.map(p => p.y);
   let xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys);
   const px = (xmax - xmin) * 0.06 || 1, py = (ymax - ymin) * 0.06 || 1; xmin -= px; xmax += px; ymin -= py; ymax += py;
@@ -705,6 +771,72 @@ function scatter(parent, o) {
   figure($('#season-row'), { title: 'Lag-24 h autocorrelation of hourly means, one dot per device', caption: 'Free disk scores 1.0 because it barely changes within a day, not because it cycles. DeepStream run state is the only signal without a daily rhythm.',
     render: p => stripChart(p, { rows, domain: [-0.2, 1], zero: 0, rowH: 22, labW: 230, fmt: v => v.toFixed(1), mono: true }),
     table: { cols: [{ key: 'label', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'median', label: 'Median', fmt: v => v.toFixed(2) }, { key: 'p10', label: 'p10', fmt: v => v.toFixed(2) }, { key: 'p90', label: 'p90', fmt: v => v.toFixed(2) }], rows: rows.map(r => ({ label: r.label, n: r.values.length, median: r.median, p10: quantile(r.values.map(v => v[1]), 0.1), p90: quantile(r.values.map(v => v[1]), 0.9) })) } });
+}
+
+// ---- seasonal patterns
+if (D.seasonal) {
+  const S = D.seasonal, months = S.months, partial = new Set(S.partial_months);
+  const monLabel = mo => MON[+mo.slice(5) - 1] + (partial.has(mo) ? '*' : '');
+  const seq1 = hex2rgb(css('--seq-1')), seq7 = hex2rgb(css('--seq-7'));
+  const monthColor = i => mix(seq1, seq7, 0.15 + 0.85 * i / Math.max(1, months.length - 1));
+  const unitOf = m => M(m)?.unit || '';
+  const t = $('#seasonal-tiles');
+  const dl = S.calendar.daylight_hours?.fleet || {}, dlMax = Object.entries(dl).sort((a, b) => b[1][0] - a[1][0])[0];
+  const tmax = S.calendar.temperature_max?.fleet || {}, tmMax = Object.entries(tmax).sort((a, b) => b[1][0] - a[1][0])[0];
+  if (dlMax) tile(t, 'Longest days', `${fmtN(dlMax[1][0], 1)} h`, `median daylight (> ${S.daylight_lux} lux) in ${monLabel(dlMax[0])}; ${fmtN(dl[months[0]]?.[0], 1)} h in ${monLabel(months[0])}`);
+  if (tmMax) tile(t, 'Hottest month', `${fmtN(tmMax[1][0], 0)} °C`, `median daily maximum enclosure temperature, ${monLabel(tmMax[0])}`);
+  const fsL = S.strength.lightsensor?.fs_median, fsS = S.strength.storage_free_gb?.fs_median;
+  if (fsL != null) tile(t, 'Seasonal strength', `${fsL.toFixed(2)} / ${(fsS ?? 0).toFixed(2)}`, 'F_s of ambient light vs free disk (1 = a pure daily cycle)');
+  const wk = Object.values(S.weekend).map(w => w.ratio_median).filter(v => v != null);
+  if (wk.length) tile(t, 'Weekend vs weekday', pct(median(wk)), 'median profile difference as a share of the daily amplitude');
+  const lp = S.profiles.lightsensor; if (lp) { const pk = months.filter(mo => lp[mo]).map(mo => lp[mo].peak_hour); tile(t, 'Light peak (UTC)', `${Math.min(...pk)}–${Math.max(...pk)}:00`, 'fleet median across months'); }
+
+  const row = $('#seasonal-row');
+  S.metrics.forEach(m => {
+    const P = S.profiles[m] || {}; const mos = months.filter(mo => P[mo]); if (!mos.length) return;
+    const nd = mos.map(mo => P[mo].n_devices), amp = mos.map(mo => P[mo].amplitude);
+    figure(row, { title: `${m}: hour-of-day profile by month (${unitOf(m)})`, caption: `Fleet median across ${Math.min(...nd)}–${Math.max(...nd)} devices per month; light = ${monLabel(mos[0])}, dark = ${monLabel(mos[mos.length - 1])} (* partial month). Daily amplitude ${fmtN(Math.min(...amp))}–${fmtN(Math.max(...amp))} ${unitOf(m)}, peak at ${P[mos[0]].peak_hour}:00–${P[mos[mos.length - 1]].peak_hour}:00 UTC.`,
+      render: p => { lineChart(p, { series: mos.map(mo => ({ name: monLabel(mo), points: P[mo].median.map((v, h) => [h, v]), color: monthColor(months.indexOf(mo)), width: 1.5 })), legend: false, x: { ticks: [0, 6, 12, 18, 23].map(h => [h, h + ':00']), tipFmt: h => `${h}:00 UTC` }, y: { fmt: v => fmtN(v) } }); legend(p, mos.map(mo => ({ name: monLabel(mo), color: monthColor(months.indexOf(mo)) }))); },
+      table: { cols: [{ key: 'h', label: 'Hour (UTC)', left: true }].concat(mos.map(mo => ({ key: mo, label: monLabel(mo), fmt: v => fmtN(v) }))), rows: Array.from({ length: 24 }, (_, h) => Object.assign({ h }, Object.fromEntries(mos.map(mo => [mo, P[mo].median[h]])))), maxRows: 24 } });
+  });
+
+  const row2 = $('#seasonal-row2');
+  // amplitude and peak hour by month
+  const ampRows = S.metrics.filter(m => S.profiles[m] && Object.keys(S.profiles[m]).length).map(m => Object.assign({ metric: m, unit: unitOf(m) }, Object.fromEntries(months.map(mo => [mo, S.profiles[m][mo]?.amplitude])), Object.fromEntries(months.map(mo => ['pk' + mo, S.profiles[m][mo]?.peak_hour]))));
+  const ampCols = [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'unit', label: 'Unit', left: true }].concat(months.map(mo => ({ key: mo, label: 'amp ' + monLabel(mo), fmt: v => fmtN(v) })));
+  figure(row2, { title: 'Daily amplitude (p90 − p10 of the fleet profile) by month', caption: 'Hover a row in the table view for peak hours. * = partial month.',
+    render: p => renderTable(p, { cols: ampCols, rows: ampRows, maxRows: 12 }), table: { cols: ampCols.concat(months.map(mo => ({ key: 'pk' + mo, label: 'peak ' + monLabel(mo), fmt: v => v == null ? '–' : v + ':00' }))), rows: ampRows, maxRows: 12 } });
+  // agencies compared in the fullest month
+  S.agency_metrics.forEach(m => {
+    const PA = S.profiles_agency[m] || {}; const ags = Object.keys(PA); if (ags.length < 2) return;
+    const counts = {}; ags.forEach(a => Object.keys(PA[a]).forEach(mo => { counts[mo] = (counts[mo] || 0) + 1; }));
+    const mo = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+    const use = ags.filter(a => PA[a][mo]).sort((a, b) => PA[b][mo].n_devices - PA[a][mo].n_devices).slice(0, 4);
+    figure(row2, { title: `${m}: agencies compared, ${monLabel(mo)} ${mo.slice(0, 4)} (${unitOf(m)})`, caption: `Median hour-of-day profile per agency (devices in brackets). Barcelona is UTC+2, the North American agencies UTC−4, so the same local hour sits ~6 h apart on this UTC axis.`,
+      render: p => lineChart(p, { series: use.map(a => ({ name: `${a} (${PA[a][mo].n_devices})`, points: PA[a][mo].median.map((v, h) => [h, v]) })), directLabel: true, x: { ticks: [0, 6, 12, 18, 23].map(h => [h, h + ':00']), tipFmt: h => `${h}:00 UTC` }, y: { fmt: v => fmtN(v) } }),
+      table: { cols: [{ key: 'h', label: 'Hour (UTC)', left: true }].concat(use.map(a => ({ key: a, label: a, fmt: v => fmtN(v) }))), rows: Array.from({ length: 24 }, (_, h) => Object.assign({ h }, Object.fromEntries(use.map(a => [a, PA[a][mo].median[h]])))), maxRows: 24 } });
+  });
+  // calendar-season aggregates
+  const calPick = [['temperature_max', 'Daily maximum enclosure temperature'], ['daylight_hours', `Daylight hours per day (light > ${S.daylight_lux} lux)`], ['solar_wh', 'Solar energy per day (sum of charge power)'], ['battery_min', 'Daily minimum battery state of charge'], ['input_power_mean', 'Daily mean input power'], ['humidity_mean', 'Daily mean humidity'], ['uptime', 'Daily availability (edge scrape job)']];
+  calPick.forEach(([k, title]) => {
+    const C = S.calendar[k]; if (!C || !Object.keys(C.fleet).length) return;
+    const mi = mo => months.indexOf(mo);
+    const fleet = months.filter(mo => C.fleet[mo]).map(mo => [mi(mo), C.fleet[mo][0]]);
+    const band = months.filter(mo => C.fleet[mo]).map(mo => [mi(mo), C.fleet[mo][1], C.fleet[mo][2]]);
+    const ags = Object.entries(C.agency).sort((a, b) => Object.keys(b[1]).length - Object.keys(a[1]).length).slice(0, 3);
+    figure(row2, { title: `${title} (${C.unit})`, caption: `Monthly median over device-days with ≥ 12 h of data; band = fleet interquartile range across device-days; up to three agencies shown. * = partial month.`,
+      render: p => lineChart(p, { series: [{ name: 'fleet median', points: fleet }].concat(ags.map(([a, v]) => ({ name: a, points: months.filter(mo => v[mo]).map(mo => [mi(mo), v[mo][0]]) }))), band, bandLegend: 'fleet p25–p75', x: { ticks: months.map(mo => [mi(mo), monLabel(mo)]), tipFmt: i => monLabel(months[Math.round(i)]) + ' ' + months[Math.round(i)].slice(0, 4) }, y: { fmt: v => fmtN(v) } }),
+      table: { cols: [{ key: 'mo', label: 'Month', left: true }, { key: 'med', label: 'Fleet median', fmt: v => fmtN(v) }, { key: 'p25', label: 'p25', fmt: v => fmtN(v) }, { key: 'p75', label: 'p75', fmt: v => fmtN(v) }, { key: 'n', label: 'Devices' }].concat(ags.map(([a]) => ({ key: a, label: a, fmt: v => fmtN(v) }))), rows: months.filter(mo => C.fleet[mo]).map(mo => Object.assign({ mo: monLabel(mo), med: C.fleet[mo][0], p25: C.fleet[mo][1], p75: C.fleet[mo][2], n: C.fleet[mo][3] }, Object.fromEntries(ags.map(([a, v]) => [a, v[mo]?.[0]])))) } });
+  });
+  // strength and weekend strips
+  const stRows = S.metrics.filter(m => S.strength[m]?.per_device?.length).map(m => ({ label: m, values: S.strength[m].per_device.filter(d => d[1] != null).map(d => [d[0], d[1]]), median: S.strength[m].fs_median }));
+  figure(row2, { title: 'Seasonal strength F_s per device (1 = the hour-of-day component explains all within-day variation)', caption: 'Classical additive decomposition: 24 h centred moving-average trend, hour-of-day seasonal over a rolling 29-day window. Free disk has no daily cycle by nature.',
+    render: p => stripChart(p, { rows: stRows, domain: [0, 1], rowH: 22, labW: 230, fmt: v => v.toFixed(1), mono: true }),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'fs', label: 'F_s median', fmt: v => fmtN(v, 2) }, { key: 'fs25', label: 'p25', fmt: v => fmtN(v, 2) }, { key: 'fs75', label: 'p75', fmt: v => fmtN(v, 2) }, { key: 'ft', label: 'F_t median', fmt: v => fmtN(v, 2) }], rows: S.metrics.filter(m => S.strength[m]).map(m => ({ metric: m, n: S.strength[m].n, fs: S.strength[m].fs_median, fs25: S.strength[m].fs_p25, fs75: S.strength[m].fs_p75, ft: S.strength[m].ft_median })) } });
+  const wkRows = S.metrics.filter(m => S.weekend[m]?.n).map(m => ({ label: m, values: S.weekend[m].per_device.filter(d => d[1] != null).map(d => [d[0], d[1]]), median: S.weekend[m].ratio_median }));
+  figure(row2, { title: 'Weekend vs weekday profile difference per device, as a share of the daily amplitude', caption: 'Median absolute hourly difference between the weekend and weekday profiles divided by the weekday amplitude. Values near 0 confirm the FFT: no weekly cycle.',
+    render: p => stripChart(p, { rows: wkRows, domain: [0, 0.5], rowH: 22, labW: 230, fmt: v => pct(v, 0), tipFmt: v => pct(v, 1), mono: true }),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Devices' }, { key: 'ratio', label: 'Median ratio', fmt: v => pct(v, 1) }, { key: 'shift', label: 'Median level shift', fmt: v => (v > 0 ? '+' : '') + pct(v, 1) }], rows: S.metrics.filter(m => S.weekend[m]?.n).map(m => ({ metric: m, n: S.weekend[m].n, ratio: S.weekend[m].ratio_median, shift: S.weekend[m].shift_median })) } });
 }
 
 // ---- periodicity (FFT)
@@ -783,17 +915,56 @@ function scatter(parent, o) {
   pick.forEach(([k, dir, title]) => { const t = D.trends[k]; if (!t) return; const rows = t[dir].map(x => ({ device: x.device, days: x.days, first: x.first, last: x.last, slope: x.slope_per_30d })); const cols = [{ key: 'device', label: 'Device', left: true, cls: 'id l' }, { key: 'days', label: 'Days' }, { key: 'first', label: 'First day', fmt: v => fmtN(v) }, { key: 'last', label: 'Last day', fmt: v => fmtN(v) }, { key: 'slope', label: `${M(k).unit} / 30 d`, fmt: v => fmtN(v) }]; figure(trow, { title, caption: `Unit ${M(k).unit}. Daily means from the first to the last day with data.`, render: p => renderTable(p, { cols, rows, maxRows: 6, sortable: false }), table: { cols, rows } }); });
 }
 
-// ---- anomalies
-{
+// ---- anomaly detection (contextual + fleet-relative)
+if (D.anomaly) {
+  const A = D.anomaly, T = A.totals, PM = A.per_metric, P = A.params;
+  const ts = s => Date.parse(s.replace(' ', 'T') + ':00Z');
+  const t = $('#anom-tiles');
+  tile(t, 'Device-hours scored', fmtN(T.n_scored), `${T.n_devices} devices × ${Object.keys(PM).length} metrics`);
+  tile(t, 'Flagged', pct(T.rate, 2), `${fmtN(T.n_flag)} hours: ${fmtN(T.spike)} spikes (|z| ≥ ${P.z_spike}), ${fmtN(T.sustained)} sustained (|z| ≥ ${P.z_sustained} for ≥ ${P.sustained_hours} h)`);
+  tile(t, 'Shared with peers', pct(T.shared / Math.max(1, T.shared + T.device)), `${fmtN(T.shared)} flagged hours coincide with peers; ${fmtN(T.device)} are device-specific; ${fmtN(T.unknown)} have no peer group`);
+  tile(t, 'Events', `${fmtN(T.n_device_events)} / ${fmtN(T.n_shared_events)}`, 'device events / shared events (runs of consecutive flagged hours)');
+  tile(t, 'Non-followers', fmtN(T.non_follower), 'hours where the peers moved and this device did not');
+  const hb = Object.values(A.hst_baseline || {}); if (hb.length) tile(t, 'Raw-stream baseline', pct(median(hb), 2), 'share flagged by HalfSpaceTrees on raw samples, no seasonal adjustment');
+
   const row = $('#anom-row');
-  D.metrics.filter(m => m.series.some(s => s.anom != null)).forEach(m => {
-    const rows = m.series.filter(s => s.anom != null && s.n > 5000).map(s => ({ dev: s.dev, rate: s.anom / s.n, anom: s.anom, n: s.n })).sort((a, b) => b.rate - a.rate);
-    const top = rows.slice(0, 10);
-    const ex = m.anoms.map(a => ({ dev: a[3], when: fmtTs(a[1]), value: a[2], score: a[0] }));
-    figure(row, { title: `${m.short}: devices with the most irregular series`, caption: `Share of samples flagged (fleet median ${pct(median(rows.map(r => r.rate)), 2)}). Examples (highest scores): ${ex.slice(0, 3).map(e => `${e.dev} ${e.when} at ${fmtN(e.value)} ${m.unit}`).join('; ')}.`,
-      render: p => barChart(p, { items: top.map(r => ({ label: r.dev, value: r.rate * 100, mono: true, extra: [{ label: 'flagged', value: fmtN(r.anom, 0) }, { label: 'samples', value: fmtN(r.n) }] })), valueLabels: true, fmt: v => fmtN(v, 2) + '%', valueName: 'flagged share', labW: 150 }),
-      table: { cols: [{ key: 'dev', label: 'Device', left: true, cls: 'id l' }, { key: 'rate', label: 'Flagged share', fmt: v => pct(v, 2) }, { key: 'anom', label: 'Flagged', fmt: fmtInt }, { key: 'n', label: 'Samples', fmt: fmtInt }], rows } });
-  });
+  const days = A.daily.days.map(d => dateOf(d).getTime());
+  figure(row, { title: 'Flagged device-hours per day: shared vs device-specific', caption: 'Shared = enough peers flagged the same metric in the same hour (a propagating event: weather, rollout, outage). Device-specific = this device alone.',
+    render: p => lineChart(p, { series: [{ name: 'device-specific', points: days.map((d, i) => [d, A.daily.total.device[i]]), area: true }, { name: 'shared with peers', points: days.map((d, i) => [d, A.daily.total.shared[i]]) }], x: { type: 'time' }, y: { min: 0, fmt: v => fmtN(v, 0) } }),
+    table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'shared', label: 'Shared' }, { key: 'device', label: 'Device-specific' }], rows: A.daily.days.map((day, i) => ({ day, shared: A.daily.total.shared[i], device: A.daily.total.device[i] })) } });
+  const hh = Array.from({ length: 24 }, (_, h) => Object.values(PM).filter(p => !p.daytime_only).reduce((s, p) => s + p.hour_hist[h], 0));
+  const hr = Math.max(...hh) / Math.max(1, Math.min(...hh));
+  figure(row, { title: 'Flags by hour of day (UTC), metrics with a day-and-night signal', caption: `A flat profile means the daily cycle was removed before scoring (max/min bin ratio ${hr.toFixed(1)}). Light and solar power are excluded: their night values sit on the floor by construction.`,
+    render: p => lineChart(p, { series: [{ name: 'flags', points: hh.map((v, h) => [h, v]), area: true }], x: { ticks: [0, 6, 12, 18, 23].map(h => [h, h + ':00']), tipFmt: h => `${h}:00 UTC` }, y: { min: 0, fmt: v => fmtN(v, 0) } }),
+    table: { cols: [{ key: 'h', label: 'Hour (UTC)', left: true }, { key: 'n', label: 'Flags' }], rows: hh.map((n, h) => ({ h, n })), maxRows: 24 } });
+  const pmRows = Object.entries(PM).map(([m, p]) => ({ metric: m, rate: p.rate, shared: p.shared, device: p.device, unknown: p.unknown, spike: p.spike, sustained: p.sustained, pad: p.pad_rate, p99: p.z_abs_quantiles.p99, nf: p.non_follower, n: p.n_scored }));
+  figure(row, { title: 'Flagged share by metric', caption: 'Tooltip: split by scope and River\'s PredictiveAnomalyDetection rate on the same forecasts (its threshold is the mean + 3 sd of squared errors, so it flags more).',
+    render: p => barChart(p, { items: pmRows.map(r => ({ label: r.metric, value: r.rate * 100, mono: true, extra: [{ label: 'shared', value: fmtN(r.shared, 0) }, { label: 'device-specific', value: fmtN(r.device, 0) }, { label: 'PAD flagged', value: pct(r.pad, 2) }, { label: '|z| p99', value: r.p99.toFixed(2) }] })), valueLabels: true, fmt: v => fmtN(v, 2) + '%', valueName: 'flagged share', labW: 230 }),
+    table: { cols: [{ key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'n', label: 'Scored hours', fmt: fmtInt }, { key: 'rate', label: 'Flagged', fmt: v => pct(v, 2) }, { key: 'spike', label: 'Spikes', fmt: fmtInt }, { key: 'sustained', label: 'Sustained', fmt: fmtInt }, { key: 'shared', label: 'Shared', fmt: fmtInt }, { key: 'device', label: 'Device-specific', fmt: fmtInt }, { key: 'unknown', label: 'No peers', fmt: fmtInt }, { key: 'nf', label: 'Non-followers', fmt: fmtInt }, { key: 'pad', label: 'PAD rate', fmt: v => pct(v, 2) }, { key: 'p99', label: '|z| p99', fmt: v => v.toFixed(2) }], rows: pmRows } });
+  const DM = A.device_metric;
+  figure(row, { title: 'Flags per 1,000 scored hours, device × metric', caption: 'Darker = more flagged hours (square-root colour scale). Hover a cell for the value; the table view lists every device.',
+    render: p => seqHeat(p, { rows: DM.devices, cols: DM.metrics, matrix: DM.per_1k, fmt: v => fmtN(v, 1), unit: 'flags per 1,000 h' }),
+    table: { cols: [{ key: 'device', label: 'Device', left: true, cls: 'id l' }].concat(DM.metrics.map((m, j) => ({ key: 'm' + j, label: m, fmt: v => v == null ? '–' : fmtN(v, 1) }))), rows: DM.devices.map((d, i) => Object.assign({ device: d }, Object.fromEntries(DM.metrics.map((m, j) => ['m' + j, DM.per_1k[i][j]])))), maxRows: 30 } });
+
+  const row2 = $('#anom-row2');
+  const ex = A.events_device.find(e => e.scope === 'device' && e.context.length > 24) || A.events_device.find(e => e.context.length > 24);
+  if (ex) {
+    const ctx = ex.context, unit = M(ex.metric)?.unit || '';
+    figure(row2, { title: `${ex.device} · ${ex.metric}: largest device-specific deviation (z = ${ex.max_z})`, caption: `${ex.kind}, ${ex.start} to ${ex.end} UTC, ${ex.hours} h; actual ${fmtN(ex.y)} vs expected ${fmtN(ex.yhat)} ${unit}. Band = expected ± ${P.z_spike} × the hour's scale, i.e. the spike threshold. Gaps in the actual line are missing hours (the model coasts through them).`,
+      render: p => lineChart(p, { series: [{ name: 'actual', points: ctx.map(c => [ts(c[0]), c[1]]) }, { name: 'expected (Holt-Winters)', points: ctx.map(c => [ts(c[0]), c[2]]) }], band: ctx.filter(c => c[3] != null).map(c => [ts(c[0]), c[2] - P.z_spike * c[3], c[2] + P.z_spike * c[3]]), bandLegend: 'normal range', x: { type: 'time', tipFmt: fmtTs, ticks: ctx.filter((c, i) => i % 12 === 0).map(c => [ts(c[0]), fmtTs(ts(c[0])).slice(0, 12)]) }, y: { fmt: v => fmtN(v) } }),
+      table: { cols: [{ key: 'when', label: 'Hour (UTC)', left: true }, { key: 'y', label: 'Actual', fmt: v => fmtN(v) }, { key: 'yhat', label: 'Expected', fmt: v => fmtN(v) }, { key: 'scale', label: 'Scale', fmt: v => fmtN(v) }, { key: 'flag', label: 'Flag' }], rows: ctx.map(c => ({ when: c[0], y: c[1], yhat: c[2], scale: c[3], flag: ['', 'spike', 'sustained'][c[4]] })), maxRows: 80 } });
+  }
+  const evCols = [{ key: 'device', label: 'Device', left: true, cls: 'id l' }, { key: 'agency', label: 'Agency', left: true }, { key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'start', label: 'Start (UTC)', left: true }, { key: 'hours', label: 'Hours' }, { key: 'kind', label: 'Kind', left: true }, { key: 'max_z', label: 'Max z', fmt: v => (v > 0 ? '+' : '') + v.toFixed(1) }, { key: 'y', label: 'Actual', fmt: v => fmtN(v) }, { key: 'yhat', label: 'Expected', fmt: v => fmtN(v) }, { key: 'scope', label: 'Scope', left: true }];
+  figure(row2, { title: 'Largest device events', caption: 'One event per device and metric, ranked by peak |z|. Scope says whether peers flagged the same hour.',
+    render: p => renderTable(p, { cols: evCols, rows: A.events_device, maxRows: 12 }), table: { cols: evCols, rows: A.events_device, maxRows: 20 } });
+  const shCols = [{ key: 'start', label: 'Start (UTC)', left: true }, { key: 'hours', label: 'Hours' }, { key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'peer_group', label: 'Peer group', left: true }, { key: 'n_devices', label: 'Devices flagged' }, { key: 'n_peers', label: 'Peers' }, { key: 'median_z', label: 'Median z', fmt: v => (v > 0 ? '+' : '') + v.toFixed(1) }, { key: 'adwin', label: 'ADWIN regime same days', fmt: (v, r) => String(r.adwin_devices.length) }, { key: 'devs', label: 'Devices', left: true, cls: 'id l', fmt: (v, r) => r.devices.slice(0, 5).join(', ') + (r.n_devices_total > 5 ? ` +${r.n_devices_total - 5}` : '') }];
+  figure(row2, { title: 'Largest shared events: many devices, same metric, same hours', caption: 'Ranked by the number of devices flagged in one hour. "ADWIN regime same days" counts those devices whose daily mean also shifted (regime section) within a day of the event.',
+    render: p => renderTable(p, { cols: shCols, rows: A.events_shared, maxRows: 12 }), table: { cols: shCols, rows: A.events_shared, maxRows: 20 } });
+  if (A.non_follower?.top?.length) {
+    const nfCols = [{ key: 'device', label: 'Device', left: true, cls: 'id l' }, { key: 'agency', label: 'Agency', left: true }, { key: 'metric', label: 'Metric', left: true, cls: 'id l' }, { key: 'time', label: 'Hour (UTC)', left: true }, { key: 'z', label: 'Own z', fmt: v => v.toFixed(1) }, { key: 'zp', label: 'Peer z', fmt: v => (v > 0 ? '+' : '') + v.toFixed(1) }, { key: 'peer_group', label: 'Peer group', left: true }, { key: 'n_peers_flagged', label: 'Peers flagged' }];
+    figure(row2, { title: 'Non-followers: the peers moved, this device did not', caption: 'Own z is small while the deviation from the peer median is large: a device that failed to respond to a shared event (for example a stuck sensor or a device off the shared cause).',
+      render: p => renderTable(p, { cols: nfCols, rows: A.non_follower.top, maxRows: 10, sortable: false }), table: { cols: nfCols, rows: A.non_follower.top } });
+  }
 }
 
 // ---- forecasting
@@ -829,8 +1000,20 @@ function scatter(parent, o) {
   ]);
   box('Dynamics', [
     'drift.ADWIN(δ 0.002) on raw samples of 14 metrics (reported per device as a rate) and on per-device daily means of 8 health metrics (reported as regime changes).',
-    'anomaly.HalfSpaceTrees(10 trees, height 6, window 720) behind preprocessing.MinMaxScaler and anomaly.QuantileFilter(q 0.995), features: value, sin/cos of time of day.',
+    'Raw-stream baseline: anomaly.HalfSpaceTrees(10 trees, height 6, window 720) behind preprocessing.MinMaxScaler and anomaly.QuantileFilter(q 0.995), features: value, sin/cos of time of day; not seasonally adjusted (kept as the "Anomalies" column of the explorer table).',
     'Trend: streaming Cov/Var of daily mean against day index; slope reported per 30 days.',
+  ]);
+  box('Seasonal patterns (seasonal.py)', [
+    'Hour-of-day profiles: median per device and UTC hour within each calendar month (≥ 10 days and ≥ 5 values per hour), then median / quartiles across devices; amplitude = p90 − p10 of the fleet profile. Agency profiles need ≥ 5 qualifying devices.',
+    'Strength: classical additive decomposition per device (24 h centred moving-average trend; hour-of-day seasonal as a rolling 29-day mean of the detrended series; remainder), F_s = max(0, 1 − Var(R)/Var(S+R)), F_t likewise with the trend; ≥ 14 days required.',
+    'Calendar season: daily aggregates per device-day with ≥ 12 h of data (daily max/mean/min, daylight hours = hours above 50 lux, solar energy = Σ hourly charge power), monthly medians across device-days, fleet and per agency (≥ 3 devices).',
+    'Weekday vs weekend: median absolute hourly difference between the two profiles over the daily amplitude; ≥ 8 weekend days; metrics with an amplitude below a per-metric floor are excluded.',
+  ]);
+  box('Anomaly detection (anomaly.py)', [
+    'Per device and metric, time order on the hourly table: time_series.HoltWinters(α 0.2, β 0.01, γ 0.3, period 24) one-step forecast; residual r = y − ŷ; z = r / scale with scale = max(80 % quantile of |r| over the last 28 values of that hour of day / 1.2816, floor). Floors near sensor resolution: 0.1 V, 0.25 W input, 0.2 W Orin, 1 °C, 2 % RH, 100 lux, 0.05 GB RAM, 0.1 GB disk, 2 % SoC, 5 W charge.',
+    'Warm-up 168 h before the first flag (72 h after a reset); gaps ≤ 48 h are coasted (the model learns its own forecast so the seasonal index stays aligned with hour of day), longer gaps re-initialise the model; devices with < 192 h are not scored. A first day of all zeros (solar power at night) makes River\'s seasonal initialisation divide by zero; such models are restarted.',
+    'Flags: spike |z| ≥ 4; sustained |z| ≥ 3 for ≥ 3 consecutive hours. Slow ramps are absorbed by the level and belong to the ADWIN regime section. anomaly.PredictiveAnomalyDetection on the same model is reported for comparison only.',
+    'Peers, per metric and hour: same agency if ≥ 5 devices scored that hour, else same k-means cluster, else fleet. Peer z = (z − median) / max(1.4826 × MAD, 0.5). A flagged hour is shared when ≥ max(3, 20 % of peers) also have |z| ≥ 3; non-followers have |peer z| ≥ 4 with their own |z| < 3.',
   ]);
   box('Cross-metric and fleet (cross_metric.py)', [
     'Hourly mean per device and metric for 21 metrics (436,658 device-hours, 5.07 M rows), saved as analysis/out/hourly.parquet.',
@@ -844,11 +1027,12 @@ function scatter(parent, o) {
     'Three buspas devices are scraped under an edge_high_freq job at 5–10 s, so their sample counts and raw-stream statistics are not comparable with the 120 s fleet.',
     'Device IDs and agency labels change letter case over some devices\' lives (BP3235300111 → bp3235300111); IDs are lower-cased, giving 109 devices. BP3235300123 was scraped as two targets at once from 29 Sep; the earlier-arriving sample of each pair is kept and the other counted as a duplicate.',
     'Histogram quantiles are sketch approximations (within a bin width); per-device quantiles use River\'s P² estimator.',
-    'The newest month is partial (export cut on 6 Oct 21:27 UTC).',
+    'The newest month is partial (export cut on 6 Oct 21:27 UTC); March starts on the 8th. All hours are UTC: Barcelona (UTC+2) sits ~6 h from the North American agencies (UTC−4) on every hour-of-day axis.',
+    'Anomaly flags are relative to each device\'s own recent error at that hour of day: a flag ranks hours by surprise, it is not a confirmed fault, and the shared/device split depends on how many peers were reachable that hour.',
+    'The hourly detector and the daily-mean ADWIN regimes are complementary: abrupt fleet-wide changes (the 13 July disk clean-up, 16 devices; the 11 June memory event, 12 devices) appear in both, while the slower shifts of 10 May and 11 June are seen only by ADWIN because the Holt-Winters level follows them within a few hours.',
   ]);
 }
 
-// re-render charts on resize
-let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => charts.forEach(c => c.draw()), 200); });
+// each chart card redraws itself through its ResizeObserver (window resize, Wide toggle, drag handle)
 })();
 </script>

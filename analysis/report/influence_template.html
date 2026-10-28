@@ -1,0 +1,270 @@
+<title>Smart-Sign Feature Influence</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+__KIT_CSS__
+/* Influence page additions */
+.graph-controls { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
+.graph-controls input[type=range] { width: 180px; accent-color: var(--s1); }
+.graph-controls output { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; min-width: 3.5em; display: inline-block; }
+.graph-wrap svg { width: 100%; height: auto; display: block; }
+.node rect { fill: var(--surface); stroke: var(--axis); stroke-width: 1.2; }
+.node text { fill: var(--ink); font-family: var(--font); font-size: 12.5px; pointer-events: none; }
+.node.dim rect, .edge.dim { opacity: 0.12; }
+.node:hover rect, .node:focus rect { stroke: var(--ink); stroke-width: 2; }
+.node { cursor: pointer; outline: none; }
+.edge { cursor: help; transition: opacity .15s; }
+.group-label { fill: var(--muted); font-family: var(--font); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Propagation-aware predictive health monitoring · feature influence</div>
+  <h1>Smart-Sign Feature Influence</h1>
+  <p class="lede" id="lede"></p>
+  <div class="stamp" id="stamp"></div>
+</header>
+</div>
+
+<nav class="sections"><ul>
+  <li><a href="#overview">Overview</a></li><li><a href="#graph">Influence graph</a></li><li><a href="#matrix">Edge strength</a></li>
+  <li><a href="#leadlag">Lead–lag</a></li><li><a href="#raw">Raw vs deseasonalized</a></li><li><a href="#methods">Methods</a></li>
+</ul></nav>
+
+<div class="wrap">
+
+<section id="overview">
+  <h2>Overview</h2>
+  <p class="sub">Which telemetry features help predict which, after each device's own daily cycle has been removed. A link X → Y means that X's last two hours improve the forecast of Y beyond Y's own history and every other feature's history, on most devices.</p>
+  <div class="tiles" id="kpis"></div>
+  <ul class="findings" id="findings"></ul>
+</section>
+
+<section id="graph">
+  <h2>Influence graph</h2>
+  <p class="sub">Arrows are conditional Granger links; thickness is the share of devices where the link is significant. Colour is the sign of the lead–lag correlation (blue: they move together, red: opposite). Dashed arrows rest on fewer than 10 devices. Hover a feature to isolate its links, or an arrow for details.</p>
+  <figure class="chart" id="graph-fig"></figure>
+</section>
+
+<section id="matrix">
+  <h2>Edge strength</h2>
+  <p class="sub">Every ordered pair, including those below the drawing threshold: the share of tested devices where X Granger-causes Y after Benjamini–Hochberg correction (q = 0.01).</p>
+  <figure class="chart" id="matrix-fig"></figure>
+</section>
+
+<section id="leadlag">
+  <h2>Lead–lag</h2>
+  <p class="sub">Cross-correlation of the deseasonalized series at shifts of −12 to +12 hours, median across devices. A peak at a positive lag means the first feature moves first. Most physical links peak at 0–1 h: at hourly resolution, cause and effect usually land in the same or the next hour.</p>
+  <div class="row two" id="leadlag-row"></div>
+  <figure class="chart" id="leadlag-table" style="margin-top:16px"></figure>
+</section>
+
+<section id="raw">
+  <h2>Raw vs deseasonalized</h2>
+  <p class="sub">The same Granger test on raw hourly values finds many more links, because features that both follow the sun predict each other without influencing each other. These are the links that removing the daily cycle takes away.</p>
+  <div class="row two" id="raw-row"></div>
+</section>
+
+<section id="methods">
+  <h2>Methods and caveats</h2>
+  <div class="methods" id="methods"></div>
+</section>
+
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = __DATA__;
+(() => {
+'use strict';
+__KIT_JS__
+
+const I = D.inf, LAB = D.labels, P = I.params, VARS = I.variables;
+const lab = v => LAB[v] || v;
+const short = v => (LAB[v] || v);
+const pairLag = (x, y) => {
+  const a = I.ccf[`${x}|${y}`]; if (a) return { lag: a.peak_lag, r: a.peak_r, agree: a.share_agree, n: a.n, r0: a.r_lag0 };
+  const b = I.ccf[`${y}|${x}`]; if (b) return { lag: -b.peak_lag, r: b.peak_r, agree: b.share_agree, n: b.n, r0: b.r_lag0 };
+  return null;
+};
+const lagText = (x, y, c) => !c ? 'no lead–lag data' : c.lag === 0 ? 'same hour' : c.lag > 0 ? `${short(x)} leads by ${c.lag} h` : `${short(y)} leads by ${-c.lag} h`;
+const G = Object.entries(I.granger).map(([k, g]) => { const [x, y] = k.split('>'); return Object.assign({ x, y }, g); });
+const gOf = (x, y) => I.granger[`${x}>${y}`];
+
+$('#lede').textContent = `${I.devices_tested} smart bus-stop signs, ${VARS.length} features, conditional Granger causality (VAR, ${P.p} hourly lags) and lead–lag cross-correlation on the Holt-Winters residuals, so that the shared daily cycle does not count as influence.`;
+$('#stamp').textContent = `Generated ${D.generated} · data 8 Mar – 6 Oct 2026 · companion to the Smart-Sign Telemetry Profile`;
+
+// ---- overview
+{
+  const k = $('#kpis');
+  const edges = I.edges, strong = edges.filter(e => e[5] >= 10);
+  const nullShares = G.map(g => g.null_share).filter(v => v != null);
+  tile(k, 'Devices tested', `${I.devices_tested}`, `of ${I.devices_total} with scored hours; ≥ ${P.min_rows} complete hours each`);
+  tile(k, 'Links found', String(edges.length), `${strong.length} on ≥ 10 devices; share ≥ ${pct(P.edge_share)}, partial R² ≥ ${P.edge_r2}`);
+  tile(k, 'On raw values', String(I.raw_edges.length), 'links the same test finds before removing the daily cycle');
+  tile(k, 'False-positive check', pct(median(nullShares), 1), `median share with a 3–10 day shifted cause (target ${pct(P.q, 0)})`);
+  tile(k, 'Lag order', `${P.p} h`, 'chosen by BIC among 1, 2, 3 and 6 hours');
+  const f = $('#findings');
+  const add = (b, t) => { const li = el('li'); li.appendChild(el('b', null, b + ' ')); li.appendChild(document.createTextNode(t)); f.appendChild(li); };
+  const g = (x, y) => gOf(x, y) || { share: 0, r2_median: 0, n: 0 };
+  const lt = g('lightsensor', 'temperature'), lb = g('lightsensor', 'board_temp_celsius'), lc = g('lightsensor', 'cpu_temp_celsius');
+  const cLb = pairLag('lightsensor', 'board_temp_celsius');
+  add('The environment drives the electronics, not the other way round.', `Light predicts enclosure temperature on ${pct(lt.share)} of devices, board temperature on ${pct(lb.share)} and CPU temperature on ${pct(lc.share)}${cLb ? `, with light ${cLb.lag > 0 ? `leading by ${cLb.lag} h` : 'in the same hour'}` : ''}. The reverse links (temperature → light) are weaker or absent, so sunshine heats the box beyond what the daily cycle already explains.`);
+  const th = g('temperature', 'humidity'), ht = g('humidity', 'temperature');
+  add('Temperature and humidity form a feedback pair.', `Each predicts the other (${pct(th.share)} and ${pct(ht.share)} of ${th.n} devices), with opposite signs: a warmer enclosure means lower relative humidity. Both directions surviving points to a shared driver, the weather, rather than one causing the other.`);
+  const oi = g('orin_power_watts', 'input_power_watts'), io = g('input_power_watts', 'orin_power_watts');
+  add('Power flows one way: compute module → input.', `Orin module power predicts input power on ${pct(oi.share)} of devices, but input power predicts Orin power on only ${pct(io.share)}: the compute load sets the draw at the supply.`);
+  const dso = g('deepstream_app_running', 'orin_power_watts'), dsm = g('deepstream_app_running', 'memory_free_gb');
+  add('The analytics app drives power, testable on few devices.', `DeepStream switching predicts Orin power on ${pct(dso.share)} of the ${dso.n} devices with enough on/off switches (free RAM: ${pct(dsm.share)}). Most devices run it continuously or never, so the effect sits in their level, not in their hour-to-hour changes.`);
+  const touched = new Set(I.edges.flatMap(e => [e[0], e[1]]));
+  const isolated = VARS.filter(v => !touched.has(v) && I.variables_used[v] >= 10);
+  if (isolated.length) add('Some features evolve on their own.', `${isolated.map(short).join(', ')} ${isolated.length > 1 ? 'have' : 'has'} no link above the threshold in either direction: ${isolated.length > 1 ? 'their' : 'its'} hour-to-hour deviations are not predicted by the other features, consistent with workload- or housekeeping-driven changes (log rotation, uploads, app restarts).`);
+  const rawOnly = I.raw_edges.filter(k => !I.edges.some(e => `${e[0]}>${e[1]}` === k));
+  add('Most raw-data links are the sun.', `On raw values the test finds ${I.raw_edges.length} links; ${rawOnly.length} of them disappear once each device's daily cycle is removed.`);
+}
+
+// ---- influence graph
+{
+  const NODES = {
+    lightsensor: [0.10, 0.18, 'env'], temperature: [0.10, 0.46, 'env'], humidity: [0.10, 0.74, 'env'],
+    board_temp_celsius: [0.37, 0.30, 'thermal'], cpu_temp_celsius: [0.37, 0.56, 'thermal'],
+    mppt_charge_power: [0.30, 0.90, 'solar'], battery_remaining_capacity: [0.55, 0.90, 'solar'],
+    deepstream_app_running: [0.64, 0.12, 'compute'], orin_power_watts: [0.64, 0.38, 'compute'], input_power_watts: [0.64, 0.62, 'compute'],
+    input_voltage_volts: [0.82, 0.86, 'compute'], memory_free_gb: [0.90, 0.30, 'res'], storage_free_gb: [0.90, 0.56, 'res'],
+  };
+  const GROUPS = [['Environment', 0.10, 0.04], ['Thermal', 0.37, 0.04], ['Compute & power', 0.64, 0.02], ['Resources', 0.90, 0.16], ['Solar & battery', 0.42, 0.99]];
+  let thr = P.edge_share, focus = null;
+  const fig = $('#graph-fig');
+  const edgesAt = t => G.filter(g => g.share >= t && g.r2_median >= P.edge_r2 && NODES[g.x] && NODES[g.y]).sort((a, b) => a.share - b.share);
+  const render = p => {
+    const ctr = el('div', 'graph-controls');
+    const lb = el('label'); lb.htmlFor = 'thr'; lb.textContent = 'Minimum share of devices';
+    const inp = document.createElement('input'); inp.type = 'range'; inp.id = 'thr'; inp.min = '0.2'; inp.max = '0.95'; inp.step = '0.05'; inp.value = String(thr);
+    const out = el('output', null, pct(thr)); out.htmlFor = 'thr';
+    const cnt = el('span');
+    ctr.append(lb, inp, out, cnt); p.appendChild(ctr);
+    const wrap = el('div', 'graph-wrap'); p.appendChild(wrap);
+    const draw = () => {
+      wrap.replaceChildren();
+      const E = edgesAt(thr); cnt.textContent = `${E.length} links shown`;
+      const W = 920, H = 560, nw = 128, nh = 32;
+      const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'directed influence graph between telemetry features' }, wrap);
+      const defs = sv('defs', {}, svg);
+      const colPos = css('--s1'), colNeg = css('--div-neg'), colLow = css('--muted');
+      [['pos', colPos], ['neg', colNeg], ['low', colLow]].forEach(([id, c]) => {
+        const mk = sv('marker', { id: 'ah-' + id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, defs);
+        sv('path', { d: 'M0,0 L10,5 L0,10 z', fill: c }, mk);
+      });
+      GROUPS.forEach(([t, gx, gy]) => sv('text', { x: gx * W, y: gy * H + 8, 'text-anchor': 'middle', class: 'group-label' }, svg).textContent = t);
+      const pos = v => [NODES[v][0] * W, NODES[v][1] * H];
+      const trim = (from, to) => { const dx = to[0] - from[0], dy = to[1] - from[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L; const t = Math.min(Math.abs((nw / 2 + 4) / (ux || 1e-9)), Math.abs((nh / 2 + 4) / (uy || 1e-9))); return [to[0] - ux * t, to[1] - uy * t]; };
+      const eg = sv('g', {}, svg), ng = sv('g', {}, svg);
+      const edgeEls = [];
+      E.forEach(g => {
+        const a = pos(g.x), b = pos(g.y), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+        const bend = 26, cp = [mx - dy / L * bend, my + dx / L * bend];
+        const s = trim(cp, a), e = trim(cp, b);
+        const c = pairLag(g.x, g.y), sign = c ? Math.sign(c.r) : g.sign, low = g.n < 10;
+        const color = low ? colLow : sign < 0 ? colNeg : colPos;
+        const path = sv('path', { d: `M${s[0]},${s[1]} Q${cp[0]},${cp[1]} ${e[0]},${e[1]}`, fill: 'none', stroke: color, 'stroke-width': 1 + 6 * (g.share - 0.2), 'stroke-dasharray': low ? '5 4' : null, 'stroke-opacity': 0.35 + 0.6 * Math.min(1, g.r2_median / 0.05), 'marker-end': `url(#ah-${low ? 'low' : sign < 0 ? 'neg' : 'pos'})`, class: 'edge' }, eg);
+        const hit = sv('path', { d: path.getAttribute('d'), fill: 'none', stroke: 'transparent', 'stroke-width': 14, class: 'edge' }, eg);
+        hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, `${lab(g.x)} → ${lab(g.y)}`, [{ label: 'devices with significant link', value: `${pct(g.share)} of ${g.n}` }, { label: 'median partial R²', value: g.r2_median.toFixed(3) }, { label: 'lead–lag', value: lagText(g.x, g.y, c) }, { label: 'correlation at peak', value: c ? c.r.toFixed(2) : '–' }, { label: 'reverse link', value: gOf(g.y, g.x) ? pct(gOf(g.y, g.x).share) : '–' }]));
+        hit.addEventListener('pointerleave', hideTip);
+        edgeEls.push([g, path, hit]);
+      });
+      const nodeEls = {};
+      Object.keys(NODES).forEach(v => {
+        const [x, y] = pos(v), used = I.variables_used[v] || 0;
+        const n = sv('g', { class: 'node', tabindex: 0, transform: `translate(${x - nw / 2},${y - nh / 2})`, role: 'button', 'aria-label': `${lab(v)}, tested on ${used} devices` }, ng);
+        sv('rect', { width: nw, height: nh, rx: 6 }, n);
+        sv('text', { x: nw / 2, y: nh / 2 + 4.5, 'text-anchor': 'middle' }, n).textContent = lab(v);
+        const t = sv('title', {}, n); t.textContent = `${lab(v)}: tested on ${used} devices`;
+        const setFocus = on => {
+          focus = on ? v : null;
+          edgeEls.forEach(([g, pth, hit]) => { const keep = !focus || g.x === focus || g.y === focus; pth.classList.toggle('dim', !keep); });
+          Object.entries(nodeEls).forEach(([w, ne]) => { const linked = !focus || w === focus || edgeEls.some(([g]) => (g.x === focus && g.y === w) || (g.y === focus && g.x === w)); ne.classList.toggle('dim', !linked); });
+        };
+        n.addEventListener('pointerenter', () => setFocus(true)); n.addEventListener('pointerleave', () => setFocus(false));
+        n.addEventListener('focus', () => setFocus(true)); n.addEventListener('blur', () => setFocus(false));
+        nodeEls[v] = n;
+      });
+    };
+    inp.addEventListener('input', () => { thr = +inp.value; out.textContent = pct(thr); draw(); });
+    draw();
+    const lg = el('div', 'legend');
+    [['move together (positive)', colOf('pos')], ['opposite (negative)', colOf('neg')], ['fewer than 10 devices', colOf('low')]].forEach(([t, c]) => { const s = el('span'); const i = el('i'); i.style.background = c; i.style.height = '3px'; s.appendChild(i); s.appendChild(document.createTextNode(t)); lg.appendChild(s); });
+    p.appendChild(lg);
+  };
+  const colOf = k => k === 'pos' ? css('--s1') : k === 'neg' ? css('--div-neg') : css('--muted');
+  const rows = G.filter(g => g.share >= P.edge_share && g.r2_median >= P.edge_r2).sort((a, b) => b.share - a.share).map(g => { const c = pairLag(g.x, g.y); return { from: lab(g.x), to: lab(g.y), share: g.share, r2: g.r2_median, n: g.n, lag: lagText(g.x, g.y, c), r: c ? c.r : null, rev: gOf(g.y, g.x)?.share ?? null }; });
+  figure(fig, { title: 'Directed influence between features (conditional Granger, deseasonalized)', caption: `A link is drawn when it is significant (BH q = ${P.q}) on at least the chosen share of tested devices and its median partial R² is ≥ ${P.edge_r2}. Partial R² is the share of the target's remaining error that the cause's history removes.`,
+    render, table: { cols: [{ key: 'from', label: 'From', left: true }, { key: 'to', label: 'To', left: true }, { key: 'share', label: 'Share of devices', fmt: v => pct(v) }, { key: 'n', label: 'Devices tested' }, { key: 'r2', label: 'Median partial R²', fmt: v => v.toFixed(3) }, { key: 'lag', label: 'Lead–lag', left: true }, { key: 'r', label: 'r at peak', fmt: v => v == null ? '–' : v.toFixed(2) }, { key: 'rev', label: 'Reverse share', fmt: v => v == null ? '–' : pct(v) }], rows, maxRows: 60 } });
+  fig.classList.add('wide');
+}
+
+// ---- edge strength matrix
+{
+  const vs = VARS.filter(v => (I.variables_used[v] || 0) > 0);
+  const matrix = vs.map(x => vs.map(y => x === y ? null : (gOf(x, y)?.share ?? null)));
+  const rows = G.map(g => ({ from: lab(g.x), to: lab(g.y), share: g.share, n: g.n, r2: g.r2_median, nul: g.null_share })).sort((a, b) => b.share - a.share);
+  figure($('#matrix-fig'), { title: 'Share of devices where the row feature Granger-causes the column feature', caption: 'Rows are causes, columns are effects. Grey = not tested together on any device. The table view adds the partial R² and the share under the shifted-cause null test.',
+    render: p => seqHeat(p, { rows: vs.map(lab), cols: vs.map(lab), matrix, fmt: v => pct(v), unit: 'share of devices', vmax: 1, labW: 150, rowH: 22 }),
+    table: { cols: [{ key: 'from', label: 'From', left: true }, { key: 'to', label: 'To', left: true }, { key: 'share', label: 'Share', fmt: v => pct(v) }, { key: 'n', label: 'Devices' }, { key: 'r2', label: 'Median partial R²', fmt: v => v.toFixed(4) }, { key: 'nul', label: 'Null share', fmt: v => v == null ? '–' : pct(v) }], rows, maxRows: 40 } });
+}
+
+// ---- lead-lag
+{
+  const pairs = Object.entries(I.ccf).map(([k, c]) => { const [x, y] = k.split('|'); return Object.assign({ x, y }, c); }).filter(c => c.n >= 10).sort((a, b) => Math.abs(b.peak_r) - Math.abs(a.peak_r));
+  const interesting = pairs.filter(c => !(c.x === 'cpu_temp_celsius' && c.y === 'board_temp_celsius'));
+  const lagsAxis = I.lags;
+  interesting.slice(0, 6).forEach(c => {
+    figure($('#leadlag-row'), { title: `${lab(c.x)} vs ${lab(c.y)}: ${c.peak_lag === 0 ? 'same hour' : c.peak_lag > 0 ? `${lab(c.x)} leads by ${c.peak_lag} h` : `${lab(c.y)} leads by ${-c.peak_lag} h`}`, caption: `Median across ${c.n} devices; band = interquartile range. ${pct(c.share_agree)} of devices peak within ±1 h of the fleet peak with the same sign. Positive lag = ${lab(c.x)} moves first.`,
+      render: p => lineChart(p, { series: [{ name: 'median correlation', points: lagsAxis.map((l, i) => [l, c.curve[i]]) }], band: lagsAxis.map((l, i) => [l, c.q25[i], c.q75[i]]).filter(b => b[1] != null), bandLegend: 'middle 50 % of devices', x: { ticks: [-12, -6, 0, 6, 12].map(l => [l, (l > 0 ? '+' : '') + l + ' h']), tipFmt: l => `${lab(c.x)} at t, ${lab(c.y)} at t ${l >= 0 ? '+' : '−'} ${Math.abs(l)} h` }, y: { fmt: v => v.toFixed(1) } }),
+      table: { cols: [{ key: 'lag', label: 'Lag (h)', left: true }, { key: 'r', label: 'Median r', fmt: v => v == null ? '–' : v.toFixed(3) }, { key: 'a', label: 'p25', fmt: v => v == null ? '–' : v.toFixed(3) }, { key: 'b', label: 'p75', fmt: v => v == null ? '–' : v.toFixed(3) }], rows: lagsAxis.map((l, i) => ({ lag: l, r: c.curve[i], a: c.q25[i], b: c.q75[i] })), maxRows: 25 } });
+  });
+  const rows = pairs.map(c => ({ a: lab(c.x), b: lab(c.y), lag: c.peak_lag, txt: c.peak_lag === 0 ? 'same hour' : c.peak_lag > 0 ? `${lab(c.x)} first, ${c.peak_lag} h` : `${lab(c.y)} first, ${-c.peak_lag} h`, r: c.peak_r, r0: c.r_lag0, agree: c.share_agree, n: c.n }));
+  const cols = [{ key: 'a', label: 'Feature A', left: true }, { key: 'b', label: 'Feature B', left: true }, { key: 'txt', label: 'Who moves first', left: true }, { key: 'r', label: 'r at peak', fmt: v => v.toFixed(2) }, { key: 'r0', label: 'r same hour', fmt: v => v.toFixed(2) }, { key: 'agree', label: 'Devices agreeing', fmt: v => pct(v) }, { key: 'n', label: 'Devices' }];
+  figure($('#leadlag-table'), { title: 'All feature pairs, strongest lead–lag correlation first', caption: 'Pairs with fewer than 10 devices are omitted. Correlation alone is symmetric; the lag says which side moves first, and the Granger graph says which side adds predictive information.',
+    render: p => renderTable(p, { cols, rows, maxRows: 20 }), table: { cols, rows, maxRows: 80 } });
+}
+
+// ---- raw vs deseasonalized
+{
+  const row = $('#raw-row');
+  const des = new Set(I.edges.map(e => `${e[0]}>${e[1]}`)), raw = new Set(I.raw_edges);
+  const both = [...des].filter(k => raw.has(k)).length;
+  const items = [{ label: 'raw values', value: raw.size }, { label: 'deseasonalized', value: des.size }, { label: 'in both', value: both }, { label: 'raw only (sun-driven)', value: [...raw].filter(k => !des.has(k)).length }];
+  figure(row, { title: 'Links found before and after removing the daily cycle', caption: `Same test, same devices and threshold (share ≥ ${pct(P.edge_share)}). On raw values the partial-R² threshold is not applied, so the raw count is an upper bound.`,
+    render: p => barChart(p, { items, valueLabels: true, fmt: v => fmtN(v, 0), valueName: 'links', labW: 170 }), table: { cols: [{ key: 'label', label: 'Set', left: true }, { key: 'value', label: 'Links' }], rows: items } });
+  const rawOnly = [...raw].filter(k => !des.has(k)).map(k => { const [x, y] = k.split('>'); return { from: lab(x), to: lab(y), raw: I.granger_raw[k].share, des: I.granger[k]?.share ?? null }; }).sort((a, b) => b.raw - a.raw);
+  const cols = [{ key: 'from', label: 'From', left: true }, { key: 'to', label: 'To', left: true }, { key: 'raw', label: 'Share on raw', fmt: v => pct(v) }, { key: 'des', label: 'Share deseasonalized', fmt: v => v == null ? '–' : pct(v) }];
+  figure(row, { title: 'Links that exist only on raw values', caption: 'These pairs predict each other only because both follow the daily cycle; after removing it, the share of devices with a significant link drops below the threshold.',
+    render: p => renderTable(p, { cols, rows: rawOnly, maxRows: 14 }), table: { cols, rows: rawOnly, maxRows: 80 } });
+}
+
+// ---- methods
+{
+  const m = $('#methods');
+  const box = (h, items) => { const d = el('div'); d.appendChild(el('h3', null, h)); const ul = el('ul'); items.forEach(t => ul.appendChild(el('li', null, t))); d.appendChild(ul); m.appendChild(d); };
+  box('Data', [
+    `Input: z = (y − ŷ) / scale from anomaly.py, i.e. each device's hourly value minus its online Holt-Winters (period 24 h) one-step forecast, divided by a robust per-hour-of-day scale. Scored hours only (after warm-up, outside long gaps).`,
+    'DeepStream run state comes from the hourly feature table (share of the hour running), demeaned per device; it enters only on devices with ≥ 5 on/off switches.',
+    `A feature enters a device's analysis when present in ≥ ${pct(P.coverage)} of that device's hours; solar and battery features therefore rest on the few devices that have them.`,
+  ]);
+  box('Granger causality (influence.py)', [
+    `Per device, a VAR(${P.p}) equation for every target Y on ${P.p} hourly lags of all of the device's features plus an intercept, fitted by least squares, against the same equation without X's lags. F-test; partial R² = (RSS_restricted − RSS_full) / RSS_restricted.`,
+    `Lag order chosen once by BIC on 15 devices among 1, 2, 3 and 6 hours. Conditioning on every other feature keeps indirect paths from appearing as direct links.`,
+    `Benjamini–Hochberg per device at q = ${P.q}; fleet link = share of tested devices with a significant test. Drawn when the share is ≥ ${pct(P.edge_share)} and the median partial R² is ≥ ${P.edge_r2}.`,
+    `Null check: X circularly shifted by ${P.null_shift_h[0]}–${P.null_shift_h[1]} hours, both models refitted; the share of significant devices should be near q.`,
+  ]);
+  box('Lead–lag (influence.py)', [
+    `Pearson correlation of A(t) with B(t + k) for k = −${P.ccf_lags} … +${P.ccf_lags} h on hours where both are present (≥ ${P.min_overlap_h} h). Median and quartiles across devices; peak = largest absolute median.`,
+  ]);
+  box('Caveats', [
+    'Granger causality is predictive precedence, not proof of physical causation; an unmeasured common driver (outdoor temperature, cloud cover, a software rollout) can create links in both directions, as with enclosure temperature and humidity.',
+    'Hourly resolution: effects that act within minutes (CPU load → CPU temperature) appear at lag 0 and are only partly visible to a test that uses past hours.',
+    'Residuals come from an online model that adapts its level within hours, so slow, sustained influences are weakened; the main report\'s regime section covers those.',
+    'Links are fleet summaries; per-device results differ (see the share and the per-device lists in analysis/out/influence.json).',
+  ]);
+}
+})();
+</script>

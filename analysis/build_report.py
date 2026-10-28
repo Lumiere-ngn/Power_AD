@@ -162,6 +162,8 @@ def main() -> None:
     seasonal = seasonality_from_hourly()
     spec_path = OUT / "spectral.json"
     spectral = json.loads(spec_path.read_text()) if spec_path.exists() else {"metrics": {}}
+    load_opt = lambda name: json.loads((OUT / name).read_text()) if (OUT / name).exists() else None
+    seasonal_pat, anomaly = load_opt("seasonal.json"), load_opt("anomaly_summary.json")
     spec_of = lambda s: spectral["metrics"].get(s) or spectral["metrics"].get(s + "_rate")  # counters are rates there
 
     def agency_norm(a):  # label values change case over a device's life (BalHarbour / Balharbour, DEMO / demo)
@@ -309,6 +311,7 @@ def main() -> None:
                     "biggest": biggest, "total": len(regimes), "same_day": same_day_top},
         "trends": trend_out, "forecasts": cross["forecasts"],
         "spectral": {k: spectral[k] for k in ("edges_h", "centers_h", "min_hours", "targets") if k in spectral},
+        "seasonal": seasonal_pat, "anomaly": anomaly,
     }
     (OUT / "report_data.json").write_text(json.dumps(data))
     size = (OUT / "report_data.json").stat().st_size

@@ -23,10 +23,14 @@ Run in this order; all scripts take no required arguments.
 | `analysis/cross_metric.py` | Hourly per-device table → streaming covariance/correlation, k-means device clusters, ADWIN regime changes on daily means, trend slopes, Holt-Winters/SNARIMAX forecast evaluation, availability. | `analysis/out/hourly.parquet`, `analysis/out/cross.json` |
 | `analysis/features.py` | Modelling-ready table: device × hour × all 42 metrics (counters as reset-aware rates), time features, agency. | `analysis/out/features.parquet`, `features_columns.csv` |
 | `analysis/spectral.py` | FFT periodogram per metric and device (share of variance by period, 2 h – 45 days). | `analysis/out/spectral.json` |
+| `analysis/seasonal.py` | Seasonal patterns of 12 key metrics: hour-of-day profiles per month (fleet and agency), Hyndman seasonal/trend strength, calendar-season daily aggregates, weekday vs weekend. | `analysis/out/seasonal.json` |
+| `analysis/anomaly.py` | Contextual anomalies (online Holt-Winters residual z-scores with a per-hour-of-day robust scale) and a peer layer that labels each flagged hour shared (propagating) or device-specific. `--selftest` runs a synthetic check. | `analysis/out/anomalies.parquet`, `analysis/out/anomaly_summary.json` |
 | `analysis/build_report.py` | Condenses the outputs and renders the HTML report from `analysis/report/template.html`. | `analysis/out/report_data.json`, `analysis/report/index.html` |
+| `analysis/influence.py` | Which features influence which: conditional Granger causality (VAR, BH-corrected, per device) and lead–lag cross-correlation on the deseasonalized residuals from `anomaly.py`, plus raw-data and shifted-cause null comparisons. | `analysis/out/influence.json` |
+| `analysis/influence_report.py` | Separate feature-influence report; reuses the chart kit between the `KIT` markers in `template.html`. | `analysis/report/influence.html` |
 
 ```bash
-for s in profile_stream cross_metric features spectral build_report; do .venv/bin/python -I analysis/$s.py; done
+for s in profile_stream cross_metric features spectral seasonal anomaly build_report influence influence_report; do .venv/bin/python -I analysis/$s.py; done
 ```
 
 The large outputs (`*.parquet`, `analysis/out/profile/`) are not committed; regenerate them with the commands above.
