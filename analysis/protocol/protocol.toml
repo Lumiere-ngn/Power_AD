@@ -1,0 +1,230 @@
+# Confirmatory protocol for RQ1 and RQ2: the machine-readable half of PROTOCOL.md.
+# Values here are authoritative and PROTOCOL.md gives the reasons. From Phase 1 on, experiment scripts read
+# their settings from this file instead of hard-coding them. Edit freely while status = "draft"; after the
+# freeze every change is a deviation and goes in the deviation log of PROTOCOL.md.
+
+[meta]
+version = "0.1"
+status = "draft"                       # draft -> frozen (PROTOCOL.md, "How this protocol works")
+drafted = 2026-11-03
+frozen = ""                            # date and commit hash of the freeze
+pilot = ["archive/2026-11-09/code/rq1_nbm.py", "analysis/rq2_graph.py"]   # exploratory only; its numbers are not results
+
+[data]
+features = "analysis/out/features.parquet"   # device x hour, from analysis/features.py
+derived = "analysis/rq_common.py: load()"    # adds mem_used_gb, hardware flags and peer_* columns
+resolution_hours = 1
+resolution_sensitivity_minutes = 10          # RQ2 only: one rerun at 10 min for short faults
+excluded_agencies = ["demo", "show", "buspas"]   # decisions D6 (demo, show) and D7 (buspas); dropped in rq_common.load()
+min_hours_per_device = 168                   # a device is scored in a window if it has >= 7 days of input power there
+flag_days = [2026-05-10, 2026-06-11, 2026-07-13]   # fleet-wide regime changes: kept, plus one run without them
+
+# Windows are [start, end) in UTC dates.
+[splits.development]                   # fit and calibrate are used freely; evaluate is the RQ1 test since D1 was settled
+fit = [2026-03-08, 2026-07-01]
+calibrate = [2026-07-01, 2026-08-01]
+evaluate = [2026-08-01, 2026-10-07]
+
+# RQ1 windows after decision D1 (2026-11-10): no fresh export, August to October are reused and scored once.
+# Every setting is chosen inside March to July. Script: analysis/rq1.py; plan: analysis/protocol/PLAN_RQ1.md.
+[splits.rq1]
+select = { fit = [2026-03-08, 2026-06-01], check = [2026-06-01, 2026-07-01] }        # inputs and LightGBM settings
+recheck = { fit = [2026-03-08, 2026-07-01], check = [2026-07-01, 2026-08-01] }       # same settings, one month later
+bands_select = { fit = [2026-03-08, 2026-06-01], calibrate = [2026-06-01, 2026-07-01], check = [2026-07-01, 2026-08-01] }
+final = { fit = [2026-03-08, 2026-07-01], calibrate = [2026-07-01, 2026-08-01], test = [2026-08-01, 2026-10-07] }
+
+[splits.confirmatory]                  # not used for RQ1: it needed the fresh export (D1)
+fit = [2026-03-08, 2026-09-01]
+calibrate = [2026-09-01, 2026-10-07]
+test_start = 2026-10-07
+test_end = ""                          # end of the fresh export (open decision D1)
+fallback = "no fresh export: development windows with test = evaluate, disclosed as seen in the pilot"
+
+# ------------------------------------------------------------------ context features (both RQs)
+[features]
+time = ["hour_sin", "hour_cos", "dow", "is_weekend"]
+hardware = ["v56", "mem_total", "disk_total", "has_mppt", "has_env", "has_ds", "agency"]
+environment = ["temperature", "humidity", "lightsensor", "peer_temperature", "peer_humidity", "peer_lightsensor"]
+workload = ["deepstream_app_running", "mem_used_gb", "wwan_rx_gb_rate", "wwan_tx_gb_rate", "pir_count_rate",
+            "ds_consumer_error_total_rate"]
+device = ["device"]                    # only in models allowed to use a device's own history
+# Hourly weather of the agency's city (decision D4, settled 2026-11-10). One input group, dropped as a
+# whole in the RQ1 ablation. Missing for the agencies without a city (see [weather]); left missing, not filled.
+weather = ["wx_temp_c", "wx_humidity_pct", "wx_dewpoint_c", "wx_cloud_pct", "wx_wind_ms", "wx_solar_wm2",
+           "wx_precip_mm"]
+
+[weather]
+source = "Open-Meteo historical weather API (reanalysis, grid of about 10 to 25 km), CC BY 4.0"
+script = "analysis/weather.py"         # features.py joins analysis/out/weather.parquet on (agency, UTC hour)
+level = "city"                         # one point per agency, not per stop
+# agency label -> city. Our reading of the labels, not confirmed by BusPas.
+cities = { EXO = "Montreal", RTL = "Longueuil", TTC = "Toronto", Barcelona = "Barcelona", NJT = "Newark", BCT = "Fort Lauderdale", BalHarbour = "Bal Harbour", LA = "Los Angeles" }
+no_city = ["buspas", "demo", "K", "show"]   # 18 devices, no weather (only the 1 K unit once D6 and D7 apply)
+check = "analysis/weather_check.py, March to July only: own city fits best for 65 of 65 signs"
+
+# ------------------------------------------------------------------ RQ1
+[rq1]
+power = ["input_power_watts", "orin_power_watts", "cpu_gpu_power_watts"]
+thermal = ["cpu_temp_celsius", "gpu_temp_celsius", "board_temp_celsius"]
+primary = "input_power_watts"
+forbidden_inputs = "any power or thermal reading, and any lagged value of a target (except models.physics_chain)"
+
+[rq1.models]
+baseline = "per-device hour-of-day median over the fit window; fleet hour-of-day median for a device not in it"
+linear = "ridge on standardised context, one-hot categoricals"
+lgbm = "LightGBM; inputs and settings chosen on June with a fit on March to May (splits.rq1.select)"
+hierarchical = "fleet LightGBM plus a per-device offset shrunk towards zero (empirical Bayes)"
+grey_box_thermal = "T = a + b * ambient + R_th * P with a first-order lag; optional reference"
+physics_chain = "lgbm plus measured input and CPU+GPU power as inputs; thermal targets only, secondary"
+pooling = ["fleet", "per_configuration", "per_device"]
+
+[rq1.attribution]
+groups = ["hardware", "environment", "workload", "device"]   # time is in every model
+method = "exact group Shapley value over all 16 subsets; value = MAE reduction against the time-only model"
+
+[rq1.metrics]
+point = ["mae", "nmae", "within_device_r2", "bias", "skill"]
+nmae = "MAE / device mean of the target over the window"
+skill = "1 - MAE_model / MAE_baseline"
+tail = "MAE on hours above each device's 90th percentile of the target (thermal targets)"
+interval = ["coverage", "width", "weighted_interval_score"]
+quantiles = [0.05, 0.5, 0.95]
+nominal_coverage = 0.90
+
+[rq1.protocols]
+temporal = "fit window -> evaluate (development) or test (confirmatory), same devices"
+leave_device_out = { folds = 5, group = "device", note = "devices first seen after the fit window are scored here only" }
+leave_configuration_out = { axes = ["v56", "has_mppt", "has_env", "agency"], each_value = true, temporal = true }
+few_shot_days = [0, 1, 3, 7, 14]
+strata = ["month", "ambient_band", "deepstream_app_running", "day_night", "solar_charging"]
+ambient_band_edges_c = [0, 10, 20, 30]   # on local temperature, else peer temperature
+day_night = "lightsensor > 10 lux, else hour 07-19 local"
+solar_charging = "mppt_charge_power > 1 W"
+
+[rq1.intervals]
+method = "conformalised quantile regression on the calibrate window"
+variants = ["global", "mondrian_configuration", "mondrian_device", "adaptive_online"]
+adaptive_gamma = 0.005                 # step size of the online coverage update
+
+[rq1.useful]                           # open decision D2: proposed values
+input_power_nmae = 0.05
+temperature_mae_c = 2.0
+coverage_band = [0.85, 0.95]
+
+# ------------------------------------------------------------------ RQ2
+[rq2]
+nodes = ["cpu_gpu_power_watts", "orin_power_watts", "power", "input_power_watts", "input_voltage_volts",
+         "input_current_amperes", "input_energy_wh_total_rate", "cpu_temp_celsius", "gpu_temp_celsius",
+         "board_temp_celsius"]
+
+[rq2.hand_graph]
+status = "draft: pilot graph v0, pending review by the hardware reviewer (open decision D3)"
+rule = "edges are decided from physics and the measurement path only, never from pilot or development recall"
+edges = [
+  { from = "cpu_gpu_power_watts", to = "orin_power_watts", why = "the CPU+GPU rail is part of the Orin module rail" },
+  { from = "orin_power_watts", to = "power", why = "heartbeat power is assumed to log the Orin rail (definition undocumented)" },
+  { from = "orin_power_watts", to = "input_power_watts", why = "input draw = module draw + display, modem and conversion losses" },
+  { from = "input_power_watts", to = "input_current_amperes", why = "I = P / V" },
+  { from = "input_voltage_volts", to = "input_current_amperes", why = "I = P / V" },
+  { from = "input_power_watts", to = "input_energy_wh_total_rate", why = "the energy counter integrates input power" },
+  { from = "cpu_gpu_power_watts", to = "cpu_temp_celsius", why = "compute power heats the SoC" },
+  { from = "cpu_gpu_power_watts", to = "gpu_temp_celsius", why = "compute power heats the SoC" },
+  { from = "cpu_temp_celsius", to = "gpu_temp_celsius", why = "CPU and GPU share one die" },
+  { from = "input_power_watts", to = "board_temp_celsius", why = "input-stage dissipation heats the board sensor" },
+]
+candidates = [
+  { from = "board_temp_celsius", to = "cpu_temp_celsius", why = "the board is the SoC's local ambient: T_SoC = T_board + R_th * P" },
+  { from = "board_temp_celsius", to = "gpu_temp_celsius", why = "same as above, if the GPU is not left to inherit it through cpu_temp" },
+]
+
+[rq2.faults]
+injector_spec = "analysis/protocol/faults.md, written by someone other than the hand-graph author (D3)"
+episodes_per_device = 6
+min_gap_hours = 48
+min_coverage = 0.8                     # share of episode hours with input power present
+classes = [
+  { id = "F1", layer = "load", name = "parasitic load", root = ["input_power_watts"], severities = [0.05, 0.10, 0.20], unit = "fraction of device median input power", hours = [6, 24] },
+  { id = "F2", layer = "compute", name = "compute runaway", root = ["cpu_gpu_power_watts"], severities = [0.25, 0.50, 1.00], unit = "fraction of device median CPU+GPU power", hours = [6, 24] },
+  { id = "F3", layer = "accounting", name = "energy-counter drift", root = ["input_energy_wh_total_rate"], severities = [0.05, 0.10, 0.20], unit = "final relative error of a linear ramp", hours = [24, 72] },
+  { id = "F4", layer = "sensing", name = "stuck power reading", root = ["input_power_watts"], severities = [1, 2, 3], unit = "duration class: 6-12, 12-24, 24-48 h", hours = [6, 48] },
+  { id = "F5", layer = "supply", name = "supply sag", root = ["input_voltage_volts"], severities = [0.03, 0.06, 0.12], unit = "fraction of input voltage", hours = [6, 24] },
+  { id = "F6", layer = "thermal", name = "cooling loss", root = ["cpu_temp_celsius", "gpu_temp_celsius"], severities = [3.0, 6.0, 12.0], unit = "deg C", hours = [6, 24] },
+  { id = "F7", layer = "sensing", name = "sensor drift", root = ["any node"], severities = [1.0, 2.0, 4.0], unit = "final offset in device residual SDs, linear ramp", hours = [24, 72] },
+  { id = "F8", layer = "sensing", name = "intermittent spikes", root = ["any node"], severities = [4.0, 6.0, 8.0], unit = "residual SDs on 1-h spikes, 3-6 spikes per episode", hours = [12, 48] },
+  { id = "F9", layer = "sensing", name = "single-node bias, no propagation", root = ["each node in turn"], severities = [1.0, 2.0, 4.0], unit = "device residual SDs", hours = [6, 24] },
+]
+sanity = ["an oracle that knows the onset detects every episode at the top severity",
+          "severity 1 is no larger than 2 residual SDs on at least half of the episodes"]
+
+[rq2.detectors]
+node_model = "context part = RQ1's locked model; parent part = per-device ridge on the parents' observed values"
+non_graph = ["empty_graph", "seasonal_z", "isolation_forest", "pca_spe", "autoencoder"]
+learned_graph = ["topk_correlation", "lasso", "granger", "notears", "pc", "complete"]
+graph_learning_data = "development fit window, clean data only"
+tier_b = ["gdn", "usad"]               # published end-to-end forms, tuned on development episodes
+
+[rq2.detectors.learned_settings]
+topk_correlation = { k = 2 }
+lasso = { cv_folds = 5 }
+granger = { lags = 2, fdr = "bh", q = 0.01 }
+notears = { lambda1 = 0.05, w_threshold = 0.3 }
+pc = { test = "fisher_z", alpha = 0.01 }
+
+[rq2.controls]
+random_dags = 30                       # same edge count as the hand graph
+perturbed_edits = [1, 2, 3]            # edges removed, added or reversed
+perturbed_draws = 10                   # per edit count
+
+[rq2.scoring]
+aggregation = ["max", "tail"]
+window_hours = [1, 6]
+rel_floor = [0.0025, 0.005, 0.01]      # residual scale floor as a fraction of the device's level
+abs_floor = { input_voltage_volts = 0.02, input_current_amperes = 0.005, input_energy_wh_total_rate = 0.05, cpu_temp_celsius = 0.3, gpu_temp_celsius = 0.3, board_temp_celsius = 0.3, other_watts = 0.05 }
+selection = "per detector, the grid point with the highest mean event recall on development episodes"
+threshold = "per device, the (1 - far) quantile of the system score on the clean calibrate window"
+far = 0.01
+far_secondary = [0.001, 0.05]
+
+[rq2.metrics]
+primary = "event recall at the calibrated per-device threshold"
+detected = "at least one alarm hour from onset to (end + window - 1)"
+secondary = ["realised_far", "recall_at_matched_realised_far", "auprc", "auroc", "delay_hours",
+             "false_alarms_per_device_week", "top1_localisation", "top3_localisation"]
+localisation = "node with the largest mean node score over the episode"
+localisation_graph = "most upstream anomalous node whose parents are not anomalous (graph detectors, secondary)"
+
+[rq2.decision]
+comparisons = ["hand - best_non_graph", "hand - best_learned_graph", "hand - median_random_dag"]
+best_chosen_on = "development episodes, before the confirmatory run"
+yes_if = "all three Holm-adjusted 95 % CI lower bounds of the recall difference are above zero"
+breakdowns = ["fault", "severity", "v56", "has_mppt", "month", "ambient_band"]
+
+[rq2.real_episodes]
+labelling = "candidates reviewed on raw traces, blind to detector scores; a second reviewer labels 20 % for Cohen's kappa"
+rules = [
+  { name = "cpu_hot", rule = "cpu_temp_celsius >= 95 for >= 2 h" },
+  { name = "voltage_shift", rule = "daily mean input voltage steps by > 5 % and stays for >= 3 days" },
+  { name = "ds_error_burst", rule = "ds_consumer_error_total_rate above the device's 99.5th percentile" },
+  { name = "outage", rule = "up = 0 for >= 1 h" },
+  { name = "disk_full", rule = "storage_free_gb < 1" },
+  { name = "power_identity", rule = "|P - V * I| / P > 2 % for >= 1 h" },
+]
+
+# ------------------------------------------------------------------ both
+[inference]
+bootstrap = { resamples = 2000, unit = "device", ci = 0.95 }
+multiplicity = "holm"
+paired = true                          # same devices, hours and episodes for every method
+seed_development = 20261103
+seed_test = 0                          # drawn at the freeze and written here
+
+[open]
+D2 = "RQ1 usefulness thresholds (rq1.useful)"
+D3 = "hand-graph reviewer and fault-injector author, two different people"
+D5 = "confirmatory RQ2 now (synthetic + in-data episodes) or after the Linux-log labels"
+
+[settled]
+D1 = "2026-11-10: no fresh export. August to October are reused as the test and scored once; every setting is chosen on March to July (splits.rq1). The write-up says that the pilot of 2 November had already scored these months."
+D4 = "2026-11-10: city-level hourly weather is an RQ1 input group (features.weather, [weather]). Settled before any RQ1 run with weather and without using August to October."
+D6 = "2026-11-10: the demo and show units are left out of every RQ experiment (data.excluded_agencies). Decided after the first RQ1 test run had been read; RQ1 was redone and the test months scored a second time (deviation log of PROTOCOL.md). First run: archive/2026-11-10-rq1-run1/."
+D7 = "2026-11-10: the buspas units (10) are also left out of every RQ experiment (data.excluded_agencies), at the user's request after the second RQ1 run had been read. RQ1 was redone and the test months scored a third time (deviation log of PROTOCOL.md). Second run: archive/2026-11-10-rq1-run2/."

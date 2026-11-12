@@ -51,3 +51,10 @@ up,float64,434435,share of successful scrapes
 wifi_hotspot_running,float64,278263,bucket mean
 wwan_rx_gb_rate,float64,297403,counter rate per bucket
 wwan_tx_gb_rate,float64,297403,counter rate per bucket
+wx_cloud_pct,float32,384517,city weather (weather.py)
+wx_dewpoint_c,float32,384517,city weather (weather.py)
+wx_humidity_pct,float32,384517,city weather (weather.py)
+wx_precip_mm,float32,384517,city weather (weather.py)
+wx_solar_wm2,float32,384517,city weather (weather.py)
+wx_temp_c,float32,384517,city weather (weather.py)
+wx_wind_ms,float32,384517,city weather (weather.py)

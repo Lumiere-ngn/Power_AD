@@ -8,6 +8,8 @@ Per (device, hour):
   * samples_<metric> columns are not kept; a per-row `n_samples` gives total sample count
   * time features: hour sin/cos, day of week, weekend flag, days since the device's first sample
   * agency label (categorical) from the device's labels
+  * wx_* columns: hourly weather of the agency's city, when analysis/out/weather.parquet exists
+    (see weather.py; empty for agencies without a nameable city)
 Rows are a complete hourly grid from each device's first to last hour, so gaps show up as NaN.
 
 Output: analysis/out/features.parquet (and a column dictionary analysis/out/features_columns.csv).
@@ -137,7 +139,20 @@ def main() -> None:
     full["days_since_first"] = ((full["time"] - first).dt.total_seconds() / 86400).astype("float32")
     ag = pd.concat(agencies).groupby(level=0).first()
     ag = ag.map(lambda a: {"balharbour": "BalHarbour", "demo": "demo"}.get(str(a).lower(), a) if a else None)
-    full["agency"] = full["device"].map(ag).astype("category")
+    full["agency"] = full["device"].map(ag)
+
+    # city-level hourly weather from weather.py, joined on (agency, hour); hourly tables only
+    wx_path = OUT / "weather.parquet"
+    if wx_path.exists() and freq_ms == 3_600_000:
+        wx = pd.read_parquet(wx_path)
+        wx["time"] = wx["time"].astype(full["time"].dtype)
+        n = len(full)
+        full = full.merge(wx, on=["agency", "time"], how="left", validate="many_to_one")
+        assert len(full) == n
+    else:
+        print("no weather columns: run analysis/weather.py first (hourly tables only)", flush=True)
+
+    full["agency"] = full["agency"].astype("category")
     full["device"] = full["device"].astype("category")
     full["has_data"] = (full["n_samples"] > 0).astype("int8")
 
@@ -149,7 +164,7 @@ def main() -> None:
         "column": full.columns,
         "dtype": [str(d) for d in full.dtypes],
         "non_null": [int(full[c].notna().sum()) for c in full.columns],
-        "kind": ["id/time" if c in lead else "counter rate per bucket" if c.endswith("_rate") else "share of successful scrapes" if c == "up" else "bucket mean" for c in full.columns],
+        "kind": ["id/time" if c in lead else "city weather (weather.py)" if c.startswith("wx_") else "counter rate per bucket" if c.endswith("_rate") else "share of successful scrapes" if c == "up" else "bucket mean" for c in full.columns],
     })
     cols.to_csv(OUT / "features_columns.csv", index=False)
     print(f"features: {full.shape[0]:,} rows × {full.shape[1]} columns, {full['device'].nunique()} devices, "

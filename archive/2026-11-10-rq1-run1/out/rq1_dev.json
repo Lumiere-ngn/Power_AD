@@ -1,0 +1,3368 @@
+{
+ "generated": "2026-11-10T16:22:15.584169+00:00",
+ "data_until": "2026-07-31 23:00:00+00:00",
+ "signs": {
+  "june": 45,
+  "july": 70,
+  "bands": 45
+ },
+ "label": {
+  "input_power_watts": "Input power",
+  "orin_power_watts": "Orin power",
+  "cpu_gpu_power_watts": "CPU+GPU power",
+  "power": "Heartbeat power",
+  "input_current_amperes": "Input current",
+  "input_voltage_volts": "Input voltage",
+  "input_energy_wh_total_rate": "Energy counter",
+  "cpu_temp_celsius": "CPU temp",
+  "gpu_temp_celsius": "GPU temp",
+  "board_temp_celsius": "Board temp"
+ },
+ "unit": {
+  "input_power_watts": "W",
+  "orin_power_watts": "W",
+  "cpu_gpu_power_watts": "W",
+  "cpu_temp_celsius": "\u00b0C",
+  "gpu_temp_celsius": "\u00b0C",
+  "board_temp_celsius": "\u00b0C"
+ },
+ "selection_june": {
+  "input_power_watts": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.5329657266089385,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7588592039721012
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4974724010277748,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.774918189300813
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.48123706700507096,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7822638799795051
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4840286001243419,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7810008484468731
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.49251184514715124,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7771625970254998
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.477070068578088,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7841492419597642
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4729596506578857,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7860090040416368
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4816619525231817,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.782071640165681
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.5319244607311245,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7593303256035996
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.49217126526983923,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7773166926804844
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4784186944920007,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7835390550186753
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4784321235524027,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7835329790288816
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.5040492640178917,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7719424820505663
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4817673593026295,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7820239487787235
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4764578371528871,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7844262465884964
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.48230322997406194,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.781781493637941
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.5252973855400187,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7623287514068644
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.49081751814943886,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7779291967158017
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4784020873824855,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7835465689194916
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.48629546486106506,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7799752035698957
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.500104335082574,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7737273685005612
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.48149631443767804,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7821465832582604
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.47918371871304144,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7831929191595908
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.4907252733851952,
+    "mae_baseline": 2.21018481894402,
+    "skill": 0.7779709329377923
+   }
+  },
+  "orin_power_watts": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3521817847985336,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8098802790716733
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3014982788731582,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8372409615888393
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2921496347989235,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8422876780266826
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.29277124479912714,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.841952111779744
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.319061858916316,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8277595429566472
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.28650116727343905,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8453369131545929
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.29063655197252847,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8431044916641631
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2920287560042545,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8423529325165529
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3843225405433356,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.792529604572358
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.33910622469396917,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.816938911702215
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.32207433721366097,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8261333045822761
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3276553178454383,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8231205011778443
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3652054554772539,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8028496581202882
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.333644610105457,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8198872772515009
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3230425256464793,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8256106434947393
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.33354744103926764,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8199397324225068
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3674642349954361,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.801630292014
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3570340358358942,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8072608687190768
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.33901429133541167,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8169885404599401
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.34130740564708795,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8157506392628578
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.351106192566166,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8104609203878259
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3537299890291113,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8090445057041612
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3429778565103304,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8148488729999439
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.3467291043880389,
+    "mae_baseline": 1.8524211117020453,
+    "skill": 0.8128238216474133
+   }
+  },
+  "cpu_gpu_power_watts": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2190502426413676,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.794567037456986
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2000023816240612,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8124307863015804
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.18980362881323046,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8219955326305908
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.1861102735802486,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8254592900685472
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.20308410517436418,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8095406384019781
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.19238776626977347,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8195720383357903
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.18786649710616005,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8238122423526202
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.18693577300218805,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8246851079001932
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.23788956453352092,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7768988638821095
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21737325540497204,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7961397746152077
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21325864125948607,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7999986033635168
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21041717446580913,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8026634300916402
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.23103716287208634,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.783325285313415
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21559811149673827,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7978045665260101
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2142196519623077,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7990973339865208
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21246976609214663,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.800738438027697
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.2328908706319833,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7815868134805941
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.215426755976876,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7979652697129545
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.20780357188573387,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8051145578076409
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.20609324684947233,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8067185603180875
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.22862858299531524,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.7855841355828332
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.21308610230243388,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8001604164191606
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.20889974491686109,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8040865284819081
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 0.20692922283939952,
+    "mae_baseline": 1.0662857602294589,
+    "skill": 0.8059345528586357
+   }
+  },
+  "cpu_temp_celsius": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.7095261478537065,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7769596724482946
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.55900546804206,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7893500978941197
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.505403720962876,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7937624381239252
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.445057870590347,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7987299333607351
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.4546919920341996,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7979368804484346
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.443752812159379,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7988373619825802
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.4482855837809545,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7984642373799651
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.435981505498892,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.7994770733891052
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.7052714651952297,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8596270028753913
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.6082672187608484,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8676121108677127
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5643625238878183,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8712262179075342
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5377576902104295,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8734162505900251
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.6100797691190472,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8674629069835145
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5411703008730933,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8731353343860572
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5207321120360566,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.874817746765206
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.516414894631889,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8751731275703332
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.6981781715536837,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8602109022182649
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5363059534770485,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8735357533439618
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5068589209682892,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8759597475842027
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.4676533517214014,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8791870362426287
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.5995700020304544,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.868328040503554
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.4606394394251077,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8797644011435815
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.457058360785152,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8800591851424282
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.4409310199555845,
+    "mae_baseline": 12.148144587106483,
+    "skill": 0.8813867410266975
+   }
+  },
+  "gpu_temp_celsius": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.627662102918245,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.7925632020807083
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.465673205390117,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8053511698199365
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.376134651324254,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8124196551191378
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.340463132607094,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8152356890419881
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.382393061001412,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8119255944626877
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.3320612391932163,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8158989637698529
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.3021922621394624,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8182569248449373
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 2.3326361433167273,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8158535788360902
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.691125154006799,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.866496690560653
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.6491119306647835,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8698133607332209
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.6270472288896893,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8715552251373947
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5868525778429392,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8747283308793244
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5959309385280667,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8740116534690943
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.571554688957731,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8759359995067892
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5792120860888015,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8753314979083906
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.562905641287891,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8766187854523987
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.6805729809255423,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8673297158543676
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5885866004701517,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8745914410939486
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5414747932173023,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8783106112375788
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5482237664541576,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8777778237852114
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.6128727499588185,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8726742078704975
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5050284493237662,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8811878125583819
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.4963412164237964,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8818736129790476
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 29803,
+    "signs": 44,
+    "mae": 1.5203495353490621,
+    "mae_baseline": 12.667290130175456,
+    "skill": 0.8799783126678884
+   }
+  },
+  "board_temp_celsius": {
+   "pilot inputs | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.230442189336114,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8018143246018736
+   },
+   "pilot inputs | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.1311438130717786,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8106374700122204
+   },
+   "pilot inputs | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.0994602386280734,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8134527102503103
+   },
+   "pilot inputs | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.0924722623984287,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8140736260468997
+   },
+   "pilot inputs | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.0791602748162434,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8152564611199092
+   },
+   "pilot inputs | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.0612462927145847,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8168482058684893
+   },
+   "pilot inputs | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.067562765720698,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8162869564109442
+   },
+   "pilot inputs | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 2.0901574467069692,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8142793087197919
+   },
+   "+ weather | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.4611419783784758,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8701704033298954
+   },
+   "+ weather | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3927370475790262,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8762485153185707
+   },
+   "+ weather | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3888331615811773,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8765953946444999
+   },
+   "+ weather | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.4139402314272362,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8743645089400871
+   },
+   "+ weather | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3582961248153211,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8793087594136177
+   },
+   "+ weather | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3371938319696453,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8811838011340732
+   },
+   "+ weather | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3569750096509432,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8794261469443876
+   },
+   "+ weather | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3962973519232595,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8759321648996008
+   },
+   "+ weather + lags | 15 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.434342267221779,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8725516884766069
+   },
+   "+ weather + lags | 31 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3657332243795215,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8786479368165645
+   },
+   "+ weather + lags | 63 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3480596426867413,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.880218320815412
+   },
+   "+ weather + lags | 127 leaves, 200 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.3694139807882124,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8783208836437363
+   },
+   "+ weather + lags | 15 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.337778033293077,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8811318919949768
+   },
+   "+ weather + lags | 31 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.2986811028751601,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8846058450962562
+   },
+   "+ weather + lags | 63 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.2989404325466611,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.884582802389145
+   },
+   "+ weather + lags | 127 leaves, 500 trees": {
+    "n": 30522,
+    "signs": 45,
+    "mae": 1.33529928398641,
+    "mae_baseline": 11.254305765820252,
+    "skill": 0.8813521409697466
+   }
+  }
+ },
+ "chosen": {
+  "power": {
+   "inputs": "pilot inputs",
+   "setting": "31 leaves, 500 trees",
+   "features": [
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "is_weekend",
+    "v56",
+    "mem_total",
+    "disk_total",
+    "has_mppt",
+    "has_env",
+    "has_ds",
+    "agency",
+    "peer_temperature",
+    "peer_humidity",
+    "peer_lightsensor",
+    "temperature",
+    "humidity",
+    "lightsensor",
+    "deepstream_app_running",
+    "mem_used_gb",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate",
+    "pir_count_rate",
+    "ds_consumer_error_total_rate"
+   ],
+   "params": {
+    "num_leaves": 31,
+    "n_estimators": 500
+   },
+   "june_mean_skill": 0.8163527311500491,
+   "june_best_mean_skill": 0.8176419126861401,
+   "june_mean_skill_all": {
+    "pilot inputs | 15 leaves, 200 trees": 0.7877688401669202,
+    "pilot inputs | 15 leaves, 500 trees": 0.8048209261280417,
+    "pilot inputs | 31 leaves, 200 trees": 0.808196645730411,
+    "pilot inputs | 31 leaves, 500 trees": 0.8163527311500491,
+    "pilot inputs | 63 leaves, 200 trees": 0.8155156968789262,
+    "pilot inputs | 63 leaves, 500 trees": 0.8176419126861401,
+    "pilot inputs | 127 leaves, 200 trees": 0.8161374167650548,
+    "pilot inputs | 127 leaves, 500 trees": 0.8163698935274758,
+    "+ weather | 15 leaves, 200 trees": 0.776252931352689,
+    "+ weather | 15 leaves, 500 trees": 0.7860391418280899,
+    "+ weather | 31 leaves, 200 trees": 0.7967984596659691,
+    "+ weather | 31 leaves, 500 trees": 0.7999052641854115,
+    "+ weather | 63 leaves, 200 trees": 0.8032236543214895,
+    "+ weather | 63 leaves, 500 trees": 0.8030447413565854,
+    "+ weather | 127 leaves, 200 trees": 0.803105636766122,
+    "+ weather | 127 leaves, 500 trees": 0.8008198880293816,
+    "+ weather + lags | 15 leaves, 200 trees": 0.7818486189671529,
+    "+ weather + lags | 15 leaves, 500 trees": 0.7899241414904067,
+    "+ weather + lags | 31 leaves, 200 trees": 0.7943851117159443,
+    "+ weather + lags | 31 leaves, 500 trees": 0.7971171684605274,
+    "+ weather + lags | 63 leaves, 200 trees": 0.8018832223956908,
+    "+ weather + lags | 63 leaves, 500 trees": 0.8007094402138142,
+    "+ weather + lags | 127 leaves, 200 trees": 0.8008148010502804,
+    "+ weather + lags | 127 leaves, 500 trees": 0.7989097691479472
+   }
+  },
+  "thermal": {
+   "inputs": "+ weather + lags",
+   "setting": "31 leaves, 500 trees",
+   "features": [
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "is_weekend",
+    "v56",
+    "mem_total",
+    "disk_total",
+    "has_mppt",
+    "has_env",
+    "has_ds",
+    "agency",
+    "peer_temperature",
+    "peer_humidity",
+    "peer_lightsensor",
+    "temperature",
+    "humidity",
+    "lightsensor",
+    "deepstream_app_running",
+    "mem_used_gb",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate",
+    "pir_count_rate",
+    "ds_consumer_error_total_rate",
+    "wx_temp_c",
+    "wx_humidity_pct",
+    "wx_dewpoint_c",
+    "wx_cloud_pct",
+    "wx_wind_ms",
+    "wx_solar_wm2",
+    "wx_precip_mm",
+    "lightsensor_lag1",
+    "lightsensor_lag2",
+    "temperature_lag1",
+    "temperature_lag2",
+    "wx_temp_c_lag1",
+    "wx_temp_c_lag2",
+    "wx_solar_wm2_lag1",
+    "wx_solar_wm2_lag2"
+   ],
+   "params": {
+    "num_leaves": 31,
+    "n_estimators": 500
+   },
+   "june_mean_skill": 0.8818526862660732,
+   "june_best_mean_skill": 0.8821718668368735,
+   "june_mean_skill_all": {
+    "pilot inputs | 15 leaves, 200 trees": 0.7904457330436255,
+    "pilot inputs | 15 leaves, 500 trees": 0.8083729786770105,
+    "pilot inputs | 31 leaves, 200 trees": 0.8017795792420922,
+    "pilot inputs | 31 leaves, 500 trees": 0.8105281772069741,
+    "pilot inputs | 63 leaves, 200 trees": 0.8065449344977912,
+    "pilot inputs | 63 leaves, 500 trees": 0.8110027062119488,
+    "pilot inputs | 127 leaves, 200 trees": 0.8093464161498742,
+    "pilot inputs | 127 leaves, 500 trees": 0.8098699869816625,
+    "+ weather | 15 leaves, 200 trees": 0.8654313655886465,
+    "+ weather | 15 leaves, 500 trees": 0.8735944399554088,
+    "+ weather | 31 leaves, 200 trees": 0.8712246623065014,
+    "+ weather | 31 leaves, 500 trees": 0.8767517116756399,
+    "+ weather | 63 leaves, 200 trees": 0.8731256125631429,
+    "+ weather | 63 leaves, 500 trees": 0.8765251305393281,
+    "+ weather | 127 leaves, 200 trees": 0.8741696968031455,
+    "+ weather | 127 leaves, 500 trees": 0.8759080259741109,
+    "+ weather + lags | 15 leaves, 200 trees": 0.8666974355164131,
+    "+ weather + lags | 15 leaves, 500 trees": 0.8740447134563428,
+    "+ weather + lags | 31 leaves, 200 trees": 0.8755917104181584,
+    "+ weather + lags | 31 leaves, 500 trees": 0.8818526862660732,
+    "+ weather + lags | 63 leaves, 200 trees": 0.8781628932123979,
+    "+ weather + lags | 63 leaves, 500 trees": 0.8821718668368735,
+    "+ weather + lags | 127 leaves, 200 trees": 0.8784285812238588,
+    "+ weather + lags | 127 leaves, 500 trees": 0.8809057315547775
+   }
+  }
+ },
+ "recheck_july": {
+  "input_power_watts": {
+   "main": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.4761746614628471,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.6982892014072877,
+    "nmae": 0.041516661668420315,
+    "bias": 0.10994526540798827,
+    "r2_within": 0.6855697129332525,
+    "mae_ci": [
+     0.40394882049306136,
+     0.5554426847057252
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.6276108685679126,
+     0.7452297412351667
+    ],
+    "nmae_ci": [
+     0.03634346182830291,
+     0.04710677082787799
+    ],
+    "recent_baseline": {
+     "mae_baseline": 0.8934825935258879,
+     "skill": 0.4670577077682596,
+     "mae_baseline_ci": [
+      0.6726060359782466,
+      1.1343141127033063
+     ],
+     "skill_ci": [
+      0.28719288293933176,
+      0.5898909583312278
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.3346598702185357,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.15434119477040076,
+    "nmae": 0.11280314435386782,
+    "bias": 0.6531813834558063,
+    "r2_within": -1.4024135821341868,
+    "mae_ci": [
+     1.0840803057798991,
+     1.5791414818449447
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.047283734281750006,
+     0.23471680776446707
+    ],
+    "nmae_ci": [
+     0.09331426894527502,
+     0.1317608342211406
+    ],
+    "mae_change": 0.858485208755689,
+    "mae_change_ci": [
+     0.632321506864301,
+     1.077205278214405
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.466249535706605,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.7045778972586156,
+    "nmae": 0.041243734860283876,
+    "bias": 0.13203157814878036,
+    "r2_within": 0.6928096101515078,
+    "mae_ci": [
+     0.39471767723270007,
+     0.5477109528400518
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.6311749359624872,
+     0.752647258292583
+    ],
+    "nmae_ci": [
+     0.03563468146905314,
+     0.047345462896493815
+    ],
+    "mae_change": -0.009925125756242213,
+    "mae_change_ci": [
+     -0.02260582845037524,
+     0.005272265533512893
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.6133190373325355,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.6113926432430494,
+    "nmae": 0.050802683516369664,
+    "bias": 0.17023120763399724,
+    "r2_within": 0.4367102483599594,
+    "mae_ci": [
+     0.5030012163578615,
+     0.7404754527540219
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.5344400688468037,
+     0.6691751455102718
+    ],
+    "nmae_ci": [
+     0.04366660270398729,
+     0.05862226164938429
+    ],
+    "mae_change": 0.1371443758696885,
+    "mae_change_ci": [
+     0.06344305542954162,
+     0.21607636824140178
+    ]
+   },
+   "time only": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 2.6431568076992704,
+    "mae_baseline": 1.578248652961369,
+    "skill": -0.6747404173225466,
+    "nmae": 0.22180697546572684,
+    "bias": 0.6371172955932021,
+    "r2_within": -5.4292410085920855,
+    "mae_ci": [
+     2.3023225809493417,
+     3.0172294672339537
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     -1.0787400112874548,
+     -0.37269343648108344
+    ],
+    "nmae_ci": [
+     0.20309041009925158,
+     0.2401846629460893
+    ],
+    "mae_change": 2.1669821462364234,
+    "mae_change_ci": [
+     1.8275388490671352,
+     2.5287958274325573
+    ]
+   },
+   "+ sign identity": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.36504408975773517,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.7687030563449051,
+    "nmae": 0.0331090204777347,
+    "bias": 0.1252580055092853,
+    "r2_within": 0.7986834713574132,
+    "mae_ci": [
+     0.3174066737122001,
+     0.4196073333594965
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.7241486403822318,
+     0.8019916661371366
+    ],
+    "nmae_ci": [
+     0.028972931720419603,
+     0.038035096023575014
+    ],
+    "mae_change": -0.11113057170511184,
+    "mae_change_ci": [
+     -0.17986220025020794,
+     -0.0543952958576227
+    ]
+   },
+   "training not cleaned": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.47695296363656614,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.6977960584717569,
+    "nmae": 0.04155098326004234,
+    "bias": 0.09892746270234591,
+    "r2_within": 0.6866479656360582,
+    "mae_ci": [
+     0.4046941747042973,
+     0.5573965085387184
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.6275087773942468,
+     0.743539315904192
+    ],
+    "nmae_ci": [
+     0.03627633477479053,
+     0.04730425004031789
+    ],
+    "mae_change": 0.0007783021737190959,
+    "mae_change_ci": [
+     -0.003954113801195506,
+     0.005287024655067407
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.47660143393898174,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.6980187925111142,
+    "nmae": 0.041520546123636454,
+    "bias": 0.10881446118715768,
+    "r2_within": 0.6801195156389056,
+    "mae_ci": [
+     0.40329997565134224,
+     0.5573361093025316
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.6297403570031722,
+     0.7443952381635962
+    ],
+    "nmae_ci": [
+     0.03620175951031117,
+     0.0471014634026201
+    ],
+    "mae_change": 0.0004267724761346032,
+    "mae_change_ci": [
+     -0.013073739046530395,
+     0.01570855837201928
+    ]
+   },
+   "inputs: + weather + lags": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.4409556933985009,
+    "mae_baseline": 1.578248652961369,
+    "skill": 0.7206044227751391,
+    "nmae": 0.03927867433018373,
+    "bias": 0.045205083848109284,
+    "r2_within": 0.7179736419420508,
+    "mae_ci": [
+     0.37002002624545416,
+     0.5220686341220698
+    ],
+    "mae_baseline_ci": [
+     1.2601993922603867,
+     1.8999423724755784
+    ],
+    "skill_ci": [
+     0.6452225165620198,
+     0.7686317456054128
+    ],
+    "nmae_ci": [
+     0.03388583765261582,
+     0.04532050705613513
+    ],
+    "mae_change": -0.035218968064346184,
+    "mae_change_ci": [
+     -0.05728742279249345,
+     -0.013705385383003109
+    ]
+   }
+  },
+  "orin_power_watts": {
+   "main": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.25226758158289675,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.8104521392074253,
+    "nmae": 0.037069079214831206,
+    "bias": 0.08782922627853447,
+    "r2_within": 0.8533710282398262,
+    "mae_ci": [
+     0.20540221753183882,
+     0.30377956342591345
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7687914171542228,
+     0.8407262446652589
+    ],
+    "nmae_ci": [
+     0.031061875395635017,
+     0.04412655943842702
+    ],
+    "recent_baseline": {
+     "mae_baseline": 0.6991736458011487,
+     "skill": 0.6391918043566477,
+     "mae_baseline_ci": [
+      0.49490375184146485,
+      0.9213232071025531
+     ],
+     "skill_ci": [
+      0.5010319664941659,
+      0.7308869887887228
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.1636415095497712,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.12566744612754732,
+    "nmae": 0.1598764972032157,
+    "bias": 0.6669141085550151,
+    "r2_within": -1.4779035366749391,
+    "mae_ci": [
+     0.9366248789393806,
+     1.382179446869299
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     -0.0038906450670719785,
+     0.22134628518799052
+    ],
+    "nmae_ci": [
+     0.1318544792963811,
+     0.18757998506125226
+    ],
+    "mae_change": 0.9113739279668744,
+    "mae_change_ci": [
+     0.7114194320991339,
+     1.108597644944347
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.30167410269508327,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.7733292543434391,
+    "nmae": 0.04362885713748134,
+    "bias": 0.1611341946395081,
+    "r2_within": 0.7969945057783366,
+    "mae_ci": [
+     0.24772740924733133,
+     0.36094997472901375
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7328508625307368,
+     0.8028842861477825
+    ],
+    "nmae_ci": [
+     0.0368724874530227,
+     0.051095261667337
+    ],
+    "mae_change": 0.049406521112186505,
+    "mae_change_ci": [
+     0.0300618832561176,
+     0.07029775523600713
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.29203395594487797,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.7805726313273639,
+    "nmae": 0.04188215221895102,
+    "bias": 0.095785145371289,
+    "r2_within": 0.8062868299395181,
+    "mae_ci": [
+     0.23614215404724948,
+     0.3547171626801955
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7314358550779184,
+     0.8154161280183927
+    ],
+    "nmae_ci": [
+     0.03525589360961599,
+     0.04937010061818294
+    ],
+    "mae_change": 0.03976637436198113,
+    "mae_change_ci": [
+     0.020519303921001132,
+     0.06100206877348341
+    ]
+   },
+   "time only": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.8389963054528173,
+    "mae_baseline": 1.3308912088380536,
+    "skill": -0.3817780846703236,
+    "nmae": 0.26428754349585404,
+    "bias": 0.6689639049440864,
+    "r2_within": -3.0923256726920405,
+    "mae_ci": [
+     1.6138547770471463,
+     2.061745752586509
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     -0.7082880255085886,
+     -0.15824486329494514
+    ],
+    "nmae_ci": [
+     0.244085366785039,
+     0.2831854753248874
+    ],
+    "mae_change": 1.5867287238699208,
+    "mae_change_ci": [
+     1.3838612896854696,
+     1.788093804795591
+    ]
+   },
+   "+ sign identity": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.2274077555747127,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.8291312211963192,
+    "nmae": 0.03429110235297523,
+    "bias": 0.10910897551068681,
+    "r2_within": 0.873525808863661,
+    "mae_ci": [
+     0.1880234480532476,
+     0.26820708679389704
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7967670870593845,
+     0.8528109659052464
+    ],
+    "nmae_ci": [
+     0.028177278563644725,
+     0.041117188487558264
+    ],
+    "mae_change": -0.024859826008184024,
+    "mae_change_ci": [
+     -0.05220829813174667,
+     0.00012039917439727345
+    ]
+   },
+   "training not cleaned": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.2528579774638119,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.8100085297846608,
+    "nmae": 0.03701141463397405,
+    "bias": 0.09174237351882639,
+    "r2_within": 0.8536392207684402,
+    "mae_ci": [
+     0.20580932913226785,
+     0.3043215503367169
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7684988608051725,
+     0.8396262985643168
+    ],
+    "nmae_ci": [
+     0.030963615896723178,
+     0.043988980767982834
+    ],
+    "mae_change": 0.0005903958809150803,
+    "mae_change_ci": [
+     -0.003641970811552751,
+     0.004437197880183159
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.24498954657679703,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.8159206816080127,
+    "nmae": 0.0363454673107526,
+    "bias": 0.05600834588561818,
+    "r2_within": 0.8477940205823015,
+    "mae_ci": [
+     0.19752896752543692,
+     0.29906618505508886
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7710843122653842,
+     0.850832213940288
+    ],
+    "nmae_ci": [
+     0.029996633009452572,
+     0.04392740345126733
+    ],
+    "mae_change": -0.007278035006099826,
+    "mae_change_ci": [
+     -0.022629947735384754,
+     0.011718681292260513
+    ]
+   },
+   "inputs: + weather + lags": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.23779745102992653,
+    "mae_baseline": 1.3308912088380536,
+    "skill": 0.8213246511429453,
+    "nmae": 0.03608004691130353,
+    "bias": 0.024552804880102783,
+    "r2_within": 0.8599661398717481,
+    "mae_ci": [
+     0.19435464106591707,
+     0.2855758270796127
+    ],
+    "mae_baseline_ci": [
+     1.0326743268016856,
+     1.633788925664138
+    ],
+    "skill_ci": [
+     0.7747105495502926,
+     0.8555508346841193
+    ],
+    "nmae_ci": [
+     0.029779522347740558,
+     0.04338609662264089
+    ],
+    "mae_change": -0.014470130552970237,
+    "mae_change_ci": [
+     -0.03243709660184751,
+     0.0031753947691052814
+    ]
+   }
+  },
+  "cpu_gpu_power_watts": {
+   "main": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.16179931990407032,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.789219095094766,
+    "nmae": 0.10186047511940435,
+    "bias": 0.05149283192961424,
+    "r2_within": 0.8198618034045452,
+    "mae_ci": [
+     0.13357395621826904,
+     0.192818943326707
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7397095773071476,
+     0.8243571158388312
+    ],
+    "nmae_ci": [
+     0.0867120644804222,
+     0.11942294601521665
+    ],
+    "recent_baseline": {
+     "mae_baseline": 0.41118322637642346,
+     "skill": 0.606503112177176,
+     "mae_baseline_ci": [
+      0.2936660802555081,
+      0.5416260953209472
+     ],
+     "skill_ci": [
+      0.46350007478408534,
+      0.7015888361139073
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.668437463522747,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.12920614550531517,
+    "nmae": 0.35376080681927013,
+    "bias": 0.3850037174839705,
+    "r2_within": -1.4495311761197152,
+    "mae_ci": [
+     0.541195328262408,
+     0.7918854454220371
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.0016088054064910266,
+     0.2239995144967558
+    ],
+    "nmae_ci": [
+     0.29418371693543843,
+     0.4153840488994658
+    ],
+    "mae_change": 0.5066381436186768,
+    "mae_change_ci": [
+     0.39650410739864655,
+     0.6185940059458394
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.1799240036190823,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.7656075172659071,
+    "nmae": 0.11096201363438389,
+    "bias": 0.08023798961515137,
+    "r2_within": 0.7782062464376461,
+    "mae_ci": [
+     0.1476533608128394,
+     0.21361895954220678
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7177926616857725,
+     0.7998699106677083
+    ],
+    "nmae_ci": [
+     0.09518947161178404,
+     0.12849321472517505
+    ],
+    "mae_change": 0.018124683715012066,
+    "mae_change_ci": [
+     0.008436170740038535,
+     0.028765425080463085
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.17937930540128885,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.7663171122340123,
+    "nmae": 0.10685612275236145,
+    "bias": 0.05440119619302484,
+    "r2_within": 0.7829379351941707,
+    "mae_ci": [
+     0.14583183598590038,
+     0.21699989415643534
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7112766106031939,
+     0.8034535488303987
+    ],
+    "nmae_ci": [
+     0.09253905138403357,
+     0.12451846400737672
+    ],
+    "mae_change": 0.01757998549721852,
+    "mae_change_ci": [
+     0.005907031612557316,
+     0.02984528324970935
+    ]
+   },
+   "time only": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.0396056482250156,
+    "mae_baseline": 0.7676184898096649,
+    "skill": -0.35432596013000084,
+    "nmae": 0.7235224433639826,
+    "bias": 0.3944283856857977,
+    "r2_within": -2.9310208520557968,
+    "mae_ci": [
+     0.9112808259541557,
+     1.168013693693594
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     -0.6749258323662108,
+     -0.135465777231113
+    ],
+    "nmae_ci": [
+     0.6490330341279935,
+     0.8009675852515862
+    ],
+    "mae_change": 0.8778063283209453,
+    "mae_change_ci": [
+     0.763084219609711,
+     0.9942218682759293
+    ]
+   },
+   "+ sign identity": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.14604785660433572,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.8097390063642825,
+    "nmae": 0.0927815470789192,
+    "bias": 0.062075873903153854,
+    "r2_within": 0.8422380761270198,
+    "mae_ci": [
+     0.12063692714742225,
+     0.17307129114994754
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7706578451687109,
+     0.8376302010153219
+    ],
+    "nmae_ci": [
+     0.07867872681824292,
+     0.10893799950954254
+    ],
+    "mae_change": -0.0157514632997346,
+    "mae_change_ci": [
+     -0.030358482328707515,
+     -0.0023488050585511386
+    ]
+   },
+   "training not cleaned": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.1651819878996835,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.784812390409406,
+    "nmae": 0.10422283801857554,
+    "bias": 0.054893364266721395,
+    "r2_within": 0.8153404198368085,
+    "mae_ci": [
+     0.1360551920078943,
+     0.19647616639563853
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7336645803886321,
+     0.8208404788142899
+    ],
+    "nmae_ci": [
+     0.08910410410993289,
+     0.12171282205748192
+    ],
+    "mae_change": 0.0033826679956131967,
+    "mae_change_ci": [
+     0.0016793960933556115,
+     0.005133855865406977
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.1573000841347106,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.7950803866466087,
+    "nmae": 0.10168042043612961,
+    "bias": 0.02080495839287593,
+    "r2_within": 0.8120081814744872,
+    "mae_ci": [
+     0.12638536197101574,
+     0.1924506948183857
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7387117591489907,
+     0.8354023396951156
+    ],
+    "nmae_ci": [
+     0.0856196069602909,
+     0.12084237113211622
+    ],
+    "mae_change": -0.0044992357693597424,
+    "mae_change_ci": [
+     -0.014669464392688947,
+     0.006110163290294262
+    ]
+   },
+   "inputs: + weather + lags": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 0.15644269638329616,
+    "mae_baseline": 0.7676184898096649,
+    "skill": 0.7961973317994373,
+    "nmae": 0.10302591857524014,
+    "bias": 0.0183338915244077,
+    "r2_within": 0.8211544127295635,
+    "mae_ci": [
+     0.1273778559316219,
+     0.18974616904780314
+    ],
+    "mae_baseline_ci": [
+     0.597961908351122,
+     0.9404980156323315
+    ],
+    "skill_ci": [
+     0.7415788543445594,
+     0.8356494538324961
+    ],
+    "nmae_ci": [
+     0.08708386809175016,
+     0.12200569968449727
+    ],
+    "mae_change": -0.00535662352077416,
+    "mae_change_ci": [
+     -0.01539744217360286,
+     0.003906354984826023
+    ]
+   }
+  },
+  "cpu_temp_celsius": {
+   "main": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.7816605472311917,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.8063034505224385,
+    "nmae": 0.04209887843737699,
+    "bias": 0.318134524021579,
+    "r2_within": 0.4975846354001294,
+    "mae_ci": [
+     1.275957326817508,
+     2.506406636229048
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7318909096535597,
+     0.8617805008636517
+    ],
+    "nmae_ci": [
+     0.02998151442461192,
+     0.05902842057537289
+    ],
+    "recent_baseline": {
+     "mae_baseline": 3.9989277460708434,
+     "skill": 0.5544654316443285,
+     "mae_baseline_ci": [
+      3.553945037037212,
+      4.669159989480005
+     ],
+     "skill_ci": [
+      0.4425848183910151,
+      0.6568782864780783
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 2.2746151395400656,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.7527109725794687,
+    "nmae": 0.05371716336327184,
+    "bias": 0.6949230027269698,
+    "r2_within": 0.361091304956348,
+    "mae_ci": [
+     1.7040917726603657,
+     3.0404755679043247
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.6758973701355337,
+     0.8124909387292881
+    ],
+    "nmae_ci": [
+     0.04024416500397099,
+     0.07131650623947242
+    ],
+    "mae_change": 0.4929545923088739,
+    "mae_change_ci": [
+     0.3219673896104595,
+     0.6809008665109086
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 2.492045421922884,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.7290726338875481,
+    "nmae": 0.05928229712524226,
+    "bias": 0.35284114026089186,
+    "r2_within": 0.3361553931904133,
+    "mae_ci": [
+     1.9752612320850618,
+     3.2251683481382667
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.6490853366145436,
+     0.7887733434356448
+    ],
+    "nmae_ci": [
+     0.046971393780325534,
+     0.07621172218760162
+    ],
+    "mae_change": 0.7103848746916922,
+    "mae_change_ci": [
+     0.5980139393442877,
+     0.826497220787253
+    ]
+   },
+   "\u2212 weather": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 2.30107256701578,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.7498346040040615,
+    "nmae": 0.052693862199472224,
+    "bias": 1.2003888774848683,
+    "r2_within": 0.3697620898614057,
+    "mae_ci": [
+     1.7052309124853815,
+     3.070277849519674
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.673344011989767,
+     0.8131333759002463
+    ],
+    "nmae_ci": [
+     0.03922071194222958,
+     0.0703388365839863
+    ],
+    "mae_change": 0.5194120197845884,
+    "mae_change_ci": [
+     0.2779056493540138,
+     0.7908278031432006
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.8515622060654633,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.7987039613043617,
+    "nmae": 0.04359534369920028,
+    "bias": 0.2384168519237164,
+    "r2_within": 0.47312155382599663,
+    "mae_ci": [
+     1.316231350031268,
+     2.59659339207369
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7210157641597006,
+     0.8556800150391437
+    ],
+    "nmae_ci": [
+     0.031182828726278197,
+     0.06081215749933019
+    ],
+    "mae_change": 0.06990165883427132,
+    "mae_change_ci": [
+     0.011942979990392146,
+     0.1335598175596939
+    ]
+   },
+   "\u2212 lags": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.7884903235616352,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.8055609386500359,
+    "nmae": 0.042295559697177965,
+    "bias": 0.3835114291378699,
+    "r2_within": 0.4911133660474606,
+    "mae_ci": [
+     1.2732214628753424,
+     2.514386421338094
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7315724292604133,
+     0.8613123350422889
+    ],
+    "nmae_ci": [
+     0.030074909599264503,
+     0.05926300293199289
+    ],
+    "mae_change": 0.006829776330443414,
+    "mae_change_ci": [
+     -0.01838291108382792,
+     0.03699556548474223
+    ]
+   },
+   "time only": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 9.458156021874766,
+    "mae_baseline": 9.198204883033217,
+    "skill": -0.028261072910111817,
+    "nmae": 0.2130018414411926,
+    "bias": 9.300610365056292,
+    "r2_within": -2.9081705364030523,
+    "mae_ci": [
+     8.503381385197503,
+     10.553256851267195
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     -0.1844698297570185,
+     0.10285530550500922
+    ],
+    "nmae_ci": [
+     0.19605346514936875,
+     0.23326105173613423
+    ],
+    "mae_change": 7.6764954746435725,
+    "mae_change_ci": [
+     6.913203932976793,
+     8.46026695249157
+    ]
+   },
+   "+ sign identity": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.3600193142828838,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.8521429635915654,
+    "nmae": 0.03363763725801176,
+    "bias": 0.39311672713445023,
+    "r2_within": 0.5662834727894751,
+    "mae_ci": [
+     0.9487849564275114,
+     1.9815108713676457
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7934290605240704,
+     0.8963285785833824
+    ],
+    "nmae_ci": [
+     0.022105061819570396,
+     0.050147143487217986
+    ],
+    "mae_change": -0.421641232948308,
+    "mae_change_ci": [
+     -0.740687314264644,
+     -0.2085951071216422
+    ]
+   },
+   "training not cleaned": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.771867240989368,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.8073681480766197,
+    "nmae": 0.04183779564699731,
+    "bias": 0.2401767533398938,
+    "r2_within": 0.5018355117469984,
+    "mae_ci": [
+     1.2599843408884603,
+     2.4919921261142415
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7324115360168798,
+     0.8635390437265815
+    ],
+    "nmae_ci": [
+     0.02965471055942278,
+     0.05875076148586076
+    ],
+    "mae_change": -0.009793306241823932,
+    "mae_change_ci": [
+     -0.02888324810203557,
+     0.008552459600639616
+    ]
+   },
+   "inputs: pilot inputs": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 2.3665837529407114,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.7427124332372663,
+    "nmae": 0.0539326439208257,
+    "bias": 1.1833080744450655,
+    "r2_within": 0.3602425679901624,
+    "mae_ci": [
+     1.767060721678832,
+     3.127024782190054
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.6666831546127404,
+     0.8068303473680218
+    ],
+    "nmae_ci": [
+     0.040547969242905754,
+     0.07118363010140577
+    ],
+    "mae_change": 0.5849232057095194,
+    "mae_change_ci": [
+     0.3345563655947095,
+     0.8697046681446715
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47967,
+    "signs": 70,
+    "mae": 1.7884903235616352,
+    "mae_baseline": 9.198204883033217,
+    "skill": 0.8055609386500359,
+    "nmae": 0.042295559697177965,
+    "bias": 0.3835114291378699,
+    "r2_within": 0.4911133660474606,
+    "mae_ci": [
+     1.2732214628753424,
+     2.514386421338094
+    ],
+    "mae_baseline_ci": [
+     7.976560698952581,
+     10.459143045658045
+    ],
+    "skill_ci": [
+     0.7315724292604133,
+     0.8613123350422889
+    ],
+    "nmae_ci": [
+     0.030074909599264503,
+     0.05926300293199289
+    ],
+    "mae_change": 0.006829776330443414,
+    "mae_change_ci": [
+     -0.01838291108382792,
+     0.03699556548474223
+    ]
+   }
+  },
+  "gpu_temp_celsius": {
+   "main": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.8583171132060907,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.8051015605835825,
+    "nmae": 0.044519753154450475,
+    "bias": 0.2481983142260984,
+    "r2_within": 0.5155502713037683,
+    "mae_ci": [
+     1.3431155899574314,
+     2.5802169441896665
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7327780235373185,
+     0.8596103373568411
+    ],
+    "nmae_ci": [
+     0.0320591737846107,
+     0.061273286371063114
+    ],
+    "recent_baseline": {
+     "mae_baseline": 4.1578359976303405,
+     "skill": 0.5530566587366135,
+     "mae_baseline_ci": [
+      3.6779531850457436,
+      4.824455854328109
+     ],
+     "skill_ci": [
+      0.44215465395466186,
+      0.6513893051912734
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 2.505721392707868,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.7372024475367701,
+    "nmae": 0.06032408210491119,
+    "bias": 0.8753469604979693,
+    "r2_within": 0.30971694913118275,
+    "mae_ci": [
+     1.900853677121832,
+     3.315614427477406
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.6588832077246274,
+     0.799170715413723
+    ],
+    "nmae_ci": [
+     0.04550631958174493,
+     0.07955644340892164
+    ],
+    "mae_change": 0.6474042795017765,
+    "mae_change_ci": [
+     0.41684044404425463,
+     0.9165750045183838
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 2.6032842552155078,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.7269701521375571,
+    "nmae": 0.062763203394905,
+    "bias": 0.43041589405175223,
+    "r2_within": 0.332033343375737,
+    "mae_ci": [
+     2.0719367231717873,
+     3.3505646884143596
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.6486905838290179,
+     0.7859284409323573
+    ],
+    "nmae_ci": [
+     0.05003908915103902,
+     0.08027369398939971
+    ],
+    "mae_change": 0.7449671420094174,
+    "mae_change_ci": [
+     0.6213067528819849,
+     0.8757637950463
+    ]
+   },
+   "\u2212 weather": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 2.417853036376425,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.7464179928284658,
+    "nmae": 0.05547254705375689,
+    "bias": 1.2161258053357087,
+    "r2_within": 0.3670466908497496,
+    "mae_ci": [
+     1.8133637462976255,
+     3.1753672149310637
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.6732729525502456,
+     0.8089644699023005
+    ],
+    "nmae_ci": [
+     0.041628124528007994,
+     0.07299745999288193
+    ],
+    "mae_change": 0.5595359231703341,
+    "mae_change_ci": [
+     0.28814834168188513,
+     0.8538995466696997
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.9397946277440334,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.796556280384566,
+    "nmae": 0.04610537165750161,
+    "bias": 0.13782022231788865,
+    "r2_within": 0.48600508030840506,
+    "mae_ci": [
+     1.4019311645273191,
+     2.6879670455301445
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7200971238963596,
+     0.8527182365339293
+    ],
+    "nmae_ci": [
+     0.03334726720992586,
+     0.0632130958534877
+    ],
+    "mae_change": 0.08147751453794248,
+    "mae_change_ci": [
+     0.015737464785459544,
+     0.15428194703209844
+    ]
+   },
+   "\u2212 lags": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.8790785042757443,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.8029241266618724,
+    "nmae": 0.04506535413786183,
+    "bias": 0.36885780969049903,
+    "r2_within": 0.5042283321489212,
+    "mae_ci": [
+     1.3631328021868607,
+     2.6177846814530055
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7300497614663773,
+     0.8577985826713881
+    ],
+    "nmae_ci": [
+     0.03243192601848062,
+     0.06184961712166133
+    ],
+    "mae_change": 0.020761391069653558,
+    "mae_change_ci": [
+     -0.004643512072529755,
+     0.0483652478224398
+    ]
+   },
+   "time only": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 9.734825373091658,
+    "mae_baseline": 9.53479729632742,
+    "skill": -0.020978744544604355,
+    "nmae": 0.22032228182070443,
+    "bias": 9.562508923868476,
+    "r2_within": -3.002832492130799,
+    "mae_ci": [
+     8.738818124421199,
+     10.876870664501507
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     -0.17585976815077528,
+     0.10857822143373794
+    ],
+    "nmae_ci": [
+     0.20269866811166534,
+     0.24103646553554325
+    ],
+    "mae_change": 7.876508259885565,
+    "mae_change_ci": [
+     7.0676414410870585,
+     8.750869923413534
+    ]
+   },
+   "+ sign identity": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.4319736451352316,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.8498160369191284,
+    "nmae": 0.03626327963965783,
+    "bias": 0.4458126466084565,
+    "r2_within": 0.566912051150088,
+    "mae_ci": [
+     1.0026800581431794,
+     2.057430296001522
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7919436791019112,
+     0.8934379035959444
+    ],
+    "nmae_ci": [
+     0.023474221349638603,
+     0.053940600786655704
+    ],
+    "mae_change": -0.42634346807085904,
+    "mae_change_ci": [
+     -0.7715859526610567,
+     -0.17262308060206916
+    ]
+   },
+   "training not cleaned": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.8785635936360356,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.8029781299745498,
+    "nmae": 0.04501116408676477,
+    "bias": 0.25172123512426664,
+    "r2_within": 0.5133972328326573,
+    "mae_ci": [
+     1.3646118234294808,
+     2.606062700027891
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7301742646444327,
+     0.8578617176908524
+    ],
+    "nmae_ci": [
+     0.0324724690742492,
+     0.06192908463112226
+    ],
+    "mae_change": 0.020246480429944744,
+    "mae_change_ci": [
+     0.0023310097010021606,
+     0.04129639296288294
+    ]
+   },
+   "inputs: pilot inputs": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 2.4315529968570373,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.7449811546813256,
+    "nmae": 0.055861228992866586,
+    "bias": 1.2168626237890994,
+    "r2_within": 0.366713413748725,
+    "mae_ci": [
+     1.8321854079353916,
+     3.180281601845557
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.6714580708942,
+     0.8070490308806811
+    ],
+    "nmae_ci": [
+     0.04211934498649313,
+     0.07349521717059081
+    ],
+    "mae_change": 0.5732358836509475,
+    "mae_change_ci": [
+     0.3042983924128738,
+     0.8608063971521919
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47784,
+    "signs": 70,
+    "mae": 1.8790785042757443,
+    "mae_baseline": 9.53479729632742,
+    "skill": 0.8029241266618724,
+    "nmae": 0.04506535413786183,
+    "bias": 0.36885780969049903,
+    "r2_within": 0.5042283321489212,
+    "mae_ci": [
+     1.3631328021868607,
+     2.6177846814530055
+    ],
+    "mae_baseline_ci": [
+     8.222673948265461,
+     10.88709834946593
+    ],
+    "skill_ci": [
+     0.7300497614663773,
+     0.8577985826713881
+    ],
+    "nmae_ci": [
+     0.03243192601848062,
+     0.06184961712166133
+    ],
+    "mae_change": 0.020761391069653558,
+    "mae_change_ci": [
+     -0.004643512072529755,
+     0.0483652478224398
+    ]
+   }
+  },
+  "board_temp_celsius": {
+   "main": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.102606141340518,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.8675698308969066,
+    "nmae": 0.03163310064197789,
+    "bias": -0.06478463519071075,
+    "r2_within": 0.9199279175617763,
+    "mae_ci": [
+     0.9770500318242474,
+     1.2518451717901573
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8433998393329891,
+     0.886234798439972
+    ],
+    "nmae_ci": [
+     0.027582726765325347,
+     0.03663951347049443
+    ],
+    "recent_baseline": {
+     "mae_baseline": 3.5193394618780847,
+     "skill": 0.6867008274467177,
+     "mae_baseline_ci": [
+      3.2955348859307465,
+      3.733706951689421
+     ],
+     "skill_ci": [
+      0.6355990355272984,
+      0.7281646305208891
+     ]
+    }
+   },
+   "\u2212 workload": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.2511730084357153,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.849725983855919,
+    "nmae": 0.035875871674821556,
+    "bias": 0.019524892134816525,
+    "r2_within": 0.9030134834157076,
+    "mae_ci": [
+     1.1110532347347044,
+     1.4111146269339256
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8241012228595048,
+     0.8703302747807106
+    ],
+    "nmae_ci": [
+     0.03149687409459828,
+     0.04111332028152913
+    ],
+    "mae_change": 0.1485668670951972,
+    "mae_change_ci": [
+     0.1023189257785495,
+     0.19542326342624092
+    ]
+   },
+   "\u2212 environment": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.9738413388055067,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.7629288170271832,
+    "nmae": 0.056649819047721865,
+    "bias": -0.08507309199674355,
+    "r2_within": 0.7863209048034255,
+    "mae_ci": [
+     1.8674637035603734,
+     2.100453916842761
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.7253485671622204,
+     0.7916009494240543
+    ],
+    "nmae_ci": [
+     0.05238532293349109,
+     0.06162974075101248
+    ],
+    "mae_change": 0.871235197464989,
+    "mae_change_ci": [
+     0.7469915386856717,
+     0.993058735365856
+    ]
+   },
+   "\u2212 weather": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.7380141061702805,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.7912532015250132,
+    "nmae": 0.04747985813128978,
+    "bias": 0.9005181689728646,
+    "r2_within": 0.7665461153887714,
+    "mae_ci": [
+     1.386580666136146,
+     2.1324719468800226
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.7437600789973036,
+     0.8353627681927238
+    ],
+    "nmae_ci": [
+     0.03857723229845439,
+     0.05714287922817892
+    ],
+    "mae_change": 0.6354079648297619,
+    "mae_change_ci": [
+     0.35047135467495977,
+     0.9440034414490283
+    ]
+   },
+   "\u2212 hardware": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.2335739718511598,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.8518397426166953,
+    "nmae": 0.03549577805188178,
+    "bias": -0.286554268269642,
+    "r2_within": 0.9088713949846915,
+    "mae_ci": [
+     1.1133919525562441,
+     1.3710020217484822
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8285202910317517,
+     0.8701079771546485
+    ],
+    "nmae_ci": [
+     0.031546737055596644,
+     0.040227433788171583
+    ],
+    "mae_change": 0.13096783051064181,
+    "mae_change_ci": [
+     0.06777403660042618,
+     0.19335352796371771
+    ]
+   },
+   "\u2212 lags": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.109244470790162,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.8667725243532395,
+    "nmae": 0.031781777537240256,
+    "bias": -0.025101888510756416,
+    "r2_within": 0.91892533222259,
+    "mae_ci": [
+     0.9834639041505396,
+     1.2557979465581195
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8425599869854634,
+     0.8857041680069145
+    ],
+    "nmae_ci": [
+     0.027797048564300292,
+     0.03664774966594223
+    ],
+    "mae_change": 0.006638329449644147,
+    "mae_change_ci": [
+     -0.012393733052661424,
+     0.024145995381076524
+    ]
+   },
+   "time only": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 9.536198908952318,
+    "mae_baseline": 8.325943769521041,
+    "skill": -0.1453595139402315,
+    "nmae": 0.25733051323519246,
+    "bias": 9.432471080331721,
+    "r2_within": -2.5738820948538725,
+    "mae_ci": [
+     8.821991561876185,
+     10.312018736970456
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     -0.3364777024908784,
+     0.009214001788227089
+    ],
+    "nmae_ci": [
+     0.24404771095157912,
+     0.2710501483935049
+    ],
+    "mae_change": 8.433592767611799,
+    "mae_change_ci": [
+     7.760483739870841,
+     9.17436566509547
+    ]
+   },
+   "+ sign identity": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 0.8443346281901707,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.8985899194658215,
+    "nmae": 0.02520507672490128,
+    "bias": -0.03745310222360664,
+    "r2_within": 0.9471870700091898,
+    "mae_ci": [
+     0.7375325507126343,
+     0.9831486939674576
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8788880141242894,
+     0.913349052308465
+    ],
+    "nmae_ci": [
+     0.021012616292892663,
+     0.030796951416684953
+    ],
+    "mae_change": -0.2582715131503476,
+    "mae_change_ci": [
+     -0.3376982340139517,
+     -0.1864603616047063
+    ]
+   },
+   "training not cleaned": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.1112659673105636,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.866529729473,
+    "nmae": 0.031910841828458436,
+    "bias": -0.04699578082660793,
+    "r2_within": 0.9188610886963127,
+    "mae_ci": [
+     0.9848914418188005,
+     1.26078132498253
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8422467300318396,
+     0.8855668870174043
+    ],
+    "nmae_ci": [
+     0.02779015480091973,
+     0.0370878008293679
+    ],
+    "mae_change": 0.00865982597004558,
+    "mae_change_ci": [
+     -0.0007258068323696181,
+     0.018235511452932486
+    ]
+   },
+   "inputs: pilot inputs": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.7666999300785227,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.7878078474964101,
+    "nmae": 0.04845209561181641,
+    "bias": 0.8166562917161516,
+    "r2_within": 0.7633863202395671,
+    "mae_ci": [
+     1.4161804157110605,
+     2.151488088706795
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.7404511099286396,
+     0.8312345453768396
+    ],
+    "nmae_ci": [
+     0.03973347537042471,
+     0.0579348244921605
+    ],
+    "mae_change": 0.6640937887380044,
+    "mae_change_ci": [
+     0.3820023233941779,
+     0.9668870292466171
+    ]
+   },
+   "inputs: + weather": {
+    "n": 47944,
+    "signs": 70,
+    "mae": 1.109244470790162,
+    "mae_baseline": 8.325943769521041,
+    "skill": 0.8667725243532395,
+    "nmae": 0.031781777537240256,
+    "bias": -0.025101888510756416,
+    "r2_within": 0.91892533222259,
+    "mae_ci": [
+     0.9834639041505396,
+     1.2557979465581195
+    ],
+    "mae_baseline_ci": [
+     7.26653551075906,
+     9.377747375606356
+    ],
+    "skill_ci": [
+     0.8425599869854634,
+     0.8857041680069145
+    ],
+    "nmae_ci": [
+     0.027797048564300292,
+     0.03664774966594223
+    ],
+    "mae_change": 0.006638329449644147,
+    "mae_change_ci": [
+     -0.012393733052661424,
+     0.024145995381076524
+    ]
+   }
+  }
+ },
+ "bands_july": {
+  "input_power_watts": {
+   "no calibration": {
+    "coverage": 0.7646961962786103,
+    "width_median": 2.0224627236535397,
+    "interval_score": 4.45921542901026,
+    "n": 30365,
+    "coverage_ci": [
+     0.7147853721862745,
+     0.8107262289079926
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8505186892804215,
+    "width_median": 2.360744357425716,
+    "interval_score": 4.1593825732804826,
+    "n": 30365,
+    "coverage_ci": [
+     0.8033631501807981,
+     0.8914734075416224
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8463033097315988,
+    "width_median": 2.2866504712374773,
+    "interval_score": 4.23143240110707,
+    "n": 30365,
+    "coverage_ci": [
+     0.796463486598107,
+     0.889432677484553
+    ]
+   },
+   "per sign": {
+    "coverage": 0.8091552774575992,
+    "width_median": 2.206731723514512,
+    "interval_score": 4.17655211208267,
+    "n": 30365,
+    "coverage_ci": [
+     0.7583182494026612,
+     0.8536591560125196
+    ]
+   }
+  },
+  "orin_power_watts": {
+   "no calibration": {
+    "coverage": 0.7141445743454635,
+    "width_median": 1.1238439598849492,
+    "interval_score": 3.4794420691237002,
+    "n": 30365,
+    "coverage_ci": [
+     0.6549057779395745,
+     0.7687186115305136
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8297052527581097,
+    "width_median": 1.402612637615631,
+    "interval_score": 3.1504738750083234,
+    "n": 30365,
+    "coverage_ci": [
+     0.7738286483174204,
+     0.8771142271404464
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8267742466655689,
+    "width_median": 1.394145036574793,
+    "interval_score": 3.1769048960321475,
+    "n": 30365,
+    "coverage_ci": [
+     0.7696309746273053,
+     0.8760391985073711
+    ]
+   },
+   "per sign": {
+    "coverage": 0.7798452165321916,
+    "width_median": 1.2478423882063652,
+    "interval_score": 3.0365640288506994,
+    "n": 30365,
+    "coverage_ci": [
+     0.7289699197631221,
+     0.8303625278925859
+    ]
+   }
+  },
+  "cpu_gpu_power_watts": {
+   "no calibration": {
+    "coverage": 0.7063395356495966,
+    "width_median": 0.5744863968726244,
+    "interval_score": 2.015442339403235,
+    "n": 30365,
+    "coverage_ci": [
+     0.6496814506517414,
+     0.7618090325873401
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8328997200724518,
+    "width_median": 0.7353208304804961,
+    "interval_score": 1.8181499565690153,
+    "n": 30365,
+    "coverage_ci": [
+     0.7816451732642481,
+     0.8773643263626297
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8205829079532356,
+    "width_median": 0.7192295691499422,
+    "interval_score": 1.8547001862853236,
+    "n": 30365,
+    "coverage_ci": [
+     0.7676739794885777,
+     0.8679704791203408
+    ]
+   },
+   "per sign": {
+    "coverage": 0.7802074757121686,
+    "width_median": 0.6702199111523135,
+    "interval_score": 1.7595402454062106,
+    "n": 30365,
+    "coverage_ci": [
+     0.7312813630080564,
+     0.8273272904174481
+    ]
+   }
+  },
+  "cpu_temp_celsius": {
+   "no calibration": {
+    "coverage": 0.7962456775893298,
+    "width_median": 5.433837313553454,
+    "interval_score": 12.11979350993463,
+    "n": 30365,
+    "coverage_ci": [
+     0.7497216877381299,
+     0.8376983154294912
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8717273176354355,
+    "width_median": 6.474350556263474,
+    "interval_score": 11.474331718227804,
+    "n": 30365,
+    "coverage_ci": [
+     0.8276367101727375,
+     0.9067069954810789
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8711015972336572,
+    "width_median": 6.468912359442278,
+    "interval_score": 11.453369663424878,
+    "n": 30365,
+    "coverage_ci": [
+     0.8278846067923985,
+     0.9052883089375167
+    ]
+   },
+   "per sign": {
+    "coverage": 0.8730775563971678,
+    "width_median": 6.346153291721322,
+    "interval_score": 10.453770429537299,
+    "n": 30365,
+    "coverage_ci": [
+     0.8463867686797986,
+     0.8980338552753669
+    ]
+   }
+  },
+  "gpu_temp_celsius": {
+   "no calibration": {
+    "coverage": 0.8390762706248758,
+    "width_median": 6.218841794817415,
+    "interval_score": 11.878856424674355,
+    "n": 30182,
+    "coverage_ci": [
+     0.8008089631416639,
+     0.8726931183949594
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8846332251010536,
+    "width_median": 6.985270418803033,
+    "interval_score": 11.594876815545105,
+    "n": 30182,
+    "coverage_ci": [
+     0.85075703931683,
+     0.9124605626428948
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8782718176396528,
+    "width_median": 6.971774978522422,
+    "interval_score": 11.654841430665321,
+    "n": 30182,
+    "coverage_ci": [
+     0.8429635877206911,
+     0.9071346549895012
+    ]
+   },
+   "per sign": {
+    "coverage": 0.8765820687827182,
+    "width_median": 6.721867315100404,
+    "interval_score": 11.333963194843216,
+    "n": 30182,
+    "coverage_ci": [
+     0.8434758867733125,
+     0.9051156535480693
+    ]
+   }
+  },
+  "board_temp_celsius": {
+   "no calibration": {
+    "coverage": 0.7922278939568582,
+    "width_median": 4.7407651002664934,
+    "interval_score": 10.575414371112629,
+    "n": 30365,
+    "coverage_ci": [
+     0.739792724305617,
+     0.8354432163666542
+    ]
+   },
+   "fleet": {
+    "coverage": 0.8700148196937263,
+    "width_median": 5.573305744684596,
+    "interval_score": 10.034522181821869,
+    "n": 30365,
+    "coverage_ci": [
+     0.8233542326746355,
+     0.9043358954184151
+    ]
+   },
+   "per configuration": {
+    "coverage": 0.8712991931500083,
+    "width_median": 5.552726386786528,
+    "interval_score": 10.003914496340428,
+    "n": 30365,
+    "coverage_ci": [
+     0.8246353886130066,
+     0.904846709740052
+    ]
+   },
+   "per sign": {
+    "coverage": 0.8756133706570064,
+    "width_median": 5.422632159538004,
+    "interval_score": 8.551800958325154,
+    "n": 30365,
+    "coverage_ci": [
+     0.8577621075441075,
+     0.8925447890675501
+    ]
+   }
+  }
+ },
+ "bands_miss": {
+  "fleet": 0.043416829243133614,
+  "per configuration": 0.04761115460437976,
+  "per sign": 0.06758650574352472
+ },
+ "bands_chosen": "fleet",
+ "rule": "Per target family, the inputs and settings with the highest mean skill on June (fit March-May); within 0.005 of the best, the simplest (fewer inputs, then fewer leaves, then fewer trees). Bands: the calibration with the smallest mean |coverage - 0.90| on July (fit March-May, calibrate June); within 0.005, the simplest.",
+ "runtime_s": 83.3
+}

@@ -1,0 +1,598 @@
+<title>Smart-Sign Research Questions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+__KIT_CSS__
+/* Research-question page additions */
+body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.rq-cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); margin-bottom: 18px; }
+.rq { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.rq .tag { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--s1); }
+.rq .q { margin: 0; font-size: 15px; color: var(--ink); }
+.rq .a { margin: 0; padding-top: 10px; border-top: 1px solid var(--grid); color: var(--ink-2); font-size: 14px; }
+.rq .a b { color: var(--ink); font-weight: 600; }
+.verdict { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--wash); border: 1px solid var(--border); color: var(--ink); margin-right: 6px; }
+h2 .num { color: var(--muted); font-weight: 500; margin-right: 6px; }
+.part { margin-top: 28px; padding-top: 22px; border-top: 2px solid var(--ink); }
+.part > .eyebrow { margin-bottom: 4px; }
+.part > h2 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.015em; }
+.part > .sub { color: var(--ink-2); max-width: 72ch; margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.chips li { font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; background: var(--surface); color: var(--ink-2); }
+.chips li b { color: var(--ink); font-weight: 600; margin-right: 4px; }
+.graphfig svg { width: 100%; height: auto; display: block; }
+.gnode rect { fill: var(--surface); stroke: var(--axis); stroke-width: 1.2; }
+.gnode.root rect { stroke-dasharray: 4 3; }
+.gnode text { fill: var(--ink); font-family: var(--font); font-size: 13px; }
+.gnode text.u { fill: var(--muted); font-size: 11px; }
+.gedge { stroke: var(--s2); stroke-width: 2; fill: none; }
+.gedge-hit { stroke: transparent; stroke-width: 14; fill: none; cursor: help; }
+.why { display: grid; gap: 4px 14px; grid-template-columns: minmax(0, max-content) minmax(0, 1fr); font-size: 13px; margin: 0; }
+.why dt { color: var(--ink); font-weight: 500; white-space: nowrap; }
+.why dd { margin: 0; color: var(--ink-2); }
+td.cell-hi { font-weight: 600; }
+td .bar { display: inline-block; height: 8px; border-radius: 2px; vertical-align: 0; margin-right: 6px; background: var(--s1); opacity: .55; }
+.fam { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.callout { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 14px; color: var(--ink-2); max-width: 80ch; }
+.callout b { color: var(--ink); }
+.next { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.next div { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 14px; color: var(--ink-2); }
+.next h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); font-weight: 600; }
+label.ctl { font-size: 13px; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Propagation-aware predictive health monitoring · research questions</div>
+  <h1>Smart-Sign Research Questions</h1>
+  <p class="lede" id="lede"></p>
+  <div class="stamp" id="stamp"></div>
+</header>
+</div>
+
+<nav class="sections"><ul>
+  <li><a href="#overview">Answers</a></li>
+  <li><a href="#rq1">RQ1 · normal behaviour</a></li><li><a href="#rq1-cond">RQ1 · configurations</a></li>
+  <li><a href="#rq2">RQ2 · anomaly detection</a></li><li><a href="#rq2-results">RQ2 · results</a></li>
+  <li><a href="#next">Linux logs</a></li><li><a href="#methods">Methods</a></li>
+</ul></nav>
+
+<div class="wrap">
+
+<section id="overview">
+  <h2>Answers from the current data</h2>
+  <p class="sub">Both questions were tested on the hourly Prometheus telemetry alone (March–October 2026). The answers below are what this data supports; the last section lists what the Linux logs would add.</p>
+  <div class="rq-cards" id="rq-cards"></div>
+  <div class="tiles" id="kpis"></div>
+</section>
+
+<div class="part" id="rq1">
+  <div class="eyebrow">RQ1</div>
+  <h2>Normal-behaviour modelling</h2>
+  <p class="sub" id="rq1-sub"></p>
+  <ul class="chips" id="rq1-groups"></ul>
+</div>
+
+<section id="rq1-ladder">
+  <h2>What each kind of context buys</h2>
+  <p class="sub">Test error (Aug–Oct) as feature groups are added to one LightGBM model shared by the whole fleet. Each step adds a group to the previous one; the last step lets the model learn a per-device offset. Lower is better.</p>
+  <div class="row" id="ladder-row"></div>
+</section>
+
+<section id="rq1-models">
+  <h2>Models compared</h2>
+  <p class="sub">Temporal hold-out: fitted on data before 1 August, scored on 1 August – 6 October for devices seen in training. <i>Within-device R²</i> compares the error to each device's own test-period mean, so it scores how well a model follows a device's variation rather than how well it tells devices apart. Persistence uses the previous hour's value of the target and is shown only as a reference point: a normal-behaviour model must not see the target, or it would follow an anomaly instead of flagging it.</p>
+  <div class="controls"><label class="ctl" for="m-metric">Show <select id="m-metric"><option value="mae">MAE</option><option value="r2_within">within-device R²</option><option value="r2">R²</option><option value="bias">bias</option></select></label></div>
+  <figure class="chart" id="models-fig"></figure>
+</section>
+
+<section id="rq1-ablation">
+  <h2>Which context matters for which target</h2>
+  <p class="sub">Increase in test MAE when one group is removed from the full model (time, hardware, environment and workload). Large bars mark the context that target cannot do without.</p>
+  <div class="row two">
+    <figure class="chart" id="drop-fig"></figure>
+    <figure class="chart" id="imp-fig"></figure>
+  </div>
+</section>
+
+<section id="rq1-example">
+  <h2>Expected behaviour, hour by hour</h2>
+  <p class="sub">Ten test days on one device: the measured value, the model's median and its 90 % band (quantile models with device identity). This band is the normal envelope an anomaly detector compares against.</p>
+  <div class="controls">
+    <label class="ctl" for="ex-dev">Device <select id="ex-dev"></select></label>
+    <label class="ctl" for="ex-target">Target <select id="ex-target"></select></label>
+  </div>
+  <figure class="chart" id="ex-fig"></figure>
+</section>
+
+<section id="rq1-cond">
+  <h2>Across hardware configurations and operating conditions</h2>
+  <p class="sub" id="cond-sub"></p>
+  <div class="controls"><label class="ctl" for="c-target">Target <select id="c-target"></select></label></div>
+  <div class="row two">
+    <figure class="chart" id="strata-fig"></figure>
+    <figure class="chart" id="transfer-fig"></figure>
+  </div>
+</section>
+
+<section id="rq1-intervals">
+  <h2>Is the 90 % envelope really 90 %?</h2>
+  <p class="sub" id="cov-sub"></p>
+  <div class="row two">
+    <figure class="chart" id="cov-fig"></figure>
+    <figure class="chart" id="covm-fig"></figure>
+  </div>
+</section>
+
+<div class="part" id="rq2">
+  <div class="eyebrow">RQ2</div>
+  <h2>Graph-based detection of energy anomalies</h2>
+  <p class="sub" id="rq2-sub"></p>
+</div>
+
+<section id="rq2-graph">
+  <h2>The hand-specified dependency graph</h2>
+  <p class="sub">Ten power and thermal measurements. Every node is also conditioned on the RQ1 context (time, hardware, environment, workload, device), so dashed nodes are predicted from context alone. Hover an arrow for the physical reason behind it.</p>
+  <div class="row two">
+    <figure class="chart graphfig" id="hand-fig"></figure>
+    <figure class="chart" id="graphs-fig"></figure>
+  </div>
+</section>
+
+<section id="rq2-faults">
+  <h2>Injected energy faults</h2>
+  <p class="sub" id="faults-sub"></p>
+  <figure class="chart" id="faults-fig"></figure>
+</section>
+
+<section id="rq2-results">
+  <h2>Detection at a 1 % false-alarm rate</h2>
+  <p class="sub" id="res-sub"></p>
+  <div class="controls">
+    <label class="ctl" for="v-agg">Score <select id="v-agg"><option value="tail">largest node tail probability</option><option value="max">largest |z| over nodes</option></select></label>
+    <label class="ctl" for="v-win">Window <select id="v-win"><option value="6h">6 h trailing mean</option><option value="1h">single hour</option></select></label>
+  </div>
+  <div class="row two">
+    <figure class="chart" id="recall-fig"></figure>
+    <figure class="chart" id="boot-fig"></figure>
+  </div>
+</section>
+
+<section id="rq2-byfault">
+  <h2>By fault and severity</h2>
+  <p class="sub">Share of injected episodes detected, per fault. F6 is a cooling fault with no change in power: a control case outside the energy faults, and not counted in the headline numbers.</p>
+  <div class="controls"><label class="ctl" for="bf-sev">Severity <select id="bf-sev"><option value="all">all three</option><option value="0">low</option><option value="1">medium</option><option value="2">high</option></select></label></div>
+  <figure class="chart" id="byfault-fig"></figure>
+  <p class="callout" id="bf-note" style="margin-top:14px"></p>
+</section>
+
+<section id="rq2-loc">
+  <h2>Finding the faulty measurement</h2>
+  <p class="sub">After an alarm, the node with the largest mean score over the episode is reported as the cause. Accuracy is the share of energy-fault episodes where that node is the injected root.</p>
+  <div class="row two">
+    <figure class="chart" id="loc-fig"></figure>
+    <figure class="chart" id="locf-fig"></figure>
+  </div>
+</section>
+
+<section id="rq2-example">
+  <h2>One episode through two graphs</h2>
+  <p class="sub" id="ex2-sub"></p>
+  <div class="controls"><label class="ctl" for="ex2-fault">Fault <select id="ex2-fault"></select></label></div>
+  <div class="row two" id="ex2-row"></div>
+</section>
+
+<section id="rq2-real">
+  <h2>Real anomalies in the data</h2>
+  <p class="sub" id="real-sub"></p>
+  <div class="row two">
+    <figure class="chart" id="real-fig"></figure>
+    <figure class="chart" id="volt-fig"></figure>
+  </div>
+</section>
+
+<section id="next">
+  <h2>What the Linux logs would add</h2>
+  <p class="sub">The gaps above point to specific signals. These are the ones to pull from the devices' Linux logs first.</p>
+  <div class="next" id="next-list"></div>
+</section>
+
+<section id="methods">
+  <h2>Methods and caveats</h2>
+  <div class="methods" id="methods-box"></div>
+</section>
+
+</div>
+<div id="tip"></div>
+
+<script>
+const D = __DATA__;
+__KIT_JS__
+
+// ====================================================================================================
+const R1 = D.rq1, R2 = D.rq2;
+const L = k => R1.label[k] || R2.label?.[k] || k;
+const U = k => R1.unit[k] || '';
+const TG = R1.targets;
+const f2 = v => v == null ? '–' : (Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
+const f3 = v => v == null ? '–' : v.toFixed(3);
+const sgn = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2);
+const pp = v => (v >= 0 ? '+' : '−') + Math.abs(100 * v).toFixed(1) + ' pts';
+const mae = (y, m) => R1.s1[y][m].mae;
+const r2w = (y, m) => R1.s1[y][m].r2_within;
+function select(id, opts, val) { const s = $('#' + id); s.replaceChildren(); opts.forEach(([v, t]) => { const o = el('option', null, t); o.value = v; s.appendChild(o); }); if (val != null) s.value = val; return s; }
+
+const DET = {
+  hand: { name: 'Hand-specified DAG', fam: 'hand' },
+  full: { name: 'Complete graph', fam: 'learned' },
+  lasso: { name: 'Lasso neighbourhoods', fam: 'learned' },
+  'corr top-k': { name: 'Top-k correlation (GDN-style)', fam: 'learned' },
+  granger: { name: 'Granger graph', fam: 'learned' },
+  notears: { name: 'NOTEARS DAG', fam: 'learned' },
+  none: { name: 'Context model, no edges', fam: 'non' },
+  seasonal: { name: 'Seasonal z, univariate', fam: 'non' },
+  iforest: { name: 'Isolation Forest', fam: 'non' },
+  pca: { name: 'PCA reconstruction', fam: 'non' },
+};
+const FAM = { hand: ['--s2', 'hand-specified graph'], learned: ['--s1', 'learned graph'], non: ['--de', 'no graph'] };
+const famColor = d => css(FAM[DET[d].fam][0]);
+const variant = () => `${$('#v-agg').value}-${$('#v-win').value}`;
+const ENERGY = ['F1', 'F2', 'F3', 'F4', 'F5'];
+
+// ---- headline numbers -------------------------------------------------------------------------------
+const H = {};
+{
+  const y = 'input_power_watts';
+  H.p_full = mae(y, '+workload'); H.p_noW = mae(y, 'full − workload'); H.p_dev = mae(y, '+device id');
+  H.p_r2 = r2w(y, '+device id'); H.p_r2_full = r2w(y, '+workload');
+  H.o_r2 = r2w('orin_power_watts', '+device id'); H.c_r2 = r2w('cpu_gpu_power_watts', '+device id');
+  H.t_r2 = r2w('cpu_temp_celsius', '+device id'); H.t_r2p = r2w('cpu_temp_celsius', '+measured power');
+  H.b_r2 = r2w('board_temp_celsius', '+device id');
+  H.t_mae = mae('cpu_temp_celsius', '+device id'); H.t_noE = mae('cpu_temp_celsius', 'full − environment'); H.t_full = mae('cpu_temp_celsius', '+workload');
+  const st = R1.strata[y].supply; H.v12 = st['12 V']?.['+device id']; H.v56 = st['56 V']?.['+device id']; H.n56 = st['56 V']?.devices;
+  const s3 = R1.s3['12 V → 56 V']; H.x56 = s3[y]['lgbm (full)'].mae; H.x56t = s3['cpu_temp_celsius']['lgbm (full)'].mae;
+  H.ldo = R1.s2[y]['lgbm (full)'].mae;
+  const ratios = Object.values(R1.s3).map(v => v[y]['lgbm (full)'].mae / v[y].ldo_mae_same_devices).filter(Number.isFinite);
+  H.xratio = median(ratios); H.xmin = Math.min(...ratios); H.xmax = Math.max(...ratios);
+  H.sol = R1.s3['no solar → solar'][y]; H.nosol = R1.s3['solar → no solar'][y];
+  const cv = R1.coverage[y]; H.cov_raw = cv.raw.coverage; H.cov_cq = cv['conformal (global)'].coverage;
+  H.cov_cq_t = R1.coverage['board_temp_celsius']['conformal (global)'].coverage;
+  const S = R2.summary_energy['tail-6h'], Sm = R2.summary_energy['max-6h'];
+  H.S = S; H.Sm = Sm;
+  const rank = o => Object.keys(o).sort((a, b) => o[b].recall - o[a].recall);
+  H.rank = rank(S); H.rankM = rank(Sm);
+  const nonBest = H.rank.find(d => DET[d].fam === 'non'); H.nonBest = nonBest;
+  const lrn = H.rank.filter(d => DET[d].fam === 'learned');
+  H.lrnBest = lrn[0]; H.lrnBestNoFull = lrn.find(d => d !== 'full');
+  const locs = Object.keys(S).filter(d => S[d].loc_acc != null).sort((a, b) => S[b].loc_acc - S[a].loc_acc); H.locRank = locs;
+}
+
+$('#lede').textContent = `Can context-conditioned models describe how much power the signs draw and how hot they run, and does a hand-written dependency graph between those measurements catch energy faults better than detectors without a graph or with a graph learned from data? Tested on ${R2.devices}–${R1.s1_devices} devices with the hourly Prometheus telemetry.`;
+$('#stamp').textContent = `Generated ${D.generated} · temporal split: fit before ${R1.split.cal} (RQ2) / ${R1.split.test} (RQ1), test from ${R1.split.test}`;
+
+// ---- answer cards -----------------------------------------------------------------------------------
+{
+  const c = $('#rq-cards');
+  const card = (tag, q, verdict, html) => { const d = el('div', 'rq'); d.appendChild(el('div', 'tag', tag)); d.appendChild(el('p', 'q', q)); const a = el('p', 'a'); const v = el('span', 'verdict', verdict); a.appendChild(v); const s = el('span'); s.innerHTML = html; a.appendChild(s); d.appendChild(a); c.appendChild(d); };
+  card('RQ1 · Normal-behaviour modelling',
+    'To what extent can a model conditioned on workload and environmental context predict the expected power and thermal behaviour of smart bus stop devices across differing hardware configurations and operating conditions?',
+    'Largely for power, partly for heat; weaker on 56 V and unseen configurations',
+    `Adding workload context cuts input-power error from <b>${f2(H.p_noW)} W to ${f2(H.p_full)} W</b> (within-device R² ${f2(H.p_r2)} with a device offset; Orin ${f2(H.o_r2)}, CPU+GPU ${f2(H.c_r2)}). Thermal behaviour follows the environment: board temperature reaches R² ${f2(H.b_r2)}, but CPU temperature only ${f2(H.t_r2)} (${f2(H.t_r2p)} once measured power is added). One pooled model serves the 12 V fleet well (${f2(H.v12)} W MAE) but errs ${(H.v56 / H.v12).toFixed(1)}× as much on the ${H.n56} devices on 56 V (${f2(H.v56)} W). On devices it has never seen, error is a median <b>${H.xratio.toFixed(1)}×</b> higher (range ${H.xmin.toFixed(1)}–${H.xmax.toFixed(1)}×) when their whole configuration or agency was left out of training than when it was not; solar devices are the clearest case (${f2(H.sol['lgbm (full)'].mae)} W vs ${f2(H.sol.ldo_mae_same_devices)} W). Raw 90 % bands cover only ${pct(H.cov_raw)} of hours; conformal calibration lifts that to ${pct(H.cov_cq)} for input power, still short of 90 % because August–October behaves differently from the July calibration month.`);
+  const hand = H.S.hand, nb = H.S[H.nonBest], bt = R2.bootstrap_vs_hand['tail-6h'], btm = R2.bootstrap_vs_hand['max-6h'];
+  const lrn = ['full', 'lasso', 'corr top-k', 'granger', 'notears'];
+  const beatsL = lrn.filter(d => bt.detected[d].lo > 0);
+  const short = d => DET[d].name.split(' (')[0].toLowerCase();
+  const fullD = bt.detected.full, fullM = btm.detected.full;
+  card('RQ2 · Anomaly detection',
+    'Does a hand-specified dependency graph detect energy anomalies more accurately than non-graph and learned-graph detectors?',
+    beatsL.length === lrn.length ? 'Yes, by a clear margin over non-graph detectors and a narrow one over learned graphs' : 'Yes over non-graph detectors; mixed against learned graphs',
+    `Across five injected energy faults at a 1 % false-alarm rate, the hand graph catches <b>${pct(hand.recall)}</b> of episodes (AUPRC ${f2(hand.auprc_mean)}), against ${pct(nb.recall)} for the best detector without a graph (${DET[H.nonBest].name.toLowerCase()}). It also beats every learned graph: by ${pp(fullD.diff)} over the complete graph (95 % interval ${pp(fullD.lo)} to ${pp(fullD.hi)}) and ${pp(bt.detected.lasso.diff)} over Lasso, up to ${pp(Math.max(...lrn.map(d => bt.detected[d].diff)))} over the sparse Granger and NOTEARS graphs. The lead over dense graphs depends on scoring: with raw largest-|z| scores the complete graph is ahead (${pct(H.Sm.full.recall)} vs ${pct(H.Sm.hand.recall)}). The hand graph names the faulty measurement in ${pct(hand.loc_acc)} of episodes, against ${pct(H.S.full.loc_acc)} for the complete graph, but it misses cooling faults that the learned graphs catch.`);
+  const k = $('#kpis');
+  tile(k, 'Input-power MAE', `${f2(H.p_dev)} W`, `full context + device · ${f2(H.p_noW)} W without workload`);
+  tile(k, 'CPU temperature MAE', `${f2(H.t_mae)} °C`, `${f2(H.t_noE)} °C without environment`);
+  tile(k, '90 % band coverage', pct(H.cov_cq), `input power, conformal · raw ${pct(H.cov_raw)}`);
+  tile(k, 'Hand graph recall', pct(H.S.hand.recall), `energy faults, 1 % false alarms · complete graph ${pct(H.S.full.recall)}`);
+  tile(k, 'Best detector without a graph', pct(H.S[H.nonBest].recall), DET[H.nonBest].name);
+}
+
+// ---- RQ1 intro ----------------------------------------------------------------------------------------
+$('#rq1-sub').textContent = `Six targets, hourly device means: input, Orin and CPU+GPU power, CPU, GPU and board temperature. Inputs never include the target's own past, so a model describes what the device should do in its situation. ${R1.s1_devices} devices are in the temporal test; the leave-device-out and leave-configuration-out tests use every device.`;
+{
+  const g = $('#rq1-groups');
+  const names = { time: 'Time', hardware: 'Hardware', 'external env': 'External env', 'local env': 'Local env', workload: 'Workload' };
+  const nice = { hour_sin: 'hour', hour_cos: null, dow: 'weekday', is_weekend: 'weekend', v56: '56 V supply', mem_total: 'RAM size', disk_total: 'disk size', has_mppt: 'solar MPPT', has_env: 'env sensor', has_ds: 'DeepStream deployed', agency: 'agency',
+    peer_temperature: 'agency temperature', peer_humidity: 'agency humidity', peer_lightsensor: 'agency light', temperature: 'enclosure temperature', humidity: 'humidity', lightsensor: 'light',
+    deepstream_app_running: 'DeepStream running', mem_used_gb: 'RAM used', wwan_rx_gb_rate: 'cellular rx', wwan_tx_gb_rate: 'cellular tx', pir_count_rate: 'PIR detections', ds_consumer_error_total_rate: 'DeepStream errors' };
+  Object.entries(R1.groups).forEach(([k, cols]) => { const li = el('li'); li.appendChild(el('b', null, names[k] || k)); li.appendChild(document.createTextNode(cols.map(c => nice[c]).filter(Boolean).join(', '))); g.appendChild(li); });
+}
+
+// ---- RQ1 ladder ---------------------------------------------------------------------------------------
+{
+  const row = $('#ladder-row');
+  TG.forEach(y => {
+    const items = R1.ladder.map((k, i) => ({ label: k, value: mae(y, k), color: css(k === '+workload' ? '--s2' : k === '+device id' ? '--s1' : '--de'), extra: [{ label: 'within-device R²', value: f2(r2w(y, k)) }] }));
+    figure(row, { title: `${L(y)} · MAE (${U(y)})`, render: p => barChart(p, { items, valueLabels: true, fmt: f2, labW: 110, valueName: 'MAE' }),
+      table: { cols: [{ key: 'label', label: 'Step', left: true }, { key: 'mae', label: 'MAE', fmt: f3 }, { key: 'r2', label: 'within R²', fmt: f3 }], rows: R1.ladder.map(k => ({ label: k, mae: mae(y, k), r2: r2w(y, k) })) } });
+  });
+}
+
+// ---- RQ1 model table ---------------------------------------------------------------------------------
+{
+  const order = ['fleet mean', 'device mean', 'device × hour', 'ridge (full)', '+workload', 'specialist per supply', '+device id', '+measured power', 'persistence (lag 1 h)'];
+  const nice = { '+workload': 'LightGBM, full context', '+device id': 'LightGBM, full context + device', 'ridge (full)': 'Ridge, full context', 'specialist per supply': 'LightGBM, one per supply voltage', '+measured power': 'LightGBM + measured power (thermal)', 'device × hour': 'Device × hour-of-day median', 'persistence (lag 1 h)': 'Persistence, previous hour (reference)' };
+  const draw = () => {
+    const met = $('#m-metric').value, fmt = met === 'mae' || met === 'bias' ? f3 : f3;
+    const rows = order.map(m => { const r = { model: nice[m] || m }; TG.forEach(y => { r[y] = R1.s1[y][m]?.[met]; }); return r; });
+    const cols = [{ key: 'model', label: 'Model', left: true }].concat(TG.map(y => ({ key: y, label: `${L(y)} (${met === 'mae' || met === 'bias' ? U(y) : 'R²'})`, fmt })));
+    figure($('#models-fig'), { title: 'Temporal hold-out, all S1 devices', caption: 'Thermal targets also list a model that sees measured CPU+GPU / Orin / input power: heat follows power, but power is itself a measurement the RQ2 graph conditions on.', render: p => renderTable(p, { cols, rows, sortable: false }), table: { cols, rows } });
+  };
+  $('#m-metric').addEventListener('change', draw); draw();
+}
+
+// ---- RQ1 ablation + importance ---------------------------------------------------------------------------
+{
+  const items = [];
+  const colors = { 'full − workload': '--s2', 'full − environment': '--s3', 'full − hardware': '--s4' };
+  TG.forEach(y => R1.drop.forEach(d => items.push({ label: `${L(y)} − ${d.replace('full − ', '')}`, value: mae(y, d) / mae(y, '+workload') - 1, color: css(colors[d]) })));
+  figure($('#drop-fig'), { title: 'MAE increase when a group is removed', caption: 'Relative to the full model (time + hardware + environment + workload). Negative: the group added noise.',
+    render: p => { barChart(p, { items, valueLabels: true, fmt: v => (v >= 0 ? '+' : '') + Math.round(100 * v) + '%', labW: 190, valueName: 'MAE change' }); legend(p, Object.entries(colors).map(([k, c]) => ({ name: k.replace('full − ', 'without '), color: css(c), rect: true }))); },
+    table: { cols: [{ key: 'label', label: 'Model', left: true }, { key: 'value', label: 'MAE change', fmt: v => pct(v, 1) }], rows: items } });
+  const sel = el('select'); sel.id = 'imp-target'; TG.forEach(y => { const o = el('option', null, L(y)); o.value = y; sel.appendChild(o); });
+  const fig = $('#imp-fig');
+  const draw = () => {
+    const y = sel.value, imp = R1.importance[y];
+    const it = Object.entries(imp).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, v]) => ({ label: k.replace(/_/g, ' '), value: v, color: css(R1.groups.workload.includes(k) ? '--s2' : R1.groups['local env'].includes(k) || R1.groups['external env'].includes(k) ? '--s3' : R1.groups.hardware.includes(k) ? '--s4' : '--de') }));
+    figure(fig, { title: `Top features · ${L(y)}`, caption: 'Share of LightGBM split gain in the full model. Orange workload, green environment, yellow hardware, grey time.', render: p => barChart(p, { items: it, valueLabels: true, fmt: v => pct(v, 0), labW: 170, valueName: 'gain share' }), table: { cols: [{ key: 'label', label: 'Feature', left: true }, { key: 'value', label: 'Gain share', fmt: v => pct(v, 1) }], rows: it } });
+    fig.querySelector('.head').appendChild(sel);
+  };
+  sel.addEventListener('change', draw); draw();
+}
+
+// ---- RQ1 example traces --------------------------------------------------------------------------------
+{
+  const devs = Object.keys(R1.examples);
+  select('ex-dev', devs.map(d => [d, d]), devs[0]);
+  select('ex-target', TG.map(y => [y, L(y)]), 'input_power_watts');
+  const draw = () => {
+    const e = R1.examples[$('#ex-dev').value][$('#ex-target').value]; const y = $('#ex-target').value;
+    if (!e) { $('#ex-fig').replaceChildren(el('p', 'note', 'No test data for this device and target.')); return; }
+    const pts = k => e.t.map((t, i) => [t, e[k][i]]);
+    const inside = e.y.filter((v, i) => v >= Math.min(e.q05[i], e.q95[i]) && v <= Math.max(e.q05[i], e.q95[i])).length / e.y.length;
+    figure($('#ex-fig'), { title: `${$('#ex-dev').value} · ${L(y)} (${U(y)})`, caption: `${pct(inside)} of these hours fall inside the raw 90 % band.`,
+      render: p => lineChart(p, { height: 260, x: { type: 'time', tipFmt: fmtTs, ticks: dayTicks(e.t[0], e.t[e.t.length - 1]) }, y: { fmt: f2 }, series: [{ name: 'measured', points: pts('y'), color: css('--ink'), width: 1.6 }, { name: 'model median', points: pts('q50'), color: css('--s2'), width: 1.6 }], band: e.t.map((t, i) => [t, Math.min(e.q05[i], e.q95[i]), Math.max(e.q05[i], e.q95[i])]), bandColor: '--s2', bandName: '90 % band', bandLegend: '90 % band (5–95 % quantile models)' }),
+      table: { cols: [{ key: 't', label: 'Hour', left: true, fmt: fmtTs }, { key: 'y', label: 'Measured', fmt: f2 }, { key: 'q05', label: 'q05', fmt: f2 }, { key: 'q50', label: 'q50', fmt: f2 }, { key: 'q95', label: 'q95', fmt: f2 }], rows: e.t.map((t, i) => ({ t, y: e.y[i], q05: e.q05[i], q50: e.q50[i], q95: e.q95[i] })), maxRows: 48 } });
+  };
+  ['ex-dev', 'ex-target'].forEach(id => $('#' + id).addEventListener('change', draw)); draw();
+}
+function dayTicks(a, b) { const t = []; const d = new Date(a); d.setUTCHours(0, 0, 0, 0); if (d.getTime() < a) d.setUTCDate(d.getUTCDate() + 1); while (d.getTime() <= b) { t.push([d.getTime(), `${d.getUTCDate()} ${MON[d.getUTCMonth()]}`]); d.setUTCDate(d.getUTCDate() + 2); } return t; }
+
+// ---- RQ1 conditions + transfer ---------------------------------------------------------------------------
+{
+  $('#cond-sub').textContent = `Left: test MAE by stratum for the device × hour profile and the full-context model (with device offset). Right: how a model trained on some devices does on devices it never saw. "Leave-device-out" holds out random devices; "leave-configuration-out" holds out a whole hardware group or agency, so the model has never seen that configuration. The gap between the two is the price of an unseen configuration.`;
+  select('c-target', TG.map(y => [y, L(y)]), 'input_power_watts');
+  const names = { supply: 'Supply', solar: 'Power source', deepstream: 'DeepStream', ambient: 'Ambient', agency: 'Agency', month: 'Month' };
+  const draw = () => {
+    const y = $('#c-target').value, st = R1.strata[y];
+    const rows = [];
+    ['supply', 'solar', 'deepstream', 'ambient', 'month', 'agency'].forEach(k => Object.entries(st[k] || {}).forEach(([s, v]) => { if (s !== 'unknown') rows.push({ group: names[k], stratum: s, devices: v.devices, hours: v.n, base: v['device × hour'], full: v['+workload'], dev: v['+device id'] }); }));
+    const cols = [{ key: 'group', label: 'Condition', left: true }, { key: 'stratum', label: 'Stratum', left: true }, { key: 'devices', label: 'Devices' }, { key: 'hours', label: 'Hours', fmt: fmtInt }, { key: 'base', label: 'Device × hour', fmt: f2 }, { key: 'full', label: 'Full context', fmt: f2 }, { key: 'dev', label: '+ device', fmt: f2 }];
+    figure($('#strata-fig'), { title: `${L(y)} · MAE (${U(y)}) by condition`, render: p => renderTable(p, { cols, rows, maxRows: 18, sortable: false }), table: { cols, rows } });
+    const trows = [{ test: 'Temporal (seen devices)', devices: R1.s1_devices, full: mae(y, '+workload'), nohw: mae(y, 'full − hardware'), ref: null }];
+    trows.push({ test: 'Leave-device-out (5 folds)', devices: null, full: R1.s2[y]['lgbm (full)'].mae, nohw: R1.s2[y]['lgbm − hardware'].mae, ref: R1.s2[y]['agency × hour'].mae, refName: 'agency × hour' });
+    Object.entries(R1.s3).forEach(([g, v]) => trows.push({ test: g.replace('agency out: ', 'agency held out: '), devices: v[y].devices, full: v[y]['lgbm (full)'].mae, nohw: v[y]['lgbm − hardware'].mae, ref: v[y].ldo_mae_same_devices }));
+    const tcols = [{ key: 'test', label: 'Test', left: true }, { key: 'devices', label: 'Devices' }, { key: 'full', label: 'Full context', fmt: f2 }, { key: 'nohw', label: 'No hardware', fmt: f2 }, { key: 'ref', label: 'Same devices, leave-device-out', fmt: f2 }];
+    figure($('#transfer-fig'), { title: `${L(y)} · MAE (${U(y)}) on unseen devices`, caption: 'Last column: error on the same held-out devices when their configuration was in training (leave-device-out). For the leave-device-out row it is the agency × hour baseline.', render: p => renderTable(p, { cols: tcols, rows: trows, maxRows: 20, sortable: false }), table: { cols: tcols, rows: trows } });
+  };
+  $('#c-target').addEventListener('change', draw); draw();
+}
+
+// ---- RQ1 intervals -------------------------------------------------------------------------------------
+{
+  $('#cov-sub').textContent = `Quantile models (5 % and 95 %) should bracket 90 % of test hours. Raw, they cover less because August–October differs from the training months. Split-conformal calibration on July widens each band by the July miss margin, either one margin for the fleet or one per device.`;
+  const items = [];
+  const kinds = [['raw', '--de', 'raw quantiles'], ['conformal (global)', '--s1', 'conformal, fleet margin'], ['conformal (per device)', '--s3', 'conformal, per-device margin']];
+  TG.forEach(y => kinds.forEach(([k, c]) => items.push({ label: `${L(y)} · ${k.replace('conformal ', '')}`, value: R1.coverage[y][k].coverage, color: css(c), extra: [{ label: 'median width', value: `${f2(R1.coverage[y][k].width)} ${U(y)}` }] })));
+  figure($('#cov-fig'), { title: 'Coverage of the 90 % band, Aug–Oct', caption: 'Target is 90 %.', render: p => { barChart(p, { items, valueLabels: true, fmt: v => pct(v), labW: 200, max: 1, valueName: 'coverage' }); legend(p, kinds.map(([, c, n]) => ({ name: n, color: css(c), rect: true }))); },
+    table: { cols: [{ key: 'label', label: 'Target · method', left: true }, { key: 'value', label: 'Coverage', fmt: v => pct(v, 1) }], rows: items } });
+  const months = Object.keys(R1.coverage[TG[0]]['conformal (global)'].by.month || {}).sort();
+  const rows = TG.map(y => { const r = { target: L(y) }; months.forEach(m => { r[m] = R1.coverage[y]['conformal (global)'].by.month[m]?.coverage; }); const s = R1.coverage[y]['conformal (global)'].by.supply; r.v12 = s['12 V']?.coverage; r.v56 = s['56 V']?.coverage; return r; });
+  const cols = [{ key: 'target', label: 'Target', left: true }].concat(months.map(m => ({ key: m, label: MON[+m.slice(5) - 1], fmt: v => pct(v) }))).concat([{ key: 'v12', label: '12 V', fmt: v => pct(v) }, { key: 'v56', label: '56 V', fmt: v => pct(v) }]);
+  figure($('#covm-fig'), { title: 'Conformal (fleet margin) coverage by month and supply', caption: 'Coverage stays below 90 % in every month rather than falling steadily, and drops to about half for CPU and GPU temperature on 56 V devices.', render: p => renderTable(p, { cols, rows, sortable: false }), table: { cols, rows } });
+}
+
+// ---- RQ2 intro ------------------------------------------------------------------------------------------
+{
+  const r = R2.rows;
+  $('#rq2-sub').textContent = `${R2.devices} devices with data in all three periods: models fitted on ${fmtInt(r.fit)} device-hours before 1 July (${fmtInt(r.cleaned)} gross outliers removed), residual scales calibrated on July (${fmtInt(r.cal)}), and faults injected into 1 August – 6 October (${fmtInt(r.test)}). Every residual detector uses the same model class and the same context; only the parents each node may lean on differ.`;
+}
+
+// ---- RQ2 hand graph --------------------------------------------------------------------------------------
+{
+  const P = { cpu_gpu_power_watts: [90, 60], orin_power_watts: [290, 60], input_power_watts: [490, 60], input_energy_wh_total_rate: [690, 60],
+    power: [290, 160], input_current_amperes: [690, 160], cpu_temp_celsius: [90, 270], gpu_temp_celsius: [290, 270], board_temp_celsius: [490, 270], input_voltage_volts: [690, 270] };
+  const unit = { cpu_gpu_power_watts: 'W', orin_power_watts: 'W', input_power_watts: 'W', input_energy_wh_total_rate: 'Wh / h', power: 'W', input_current_amperes: 'A', cpu_temp_celsius: '°C', gpu_temp_celsius: '°C', board_temp_celsius: '°C', input_voltage_volts: 'V' };
+  const fig = $('#hand-fig');
+  figure(fig, { title: 'Hand-specified DAG', caption: 'Dashed: no parent among the measurements (context only). Arrow: parent → child.',
+    render: p => {
+      const svg = sv('svg', { viewBox: '0 0 780 320', role: 'img', 'aria-label': 'hand-specified dependency graph' }, p);
+      const defs = sv('defs', {}, svg); const mk = sv('marker', { id: 'ah', viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs); sv('path', { d: 'M0,0L10,5L0,10z', fill: css('--s2') }, mk);
+      const hw = 76, hh = 22;
+      const edge = (a, b) => {
+        const [x1, y1] = P[a], [x2, y2] = P[b]; const dx = x2 - x1, dy = y2 - y1;
+        const t = s => { const tx = dx ? (hw + 2) / Math.abs(dx) : Infinity, ty = dy ? (hh + 2) / Math.abs(dy) : Infinity; return Math.min(tx, ty); };
+        const k = t(); const sx_ = x1 + dx * k, sy_ = y1 + dy * k, ex = x2 - dx * k, ey = y2 - dy * k;
+        const d = `M${sx_},${sy_}L${ex},${ey}`;
+        sv('path', { d, class: 'gedge', 'marker-end': 'url(#ah)' }, svg);
+        const hit = sv('path', { d, class: 'gedge-hit' }, svg);
+        const why = R2.hand_why[`${a}>${b}`] || '';
+        hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, `${L(a)} → ${L(b)}`, [{ label: why, value: '' }]));
+        hit.addEventListener('pointerleave', hideTip);
+      };
+      Object.entries(R2.graphs.hand).forEach(([n, ps]) => ps.forEach(pa => edge(pa, n)));
+      Object.entries(P).forEach(([n, [x, y]]) => {
+        const g = sv('g', { class: 'gnode' + (R2.graphs.hand[n].length ? '' : ' root') }, svg);
+        sv('rect', { x: x - hw, y: y - hh, width: 2 * hw, height: 2 * hh, rx: 6 }, g);
+        sv('text', { x, y: y + 1, 'text-anchor': 'middle' }, g).textContent = L(n);
+        sv('text', { x, y: y + 15, 'text-anchor': 'middle', class: 'u' }, g).textContent = unit[n];
+      });
+    },
+    table: { cols: [{ key: 'edge', label: 'Edge', left: true }, { key: 'why', label: 'Reason', left: true }], rows: Object.entries(R2.hand_why).map(([k, v]) => ({ edge: k.split('>').map(L).join(' → '), why: v })) } });
+  const gs = ['hand', 'corr top-k', 'lasso', 'granger', 'notears', 'full'];
+  const rows = R2.nodes.map(n => { const r = { node: L(n) }; gs.forEach(g => { const ps = R2.graphs[g][n]; r[g] = g === 'full' ? 'all 9' : (ps.length ? ps.map(L).join(', ') : '—'); }); return r; });
+  const cols = [{ key: 'node', label: 'Node', left: true }].concat(gs.map(g => ({ key: g, label: DET[g].name.replace(' (GDN-style)', ''), left: true })));
+  figure($('#graphs-fig'), { title: 'Parents of each node, by graph', caption: `Learned graphs come from the training hours after removing each device's daily cycle: top-${2} absolute correlations; the two largest Lasso coefficients; the two strongest pooled Granger sources (lags 1–2 h); the NOTEARS linear DAG (|w| ≥ 0.3).`, render: p => renderTable(p, { cols, rows, sortable: false }), table: { cols, rows } });
+}
+
+// ---- RQ2 faults ------------------------------------------------------------------------------------------
+{
+  const k = R2.coef;
+  $('#faults-sub').textContent = `No faults are labelled in the data, so ${R2.episodes_per_device} episodes per device and per fault were injected into a copy of the test period, at least 48 h apart, at three severities each. Faults propagate the way the physics says they should; the propagation slopes are within-device regressions on the training hours (Orin ${f2(k.orin_per_cg)} W and input ${f2(k.input_per_cg)} W per W of CPU+GPU power, CPU ${f2(k.cpu_per_cg)} °C per W, board ${f2(k.board_per_input)} °C per W of input power).`;
+  const what = {
+    F1: 'Extra draw behind the input meter (a heater, a failing display driver): input power, current and the energy counter rise; board temperature follows.',
+    F2: 'CPU+GPU power rises without any change in workload; Orin, heartbeat and input power, current, energy and temperatures follow.',
+    F3: 'The on-device energy integral drifts away from input power, ramping up over 1–3 days. Only one sensor is wrong.',
+    F4: 'Input power freezes at its value at onset while current and voltage keep moving. Only one sensor is wrong.',
+    F5: 'Input voltage drops; current rises to hold power, with a small conversion loss.',
+    F6: 'CPU and GPU temperature rise with no change in power (control case, not an energy fault).',
+  };
+  const rows = Object.entries(R2.faults).map(([f, s]) => ({ id: f, name: s.name, what: what[f], root: s.root.map(L).join(' / '), sev: s.sev_label.join(' · ') }));
+  const cols = [{ key: 'id', label: 'Fault', left: true }, { key: 'name', label: 'Name', left: true }, { key: 'what', label: 'What changes', left: true }, { key: 'root', label: 'Root node', left: true }, { key: 'sev', label: 'Severities', left: true }];
+  figure($('#faults-fig'), { title: 'Fault catalogue', render: p => { renderTable(p, { cols, rows, sortable: false }); p.querySelectorAll('td').forEach(td => { td.style.whiteSpace = 'normal'; }); }, table: { cols, rows } });
+}
+
+// ---- RQ2 results -----------------------------------------------------------------------------------------
+function drawResults() {
+  const v = variant(), S = R2.summary_energy[v], bt = R2.bootstrap_vs_hand[v];
+  const Sm = R2.summary_energy['max-6h'], St = R2.summary_energy['tail-6h'];
+  const lift = Object.keys(St).filter(d => d !== 'iforest').map(d => St[d].recall - Sm[d].recall);
+  $('#res-sub').textContent = `Each device gets its own alarm threshold at the 99th percentile of its score on the clean test period, so every detector raises the same 1 % of hourly false alarms. An episode counts as detected when any of its hours alarms. Energy faults F1–F5, three severities, ${R2.devices} devices. How node scores are combined matters as much as the graph: taking the largest raw |z| lets the node with the widest normal residuals set the alarm level, while turning each node's score into its own tail probability first lifts every detector except Isolation Forest by ${Math.round(100 * Math.min(...lift))}–${Math.round(100 * Math.max(...lift))} points. The tail version is the default; switch to compare.`;
+  const order = Object.keys(S).sort((a, b) => S[b].recall - S[a].recall);
+  const items = order.map(d => ({ label: DET[d].name, value: S[d].recall, color: famColor(d), extra: [{ label: 'AUROC (per-device mean)', value: f3(S[d].auroc_device_mean) }, { label: 'AUPRC (mean over scenarios)', value: f3(S[d].auprc_mean) }, { label: 'median delay', value: S[d].delay_median == null ? '–' : `${S[d].delay_median} h` }] }));
+  figure($('#recall-fig'), { title: 'Episodes detected, energy faults', caption: 'Hover a bar for threshold-free AUROC / AUPRC and detection delay.',
+    render: p => { barChart(p, { items, valueLabels: true, fmt: v => pct(v), labW: 200, max: 1, valueName: 'recall' }); legend(p, Object.values(FAM).map(([c, n]) => ({ name: n, color: css(c), rect: true }))); },
+    table: { cols: [{ key: 'det', label: 'Detector', left: true }, { key: 'recall', label: 'Recall', fmt: v => pct(v, 1) }, { key: 'auroc', label: 'AUROC (device)', fmt: f3 }, { key: 'auprc', label: 'AUPRC', fmt: f3 }, { key: 'loc', label: 'Localisation', fmt: v => pct(v, 1) }, { key: 'delay', label: 'Delay (h)' }], rows: order.map(d => ({ det: DET[d].name, recall: S[d].recall, auroc: S[d].auroc_device_mean, auprc: S[d].auprc_mean, loc: S[d].loc_acc, delay: S[d].delay_median })) } });
+  forest($('#boot-fig'), bt, v);
+  drawByFault(); drawLoc();
+}
+function forest(fig, bt, v) {
+  const metric = fig.dataset.metric || 'detected';
+  const rows = Object.entries(bt[metric]).map(([d, b]) => ({ d, ...b })).sort((a, b) => a.diff - b.diff);
+  figure(fig, { title: metric === 'detected' ? 'Hand graph minus each detector: recall' : 'Hand graph minus each detector: localisation', caption: 'Difference in share of episodes, with 95 % intervals from resampling devices (2,000 draws). Right of zero: the hand graph does better.',
+    render: p => {
+      const W = Math.max(300, p.clientWidth || 500), rowH = 24, m = { t: 8, r: 16, b: 26, l: 200 }, H = m.t + rows.length * rowH + m.b;
+      const lo = Math.min(-0.05, ...rows.map(r => r.lo)), hi = Math.max(0.05, ...rows.map(r => r.hi));
+      const sx = x => m.l + (x - lo) / (hi - lo) * (W - m.l - m.r);
+      const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'forest plot' }, p);
+      niceTicks(lo, hi, 5).forEach(t => { sv('line', { x1: sx(t), x2: sx(t), y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); sv('text', { x: sx(t), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = (t > 0 ? '+' : '') + Math.round(100 * t); });
+      sv('line', { x1: sx(0), x2: sx(0), y1: m.t, y2: H - m.b, stroke: css('--ink-2'), 'stroke-width': 1.2 }, svg);
+      rows.forEach((r, i) => {
+        const y = m.t + i * rowH + rowH / 2, c = famColor(r.d);
+        sv('text', { x: m.l - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 12, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = DET[r.d].name;
+        sv('line', { x1: sx(r.lo), x2: sx(r.hi), y1: y, y2: y, stroke: c, 'stroke-width': 2 }, svg);
+        sv('circle', { cx: sx(r.diff), cy: y, r: 5, fill: c, stroke: css('--surface'), 'stroke-width': 1.5 }, svg);
+        const hit = sv('rect', { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: 'transparent' }, svg);
+        hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, `Hand graph − ${DET[r.d].name}`, [{ label: 'difference', value: pp(r.diff) }, { label: '95 % interval', value: `${pp(r.lo)} to ${pp(r.hi)}` }]));
+        hit.addEventListener('pointerleave', hideTip);
+      });
+    },
+    table: { cols: [{ key: 'name', label: 'Versus', left: true }, { key: 'diff', label: 'Difference', fmt: pp }, { key: 'lo', label: '2.5 %', fmt: pp }, { key: 'hi', label: '97.5 %', fmt: pp }], rows: rows.map(r => ({ name: DET[r.d].name, ...r })) } });
+  const b = el('button', 'toggle', metric === 'detected' ? 'Localisation' : 'Recall'); b.type = 'button';
+  b.addEventListener('click', () => { fig.dataset.metric = metric === 'detected' ? 'loc_ok' : 'detected'; forest(fig, bt, v); });
+  fig.querySelector('.btns').prepend(b);
+}
+function drawByFault() {
+  const v = variant(), bf = R2.by_fault[v], sev = $('#bf-sev').value;
+  const dets = Object.keys(DET);
+  const rows = Object.keys(R2.faults).map(f => {
+    const r = { fault: `${f} · ${R2.faults[f].name}` };
+    dets.forEach(d => { const vals = (sev === 'all' ? [0, 1, 2] : [+sev]).map(s => bf.recall[`${f}|${s}`]?.[d]).filter(x => x != null); r[d] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null; });
+    return r;
+  });
+  const maxOf = r => Math.max(...dets.map(d => r[d] ?? -1));
+  const cols = [{ key: 'fault', label: 'Fault', left: true }].concat(dets.map(d => ({ key: d, label: DET[d].name.replace(' (GDN-style)', '').replace(', univariate', '').replace('Context model, no edges', 'Context, no edges'), fmt: (x, r) => x == null ? '–' : (x === maxOf(r) ? '● ' : '') + pct(x) })));
+  figure($('#byfault-fig'), { title: 'Recall by fault', caption: '● marks the best detector for each fault.', render: p => renderTable(p, { cols, rows, sortable: false }), table: { cols, rows } });
+  const rk = f => { const r = rows.find(x => x.fault.startsWith(f)); return r ? r.hand : null; };
+  const best6 = (() => { const r = rows.find(x => x.fault.startsWith('F6')); return r ? Math.max(...dets.filter(d => d !== 'hand').map(d => r[d] ?? 0)) : null; })();
+  $('#bf-note').innerHTML = `<b>Where the hand graph wins and loses.</b> It is strongest where a fault breaks a physical identity it encodes: a parasitic load breaks input power ≈ Orin power + overhead (${pct(rk('F1'))}), a stuck power sensor breaks I = P / V and the energy integral (${pct(rk('F4'))}), a supply sag shifts voltage against current (${pct(rk('F5'))}). It is weakest on the cooling fault (${pct(rk('F6'))} vs ${pct(best6)} for the best learned graph): it predicts CPU temperature from compute power and ambient only, while the learned graphs check CPU against GPU and board temperature, which a uniform SoC heat-up violates. Adding a board → SoC temperature edge to the hand graph is the next refinement to test.`;
+}
+function drawLoc() {
+  const v = variant(), S = R2.summary_energy[v], bf = R2.by_fault[v];
+  const order = Object.keys(S).filter(d => S[d].loc_acc != null).sort((a, b) => S[b].loc_acc - S[a].loc_acc);
+  const items = order.map(d => ({ label: DET[d].name, value: S[d].loc_acc, color: famColor(d) }));
+  figure($('#loc-fig'), { title: 'Root node named correctly, energy faults', caption: 'Over all injected energy-fault episodes with a score. Isolation Forest gives one score per hour and cannot point to a node.', render: p => barChart(p, { items, valueLabels: true, fmt: v => pct(v), labW: 200, max: 1, valueName: 'accuracy' }), table: { cols: [{ key: 'label', label: 'Detector', left: true }, { key: 'value', label: 'Accuracy', fmt: v => pct(v, 1) }], rows: items } });
+  const dets = ['hand', 'full', 'lasso', 'corr top-k', 'granger', 'notears', 'none', 'seasonal', 'pca'];
+  const rows = Object.keys(R2.faults).map(f => { const r = { fault: `${f} · ${R2.faults[f].name}` }; dets.forEach(d => { const vals = [0, 1, 2].map(s => bf.loc[`${f}|${s}`]?.[d]).filter(x => x != null); r[d] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null; }); return r; });
+  const cols = [{ key: 'fault', label: 'Fault', left: true }].concat(dets.map(d => ({ key: d, label: DET[d].name.split(' (')[0].replace(', univariate', '').replace('Context model, no edges', 'Context, no edges'), fmt: v => pct(v) })));
+  figure($('#locf-fig'), { title: 'Localisation accuracy by fault', caption: 'F3 and F4 corrupt a single sensor; F1, F2 and F5 are real changes that propagate.', render: p => renderTable(p, { cols, rows, sortable: false }), table: { cols, rows } });
+}
+['v-agg', 'v-win'].forEach(id => $('#' + id).addEventListener('change', drawResults));
+$('#bf-sev').addEventListener('change', drawByFault);
+drawResults();
+
+// ---- RQ2 example ------------------------------------------------------------------------------------------
+{
+  const faults = Object.keys(R2.examples);
+  select('ex2-fault', faults.map(f => [f, `${f} · ${R2.faults[f].name}`]), faults[0]);
+  const draw = () => {
+    const f = $('#ex2-fault').value, e = R2.examples[f]; if (!e) return;
+    $('#ex2-sub').textContent = `A medium-severity ${R2.faults[f].name.toLowerCase()} episode on ${e.device} (shaded), scored by the hand graph and by the complete graph. Lines are signed residual z of the nodes that move most. The detector reports the node with the largest mean |z| over the episode.`;
+    const row = $('#ex2-row'); row.replaceChildren();
+    ['hand', 'full'].forEach(det => {
+      const nodes = e.det[det]; if (!nodes) return;
+      const inEp = e.in;
+      const top = Object.entries(nodes).map(([n, d]) => [n, d.z.reduce((a, z, i) => a + (inEp[i] && z != null ? Math.abs(z) : 0), 0)]).sort((a, b) => b[1] - a[1]).slice(0, 4).map(x => x[0]);
+      const a = e.t[inEp.indexOf(1)], b = e.t[inEp.lastIndexOf(1)];
+      figure(row, { title: `${DET[det].name}: top 4 nodes`, caption: `Blamed node: ${L(top[0])}. Root of this fault: ${R2.faults[f].root.map(L).join(' / ')}.`,
+        render: p => { lineChart(p, { height: 230, x: { type: 'time', tipFmt: fmtTs, ticks: dayTicks(e.t[0], e.t[e.t.length - 1]) }, y: { fmt: v => v.toFixed(0) }, series: top.map((n, i) => ({ name: L(n), points: e.t.map((t, k) => [t, nodes[n].z[k]]), color: css(COLORS[i]) })) });
+          const svg = p.querySelector('svg'); if (svg) { /* shade the episode */ const W = svg.viewBox.baseVal.width, Hh = svg.viewBox.baseVal.height; const x0 = 46 + (a - e.t[0]) / (e.t[e.t.length - 1] - e.t[0]) * (W - 46 - 14), x1 = 46 + (b - e.t[0]) / (e.t[e.t.length - 1] - e.t[0]) * (W - 46 - 14); const r = sv('rect', { x: x0, y: 10, width: Math.max(2, x1 - x0), height: Hh - 36, fill: css('--s4'), opacity: 0.13 }); svg.insertBefore(r, svg.firstChild); } },
+        table: { cols: [{ key: 't', label: 'Hour', left: true, fmt: fmtTs }].concat(top.map(n => ({ key: n, label: L(n), fmt: f2 }))), rows: e.t.map((t, k) => Object.assign({ t }, ...top.map(n => ({ [n]: nodes[n].z[k] })))), maxRows: 48 } });
+    });
+  };
+  $('#ex2-fault').addEventListener('change', draw); draw();
+}
+
+// ---- RQ2 real anomalies --------------------------------------------------------------------------------
+{
+  const rp = R2.real_pvi;
+  $('#real-sub').textContent = `Two things in the clean test period are anomalies without any injection. ${rp.hours} device-hours on ${rp.devices} devices report an input power more than 2 % away from voltage × current, while in normal operation the two agree to within 0.3 %. And on a few devices the supply voltage left its July behaviour for weeks: with one fleet-wide threshold those devices took the whole alarm budget, which is why thresholds here are set per device.`;
+  const order = Object.keys(rp.by_detector).sort((a, b) => (rp.by_detector[b].recall ?? 0) - (rp.by_detector[a].recall ?? 0));
+  const items = order.map(d => ({ label: DET[d].name, value: rp.by_detector[d].recall, color: famColor(d) }));
+  figure($('#real-fig'), { title: `Power ≠ voltage × current: ${rp.hours} hours flagged`, caption: 'Share of those hours above each detector\'s 1 % threshold (single-hour, largest |z|). A small sample: treat as a sanity check.', render: p => barChart(p, { items, valueLabels: true, fmt: v => pct(v), labW: 200, max: 1, valueName: 'flagged' }), table: { cols: [{ key: 'label', label: 'Detector', left: true }, { key: 'value', label: 'Flagged', fmt: v => pct(v, 1) }], rows: items } });
+  const vs = Object.entries(rp.voltage_shift_devices).map(([d, z]) => ({ label: d, value: z, mono: true, color: css('--s4') }));
+  figure($('#volt-fig'), { title: 'Supply-voltage departures from July', caption: 'Median |z| of input voltage over the test period (hand graph, context-only voltage model). Values far above 3 are sustained shifts, not noise: a replaced supply, a battery or charger change.', render: p => barChart(p, { items: vs, valueLabels: true, fmt: v => v.toFixed(0), labW: 140, valueName: 'median |z|' }), table: { cols: [{ key: 'label', label: 'Device', left: true, cls: 'id' }, { key: 'value', label: 'Median |z|', fmt: f2 }], rows: vs } });
+}
+
+// ---- Linux logs -----------------------------------------------------------------------------------------
+{
+  const nx = $('#next-list');
+  const box = (h, t) => { const d = el('div'); d.appendChild(el('h3', null, h)); d.appendChild(el('p', null, t)); d.lastChild.style.margin = 0; nx.appendChild(d); };
+  box('CPU / GPU utilisation and clocks', `Today the only workload signals are whether DeepStream runs and how much RAM is used. Per-core load, GPU load and DVFS frequency (tegrastats, /proc/stat) are what actually set CPU+GPU power; they should close most of the gap in RQ1 power error and turn CPU+GPU power from a context-only root into a node with real parents in the RQ2 graph.`);
+  box('Thermal throttling and fan state', `CPU temperature is the weakest RQ1 target (within-device R² ${f2(H.t_r2)}), and several devices sit near 99 °C. Throttle events, fan PWM and nvpmodel power mode from the kernel log would separate a cooling fault from heavy load, the case the graph currently confuses (F6).`);
+  box('Power-rail and supply events', `Undervoltage and brown-out messages, INA238 / INA3221 driver errors, and charger or PSU events would label real energy anomalies (the voltage departures above, the power ≠ V × I hours) instead of relying on injected ones.`);
+  box('Reboots, service restarts and OTA updates', `Systemd journal restarts of DeepStream and the heartbeat service, and software updates, explain many level shifts that the models now treat as drift, and would let calibration restart after a known change rather than flag weeks of hours.`);
+}
+
+// ---- methods ----------------------------------------------------------------------------------------------
+{
+  const m = $('#methods-box');
+  const box = (h, items) => { const d = el('div'); d.appendChild(el('h3', null, h)); const ul = el('ul'); items.forEach(t => ul.appendChild(el('li', null, t))); d.appendChild(ul); m.appendChild(d); };
+  box('Data', [
+    'Hourly device means from features.py (placeholder codes removed, counters as reset-aware hourly increases). Device hardware is constant per device: 56 V vs 12 V supply (median input voltage above 30 V), RAM and disk size, solar MPPT present, environment sensor present, DeepStream ever ran.',
+    'Devices without an environment sensor get the leave-one-out mean of the other devices of their agency in the same hour (agency temperature, humidity, light).',
+  ]);
+  box('RQ1 models (rq1_nbm.py)', [
+    'LightGBM (500 trees, 63 leaves, learning rate 0.05) shared by the fleet; ridge with hour one-hot as the linear reference. Quantile LightGBM at 5 / 50 / 95 % for bands; split-conformal (CQR) calibration on July, fleet or per-device margin.',
+    'S1 temporal: fit before 1 Aug, test after, devices with ≥ 14 days of training data. S2: 5 device folds over the whole period. S3: a whole configuration or agency held out.',
+  ]);
+  box('RQ2 detectors (rq2_graph.py)', [
+    'Residual detectors: per node, a per-device ridge on its graph parents (so exact relations such as I = P / V extrapolate under a fault) plus a global LightGBM on context and parents for the rest. z = (residual − July median) / July robust scale, floored at 0.5 % of the device\'s level (power, voltage, current, energy) or 0.3 °C.',
+    'Isolation Forest (300 trees) and PCA (90 % variance) take the vector of seasonal z of all ten nodes. Seasonal z = value minus the device × hour-of-day median of the training months.',
+    'Scores: largest |z| over nodes, or largest per-node tail probability under the device\'s own clean scores; single hour or a 6 h causal mean. Per-device threshold at the 99th percentile of the clean test period.',
+  ]);
+  box('Caveats', [
+    'Faults are synthetic. Their propagation follows physical relations that the hand graph also encodes, which favours graphs containing those edges. The learned graphs recover most of the same edges, so the comparison is mainly about which extra or missing edges each graph brings.',
+    'Hourly resolution hides minute-scale spikes; the faults tested last 6–72 h. Thresholds use the clean test period (matched false-alarm rate), so absolute recall is optimistic for live use, but the comparison between detectors is fair.',
+    'GDN and other neural learned-graph detectors were not run; the top-k correlation graph uses GDN\'s neighbour-selection idea with the same regressor as the others.',
+  ]);
+}
+</script>

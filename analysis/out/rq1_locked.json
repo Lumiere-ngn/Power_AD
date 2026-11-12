@@ -1,0 +1,103 @@
+{
+ "locked_at": "2026-11-10T19:42:16.135441+00:00",
+ "seed": 20261103,
+ "rule": "Per target family, the inputs and settings with the highest mean skill on June (fit March-May); within 0.005 of the best, the simplest (fewer inputs, then fewer leaves, then fewer trees). Bands: the calibration with the smallest mean |coverage - 0.90| on July (fit March-May, calibrate June); within 0.005, the simplest.",
+ "excluded_agencies": [
+  "demo",
+  "show",
+  "buspas"
+ ],
+ "data_until": "2026-07-31 23:00:00+00:00",
+ "min_hours": 168,
+ "nominal_coverage": 0.9,
+ "family": {
+  "power": {
+   "inputs": "pilot inputs",
+   "setting": "31 leaves, 200 trees",
+   "features": [
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "is_weekend",
+    "v56",
+    "mem_total",
+    "disk_total",
+    "has_mppt",
+    "has_env",
+    "has_ds",
+    "agency",
+    "peer_temperature",
+    "peer_humidity",
+    "peer_lightsensor",
+    "temperature",
+    "humidity",
+    "lightsensor",
+    "deepstream_app_running",
+    "mem_used_gb",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate",
+    "pir_count_rate",
+    "ds_consumer_error_total_rate"
+   ],
+   "params": {
+    "num_leaves": 31,
+    "n_estimators": 200
+   }
+  },
+  "thermal": {
+   "inputs": "+ weather",
+   "setting": "31 leaves, 500 trees",
+   "features": [
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "is_weekend",
+    "v56",
+    "mem_total",
+    "disk_total",
+    "has_mppt",
+    "has_env",
+    "has_ds",
+    "agency",
+    "peer_temperature",
+    "peer_humidity",
+    "peer_lightsensor",
+    "temperature",
+    "humidity",
+    "lightsensor",
+    "deepstream_app_running",
+    "mem_used_gb",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate",
+    "pir_count_rate",
+    "ds_consumer_error_total_rate",
+    "wx_temp_c",
+    "wx_humidity_pct",
+    "wx_dewpoint_c",
+    "wx_cloud_pct",
+    "wx_wind_ms",
+    "wx_solar_wm2",
+    "wx_precip_mm"
+   ],
+   "params": {
+    "num_leaves": 31,
+    "n_estimators": 500
+   }
+  }
+ },
+ "bands": "fleet",
+ "final_windows": {
+  "fit": [
+   "2026-03-08",
+   "2026-07-01"
+  ],
+  "calibrate": [
+   "2026-07-01",
+   "2026-08-01"
+  ],
+  "test": [
+   "2026-08-01",
+   "2026-10-07"
+  ]
+ }
+}

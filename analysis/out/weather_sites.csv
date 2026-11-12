@@ -1,0 +1,9 @@
+agency,city,latitude,longitude,grid_latitude,grid_longitude,grid_elevation_m,hours,hours_missing
+EXO,"Montreal, Quebec",45.5,-73.57,45.51845,-73.61069,83.0,5159,0
+RTL,"Longueuil, Quebec",45.53,-73.52,45.51845,-73.46939,14.0,5159,0
+TTC,"Toronto, Ontario",43.65,-79.38,43.690685,-79.41174,87.0,5159,0
+Barcelona,"Barcelona, Spain",41.39,2.17,41.441124,2.2014387,29.0,5159,0
+NJT,"Newark, New Jersey",40.74,-74.17,40.738136,-74.17023,24.0,5159,0
+BCT,"Fort Lauderdale, Florida",26.12,-80.14,26.115992,-80.142395,6.0,5159,0
+BalHarbour,"Bal Harbour, Florida",25.89,-80.13,25.905096,-80.17468,0.0,5159,0
+LA,"Los Angeles, California",34.05,-118.24,34.059753,-118.2375,87.0,5159,0

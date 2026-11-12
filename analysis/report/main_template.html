@@ -1,0 +1,464 @@
+<title>Smart-Sign Anomalies and Causes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+__KIT_CSS__
+body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+nav.sections { margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.stack { display: grid; gap: 16px; }
+.stack > * { min-width: 0; }
+.graphwrap { overflow-x: auto; max-width: 100%; }
+.graphwrap svg { min-width: 600px; }
+section > h3 { font-size: 15px; font-weight: 600; margin: 22px 0 8px; }
+ul.reading { margin: 0; padding-left: 18px; color: var(--ink-2); max-width: 78ch; display: grid; gap: 6px; }
+ul.reading b { color: var(--ink); font-weight: 600; }
+table.data td.w { white-space: normal; min-width: 220px; text-align: left; }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Smart bus-stop sign telemetry · streaming analysis with River</div>
+  <h1>Anomalies and causal links between variables</h1>
+  <p class="lede" id="lede"></p>
+  <div class="stamp" id="stamp"></div>
+</header>
+</div>
+
+<nav class="sections"><ul>
+  <li><a href="#overview">Overview</a></li><li><a href="#flags">Flagged hours</a></li><li><a href="#incidents">Incidents</a></li>
+  <li><a href="#events">Events</a></li><li><a href="#joint">Joint score</a></li><li><a href="#graph">Causal graph</a></li>
+  <li><a href="#links">Link evidence</a></li><li><a href="#onset">Onset order</a></li><li><a href="#methods">Methods and limits</a></li>
+</ul></nav>
+
+<div class="wrap">
+
+<section id="overview">
+  <h2>Overview</h2>
+  <p class="sub">Two questions on the hourly table of the fleet: which hours are unusual for a sign, and which variables lead which. Every score is made online, in time order: a model sees an hour only after it has scored it.</p>
+  <div class="tiles" id="kpis"></div>
+  <ul class="findings" id="findings"></ul>
+</section>
+
+<section id="flags">
+  <h2>Flagged hours</h2>
+  <p class="sub">Each sign and metric has its own Holt-Winters forecaster with a 24-hour cycle. The gap between the value and the forecast is divided by a running scale for that hour of day, which gives z. An hour is flagged as a spike when |z| ≥ 4, and as a sustained deviation when |z| ≥ 3 for three hours in a row. A flag is <b>shared</b> when enough peer signs flag the same metric in the same hour, and <b>device-specific</b> otherwise.</p>
+  <div class="tiles" id="flag-tiles"></div>
+  <div class="row two" id="flag-row"></div>
+  <div class="stack" id="flag-stack" style="margin-top:16px"></div>
+</section>
+
+<section id="incidents">
+  <h2>Incidents</h2>
+  <p class="sub">An incident is a run of flagged hours on one sign, over all metrics, with breaks of at most two hours. It is counted as shared when at least half of its flagged hours are shared.</p>
+  <div class="tiles" id="inc-tiles"></div>
+  <div class="row two" id="inc-row"></div>
+  <div class="row two" id="inc-row2" style="margin-top:16px"></div>
+  <div class="stack" id="inc-stack" style="margin-top:16px"></div>
+</section>
+
+<section id="events">
+  <h2>Largest events</h2>
+  <p class="sub">The largest deviation of each sign and metric, ranked by |z|, with 36 hours on each side. The blue line is the measured value and the dashed line is the forecast made one hour earlier.</p>
+  <div class="row" id="event-row"></div>
+  <div class="stack" id="event-stack" style="margin-top:16px"></div>
+</section>
+
+<section id="joint">
+  <h2>Joint score over all metrics</h2>
+  <p class="sub">A second detector (River's Half-Space Trees) scores each sign-hour from the z values of all its metrics together. It looks for hours where the combination is unusual, even if no single metric crosses its own threshold.</p>
+  <div class="tiles" id="joint-tiles"></div>
+  <div class="row two" id="joint-row"></div>
+</section>
+
+<section id="graph">
+  <h2>Causal graph</h2>
+  <p class="sub">An arrow from A to B means: on most signs, the last two hours of A improve the forecast of B's next hour, beyond what the last two hours of every other variable already give (conditional Granger causality, tested online). The variables are the z values above, so a link is between <em>deviations</em> from each variable's own daily cycle.</p>
+  <div class="tiles" id="causal-tiles"></div>
+  <figure class="chart" id="graph-fig"></figure>
+  <h3>Reading the links</h3>
+  <ul class="reading" id="reading"></ul>
+</section>
+
+<section id="links">
+  <h2>Link evidence</h2>
+  <p class="sub">A link is kept when at least half of the signs that could test it find it significant (false-discovery rate 1 % over all signs and pairs) and the median forecast gain is at least 0.5 % of the error. Links were found on 8 March to 30 June and then checked on July.</p>
+  <div class="row two" id="link-row"></div>
+  <div class="row two" id="link-row2" style="margin-top:16px"></div>
+</section>
+
+<section id="onset">
+  <h2>Onset order inside incidents</h2>
+  <p class="sub">A second, independent look at direction: in incidents that flag both variables of a link, which one flagged first? If the link is real and slower than an hour, the cause should flag first more often than the effect.</p>
+  <div class="stack" id="onset-stack"></div>
+</section>
+
+<section id="methods">
+  <h2>Methods and limits</h2>
+  <div class="methods" id="methods-box"></div>
+</section>
+
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const D = __DATA__;
+(() => {
+'use strict';
+__KIT_JS__
+
+const A = D.A, C = D.C, T = A.totals, P = A.params;
+const L = s => (byShort[s] ? byShort[s].label : (C.labels[s] || s));
+const SL = s => L(s).replace(' temperature', ' temp').replace(' module', '').replace('Solar charge power', 'Solar charge').replace(' running', '');
+const ts = s => Date.parse(s.replace(' ', 'T') + ':00Z');
+const html = (node, s) => { node.innerHTML = s; return node; };
+const sum = a => a.reduce((x, y) => x + y, 0);
+const int = fmtInt;
+const pc1 = v => pct(v, 1);
+const lc = s => /^(CPU|GPU|LTE|Orin|DeepStream)/.test(s) ? s : s[0].toLowerCase() + s.slice(1);
+
+// ---- extra charts ---------------------------------------------------------------------------------
+// grouped columns: a few categories, two or three series
+function groupCols(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), H = +(parent.dataset?.height || 0) || 220, m = { t: 10, r: 10, b: 28, l: 46 };
+  const vmax = Math.max(1, ...o.series.flatMap(s => s.values));
+  const yt = niceTicks(0, vmax, 4), top = Math.max(vmax, yt[yt.length - 1]);
+  const sy = v => m.t + (1 - v / top) * (H - m.t - m.b);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'column chart' }, parent);
+  yt.forEach(v => { sv('line', { x1: m.l, x2: W - m.r, y1: sy(v), y2: sy(v), stroke: css('--grid') }, svg); sv('text', { x: m.l - 6, y: sy(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = fmtN(v); });
+  const n = o.cats.length, k = o.series.length, bw = (W - m.l - m.r) / n, cw = Math.max(4, Math.min(26, (bw - 14) / k));
+  o.cats.forEach((c, i) => {
+    const x0 = m.l + i * bw + (bw - k * cw - (k - 1) * 2) / 2;
+    o.series.forEach((s, j) => {
+      const v = s.values[i] || 0, x = x0 + j * (cw + 2), y = sy(v), h = sy(0) - y, r = Math.max(0, Math.min(4, h, cw / 2));
+      if (h > 0) sv('path', { d: `M${x},${sy(0)}V${y + r}a${r},${r},0,0,1,${r},-${r}h${cw - 2 * r}a${r},${r},0,0,1,${r},${r}V${sy(0)}Z`, fill: s.color }, svg);
+    });
+    sv('text', { x: m.l + i * bw + bw / 2, y: H - 9, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = c;
+    const hit = sv('rect', { x: m.l + i * bw, y: m.t, width: bw, height: H - m.t - m.b, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, (o.catName ? o.catName + ': ' : '') + c, o.series.map(s => ({ label: s.name, value: int(s.values[i]), color: s.color }))));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+  sv('line', { x1: m.l, x2: W - m.r, y1: sy(0), y2: sy(0), stroke: css('--axis') }, svg);
+  legend(parent, o.series.map(s => ({ name: s.name, color: s.color, rect: true })));
+}
+// rows of bars stacked to 100 %
+function stackRows(parent, o) {
+  const W = Math.max(280, parent.clientWidth || parent.parentElement.clientWidth || 600), rowH = 24, labW = o.labW || Math.min(200, W * 0.45), m = { t: 6, r: 14, b: 22, l: labW };
+  const H = m.t + o.rows.length * rowH + m.b, sx = f => m.l + f * (W - m.l - m.r);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': o.aria || 'stacked bars' }, parent);
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => { sv('line', { x1: sx(v), x2: sx(v), y1: m.t, y2: H - m.b, stroke: css('--grid') }, svg); sv('text', { x: sx(v), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = pct(v); });
+  o.rows.forEach((row, i) => {
+    const y = m.t + i * rowH + (rowH - 16) / 2, tot = sum(row.parts.map(p => p.value));
+    sv('text', { x: m.l - 8, y: y + 12, 'text-anchor': 'end', 'font-size': 12, fill: css('--ink-2'), 'font-family': css('--font') }, svg).textContent = row.label.length > 30 ? row.label.slice(0, 29) + '…' : row.label;
+    let acc = 0;
+    row.parts.forEach(p => {
+      if (!tot || !p.value) return;
+      const x0 = sx(acc / tot), x1 = sx((acc + p.value) / tot); acc += p.value;
+      sv('rect', { x: x0 + 1, y, width: Math.max(0.5, x1 - x0 - 2), height: 16, fill: p.color, rx: 2 }, svg);
+    });
+    if (!tot) sv('text', { x: m.l + 6, y: y + 12, 'font-size': 11, fill: css('--muted'), 'font-family': css('--font') }, svg).textContent = 'no incident with both';
+    const hit = sv('rect', { x: 0, y: m.t + i * rowH, width: W, height: rowH, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', ev => showTip(ev.clientX, ev.clientY, `${row.label} (${int(tot)} incidents)`, row.parts.map(p => ({ label: p.name, value: `${int(p.value)} (${tot ? pct(p.value / tot) : '–'})`, color: p.color }))));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+  legend(parent, o.rows[0].parts.map(p => ({ name: p.name, color: p.color, rect: true })));
+}
+// a card that holds only a table
+function tableFig(parent, title, caption, table) {
+  const fig = el('figure', 'chart'); parent.appendChild(fig);
+  const head = el('div', 'head'); head.appendChild(el('div', 'title', title)); fig.appendChild(head);
+  const body = el('div', 'body'); fig.appendChild(body); renderTable(body, table);
+  if (caption) fig.appendChild(el('p', 'cap', caption));
+  return fig;
+}
+// node-link graph: variables on a circle, arrows for directed links
+function linkGraph(parent) {
+  const vars = C.variables.filter(v => (C.variables_used[v] || 0) > 0);
+  const W = 760, H = 540, cx = W / 2, cy = H / 2, R = 190;
+  const wrap = el('div', 'graphwrap'); parent.appendChild(wrap);
+  const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Directed links between variables' }, wrap);
+  const pos = {}; vars.forEach((v, i) => { const a = -Math.PI / 2 + 2 * Math.PI * i / vars.length; pos[v] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a), a }; });
+  const colPos = css('--div-pos'), colNeg = css('--div-neg');
+  const defs = sv('defs', {}, svg);
+  [['arr-pos', colPos], ['arr-neg', colNeg]].forEach(([id, c]) => { const mk = sv('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto' }, defs); sv('path', { d: 'M0,1L10,5L0,9Z', fill: c }, mk); });
+  const hover = (hit, mark, w, title, rows) => {
+    hit.addEventListener('pointermove', ev => { mark.setAttribute('stroke-width', w + 1.5); showTip(ev.clientX, ev.clientY, title, rows); });
+    hit.addEventListener('pointerleave', () => { mark.setAttribute('stroke-width', w); hideTip(); });
+  };
+  const directed = new Set(C.edges.flatMap(k => { const [a, b] = k.split('>'); return [a + '|' + b, b + '|' + a]; }));
+  // same-hour links without an arrow in either direction
+  C.lag0_links.filter(k => !directed.has(k)).forEach(k => {
+    const [a, b] = k.split('|'), p = C.lag0[k]; if (!pos[a] || !pos[b]) return;
+    const at = { x1: pos[a].x, y1: pos[a].y, x2: pos[b].x, y2: pos[b].y };
+    const ln = sv('line', { ...at, stroke: css('--axis'), 'stroke-width': 1.5 }, svg);
+    hover(sv('line', { ...at, stroke: 'transparent', 'stroke-width': 12 }, svg), ln, 1.5, `${L(a)} and ${L(b)}, same hour`, [{ label: 'median partial correlation', value: p.pcorr.toFixed(2) }, { label: 'signs', value: int(p.n) }]);
+  });
+  const trim = (p, q, r) => { const d = Math.hypot(q.x - p.x, q.y - p.y) || 1; return { x: p.x + (q.x - p.x) * r / d, y: p.y + (q.y - p.y) * r / d }; };
+  D.links.forEach(p => {
+    const a = pos[p.cause], b = pos[p.effect]; if (!a || !b) return;
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+    // bend toward the centre, and shift sideways so that A to B and B to A do not overlap
+    const q = { x: mx + (cx - mx) * 0.3 - dy / len * 14, y: my + (cy - my) * 0.3 + dx / len * 14 };
+    const s = trim(a, q, 9), e = trim(b, q, 11), col = p.sign >= 0 ? colPos : colNeg, w = 1.5 + 3 * Math.max(0, p.share - 0.5);
+    const d = `M${s.x.toFixed(1)},${s.y.toFixed(1)}Q${q.x.toFixed(1)},${q.y.toFixed(1)},${e.x.toFixed(1)},${e.y.toFixed(1)}`;
+    const path = sv('path', { d, fill: 'none', stroke: col, 'stroke-width': w, 'stroke-linecap': 'round', 'marker-end': `url(#${p.sign >= 0 ? 'arr-pos' : 'arr-neg'})` }, svg);
+    if (!p.replicated) path.setAttribute('stroke-dasharray', '5 4');
+    hover(sv('path', { d, fill: 'none', stroke: 'transparent', 'stroke-width': 14 }, svg), path, w, `${L(p.cause)} → ${L(p.effect)}`, [
+      { label: 'signs where significant', value: `${pct(p.share)} of ${p.n}`, color: col }, { label: 'direction', value: p.sign >= 0 ? 'same way' : 'opposite way' },
+      { label: 'forecast gain (median)', value: pct(p.skill, 1) }, { label: 'July: signs significant', value: `${pct(p.rep_share)} of ${p.rep_n}` }, { label: 'holds on July', value: p.replicated ? 'yes' : 'no' }]);
+  });
+  vars.forEach(v => {
+    const p = pos[v], c = Math.cos(p.a), s = Math.sin(p.a), mid = Math.abs(c) < 0.3;
+    const dot = sv('circle', { cx: p.x, cy: p.y, r: 7, fill: css('--surface'), stroke: css('--ink-2'), 'stroke-width': 1.5 }, svg);
+    sv('text', { x: cx + (R + 16) * c, y: cy + (R + 16) * s + (mid ? (s < 0 ? -2 : 12) : 4), 'text-anchor': mid ? 'middle' : c > 0 ? 'start' : 'end', 'font-size': 12.5, fill: css('--ink'), 'font-family': css('--font') }, svg).textContent = L(v);
+    const out = D.links.filter(l => l.cause === v).length, inn = D.links.filter(l => l.effect === v).length;
+    hover(sv('circle', { cx: p.x, cy: p.y, r: 14, fill: 'transparent' }, svg), dot, 1.5, L(v), [{ label: 'group', value: C.groups[v] }, { label: 'signs that could test it', value: int(C.variables_used[v]) }, { label: 'leads', value: `${out} variable${out === 1 ? '' : 's'}` }, { label: 'led by', value: `${inn} variable${inn === 1 ? '' : 's'}` }]);
+  });
+  legend(parent, [{ name: 'leads, same direction', color: colPos }, { name: 'leads, opposite direction', color: colNeg }, { name: 'same-hour link only', color: css('--axis') }]);
+  parent.appendChild(el('p', 'cap', 'Dashed arrow: not confirmed on July. Thicker arrow: significant on more signs.'));
+}
+
+// ---- header and overview --------------------------------------------------------------------------
+const nRep = D.links.filter(l => l.replicated).length, nTestedPairs = C.n_pairs_tested;
+$('#lede').textContent = `${int(T.n_devices)} signs, ${A.metrics.length} metrics, hourly values from ${fmtDate(ts(A.period[0]))} to ${fmtDate(ts(A.period[1]))}. Anomaly detection and the search for cause-and-effect links both run as streams with River.`;
+$('#stamp').textContent = `Anomaly run ${A.generated.slice(0, 16).replace('T', ' ')} UTC · causal run ${C.generated.slice(0, 16).replace('T', ' ')} UTC · previous results are in archive/2026-11-09/`;
+
+const k = $('#kpis');
+tile(k, 'Signs scored', int(T.n_devices), `at least ${P.min_hours_device} h of data each`);
+tile(k, 'Metric-hours scored', fmtN(T.n_scored), `${fmtN(T.device_hours_scored)} sign-hours`);
+tile(k, 'Flagged', pct(T.rate, 2), `${int(T.n_flag)} metric-hours`);
+tile(k, 'Incidents', int(A.incidents.n), `${int(A.incidents.n_device)} device-specific`);
+tile(k, 'Directed links', String(D.links.length), `of ${nTestedPairs} tested pairs; ${nRep} hold on July`);
+tile(k, 'Same-hour links', String(C.lag0_links.length), 'no direction can be given');
+
+const topDay = A.top_days[0], pm = A.per_metric;
+const byRate = A.metrics.slice().sort((a, b) => pm[b].rate - pm[a].rate);
+const incD = A.incidents.by_n_metrics.device, fm = A.incidents.first_metric;
+const strong = D.links.filter(l => l.replicated).slice(0, 3);
+const notRep = D.links.filter(l => !l.replicated);
+const J = A.joint;
+const fl = $('#findings');
+[
+  `<b>${pct(T.rate, 1)} of scored metric-hours are flagged</b> (${int(T.n_flag)} of ${fmtN(T.n_scored)}). ${pct(T.shared / T.n_flag)} of the flags are shared with peer signs in the same hour; the rest belong to one sign. ${L(byRate[0])} is flagged most often (${pct(pm[byRate[0]].rate, 1)}), ${lc(L(byRate[byRate.length - 1]))} least (${pct(pm[byRate[byRate.length - 1]].rate, 2)}).`,
+  `<b>Shared anomalies come in a few fleet-wide episodes.</b> The largest day is ${fmtDate(dateOf(topDay.day))}: ${topDay.devices} of ${topDay.reporting} reporting signs, mainly ${topDay.metrics.slice(0, 3).map(m => lc(L(m[0]))).join(', ')}. The table of shared events lists each one with its peer group.`,
+  `<b>${int(A.incidents.n_device)} device-specific incidents.</b> ${pct(incD[0] / sum(incD))} touch a single metric and ${pct(incD[5] / sum(incD))} touch six or more. They most often start with ${fm.device.slice(0, 3).map(m => lc(L(m[0]))).join(', ')}; shared incidents start with ${fm.shared.slice(0, 3).map(m => lc(L(m[0]))).join(', ')}.`,
+  `<b>${D.links.length} directed links out of ${nTestedPairs} tested pairs, ${nRep} confirmed on July.</b> The strongest are ${strong.map(l => `${lc(SL(l.cause))} → ${lc(SL(l.effect))} (${pct(l.share)} of signs)`).join(', ')}. ${pct(C.share_sig, 1)} of all tests are significant, against ${pct(C.null_share_sig, 1)} when the cause is shifted in time.`,
+  notRep.length ? `<b>Not confirmed on July:</b> ${notRep.map(l => `${lc(SL(l.cause))} → ${lc(SL(l.effect))} (${pct(l.rep_share)} of signs in July)`).join('; ')}. Treat ${notRep.length === 1 ? 'it' : 'them'} as unproven.` : `<b>All directed links hold on July.</b>`,
+  `<b>The joint score adds little.</b> Of ${int(J.n_flag)} sign-hours it flags, ${int(J.with_layer1)} already have a flagged metric; ${int(J.joint_only)} are new. The per-metric layer is the one to act on.`,
+].forEach(s => fl.appendChild(html(el('li'), s)));
+
+// ---- flagged hours -----------------------------------------------------------------------------------
+const ft = $('#flag-tiles');
+tile(ft, 'Sign-hours with a flag', pct(T.device_hours_flagged / T.device_hours_scored, 1), `${int(T.device_hours_flagged)} of ${fmtN(T.device_hours_scored)}`);
+tile(ft, 'Spikes', int(T.spike), `|z| ≥ ${P.z_spike}`);
+tile(ft, 'Sustained', int(T.sustained), `|z| ≥ ${P.z_sustained} for ${P.sustained_hours} h or more`);
+tile(ft, 'Device-specific flags', pct(T.device / T.n_flag), int(T.device));
+tile(ft, 'Shared flags', pct(T.shared / T.n_flag), `${int(T.n_shared_events)} shared events`);
+
+const dd = A.daily, dayT = dd.days.map(d => dateOf(d).getTime());
+const share = key => dayT.map((t, i) => [t, dd.reporting[i] >= 20 ? 100 * dd[key][i] / dd.reporting[i] : null]);
+figure($('#flag-row'), {
+  title: 'Share of reporting signs with a flag, per day',
+  caption: 'A sign counts once per day and kind. Days with fewer than 20 reporting signs are left blank.',
+  render: b => lineChart(b, { series: [{ name: 'shared with peers', points: share('shared'), color: css('--s2') }, { name: 'device-specific', points: share('device'), color: css('--s1') }], x: { type: 'time' }, y: { min: 0, fmt: v => v + '%' }, height: 250 }),
+  table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'reporting', label: 'Signs reporting', fmt: int }, { key: 'shared', label: 'With a shared flag', fmt: int }, { key: 'device', label: 'With a device-specific flag', fmt: int }],
+    rows: dd.days.map((d, i) => ({ day: d, reporting: dd.reporting[i], shared: dd.shared[i], device: dd.device[i] })), maxRows: 14 },
+});
+figure($('#flag-row'), {
+  title: 'Flag rate per metric',
+  caption: 'Flagged hours as a share of scored hours, all signs together.',
+  render: b => barChart(b, { items: byRate.map(m => ({ label: L(m), value: pm[m].rate, extra: [{ label: 'device-specific', value: int(pm[m].device) }, { label: 'shared', value: int(pm[m].shared) }, { label: 'spikes', value: int(pm[m].spike) }, { label: 'sustained', value: int(pm[m].sustained) }] })), fmt: v => pct(v, 1), valueLabels: true, valueName: 'flag rate', labW: 150 }),
+  table: { cols: [{ key: 'label', label: 'Metric', left: true }, { key: 'n_devices', label: 'Signs', fmt: int }, { key: 'n_scored', label: 'Hours scored', fmt: int }, { key: 'rate', label: 'Flag rate', fmt: v => pct(v, 2) }, { key: 'spike', label: 'Spikes', fmt: int }, { key: 'sustained', label: 'Sustained', fmt: int }, { key: 'device', label: 'Device-specific', fmt: int }, { key: 'shared', label: 'Shared', fmt: int }, { key: 'up', label: 'Above forecast', fmt: int }, { key: 'down', label: 'Below forecast', fmt: int }],
+    rows: byRate.map(m => pm[m]), maxRows: 20 },
+});
+figure($('#flag-stack'), {
+  title: 'Days with the most signs in a shared anomaly',
+  caption: 'Share of reporting signs that had at least one shared flag that day. Hover a bar for the metrics involved.',
+  render: b => barChart(b, { items: A.top_days.map(d => ({ label: fmtDate(dateOf(d.day)), value: d.share, extra: [{ label: 'signs', value: `${d.devices} of ${d.reporting}` }].concat(d.metrics.map(m => ({ label: L(m[0]), value: `${m[1]} signs` }))) })), fmt: v => pct(v), valueLabels: true, valueName: 'share of signs', max: 1, labW: 110 }),
+  table: { cols: [{ key: 'day', label: 'Day', left: true }, { key: 'devices', label: 'Signs flagged', fmt: int }, { key: 'reporting', label: 'Signs reporting', fmt: int }, { key: 'share', label: 'Share', fmt: v => pct(v) }, { key: 'm', label: 'Metrics (signs)', left: true }],
+    rows: A.top_days.map(d => ({ ...d, m: d.metrics.map(m => `${L(m[0])} (${m[1]})`).join(', ') })) },
+});
+const dm = A.device_metric, devRow = Object.fromEntries(A.per_device.map(d => [d.device, d]));
+const order = dm.devices.map((d, i) => i).sort((a, b) => sum(dm.per_1k[b]) - sum(dm.per_1k[a])).slice(0, 40);
+figure($('#flag-stack'), {
+  title: 'Device-specific flags per sign and metric (40 signs with the most flags)',
+  caption: 'Flagged hours per 1,000 scored hours, shared flags left out. Grey cells: the sign does not report that metric. The table lists all signs.',
+  render: b => seqHeat(b, { rows: order.map(i => dm.devices[i]), cols: A.metrics.map(SL), matrix: order.map(i => dm.per_1k[i]), unit: 'flagged hours per 1,000', fmt: v => fmtN(v, 1), labW: 110 }),
+  table: { cols: [{ key: 'device', label: 'Sign', left: true, cls: 'id' }, { key: 'agency', label: 'Agency', left: true }, { key: 'hours', label: 'Hours scored', fmt: int }, { key: 'device_hours', label: 'Hours with a device-specific flag', fmt: int }, { key: 'shared_hours', label: 'Hours with only shared flags', fmt: int }, { key: 'incidents', label: 'Incidents', fmt: int }, { key: 'incidents_multi', label: 'With 2+ metrics', fmt: int }, { key: 'top', label: 'Most flagged metric', left: true }],
+    rows: A.per_device.map(d => ({ ...d, top: d.top_metric ? L(d.top_metric) : '–' })).sort((a, b) => b.device_hours - a.device_hours), maxRows: 15 },
+});
+
+// ---- incidents ---------------------------------------------------------------------------------------
+const I = A.incidents, it = $('#inc-tiles');
+tile(it, 'Incidents', int(I.n));
+tile(it, 'Device-specific', int(I.n_device), pct(I.n_device / I.n));
+tile(it, 'Shared', int(I.n_shared), pct(I.n_shared / I.n));
+tile(it, 'Device-specific, one metric', pct(incD[0] / sum(incD)), `${int(incD[0])} incidents`);
+tile(it, 'Device-specific, 6+ metrics', pct(incD[5] / sum(incD)), `${int(incD[5])} incidents`);
+const two = (title, caption, cats, key, catName) => figure($('#inc-row'), {
+  title, caption,
+  render: b => groupCols(b, { cats, catName, series: [{ name: 'device-specific', values: I[key].device, color: css('--s1') }, { name: 'shared', values: I[key].shared, color: css('--s2') }] }),
+  table: { cols: [{ key: 'c', label: catName, left: true }, { key: 'd', label: 'Device-specific', fmt: int }, { key: 's', label: 'Shared', fmt: int }], rows: cats.map((c, i) => ({ c, d: I[key].device[i], s: I[key].shared[i] })), sortable: false },
+});
+two('Incidents by number of metrics involved', 'Most incidents stay within one or two metrics.', ['1', '2', '3', '4', '5', '6+'], 'by_n_metrics', 'Metrics');
+two('Incidents by duration', 'From the first to the last flagged hour.', ['1 h', '2–3 h', '4–6 h', '7–12 h', '13–24 h', '25 h+'], 'by_hours', 'Duration');
+const firstFig = (key, name, color) => figure($('#inc-row2'), {
+  title: `Metric that flags first: ${name} incidents`,
+  caption: 'Incidents in which the metric was the first to flag, or tied for first.',
+  render: b => barChart(b, { items: I.first_metric[key].map(m => ({ label: L(m[0]), value: m[1], color })), fmt: int, valueLabels: true, valueName: 'incidents', labW: 150 }),
+  table: { cols: [{ key: 'm', label: 'Metric', left: true }, { key: 'n', label: 'Incidents', fmt: int }], rows: I.first_metric[key].map(m => ({ m: L(m[0]), n: m[1] })), maxRows: 20 },
+});
+firstFig('device', 'device-specific', css('--s1'));
+firstFig('shared', 'shared', css('--s2'));
+const incCols = [{ key: 'device', label: 'Sign', left: true, cls: 'id' }, { key: 'agency', label: 'Agency', left: true }, { key: 'start', label: 'Start (UTC)', left: true }, { key: 'hours', label: 'Hours', fmt: int }, { key: 'n_metrics', label: 'Metrics', fmt: int }, { key: 'firstL', label: 'First to flag', cls: 'w' }, { key: 'peakL', label: 'Largest deviation', left: true }, { key: 'peak_z', label: 'Peak z', fmt: v => fmtN(v, 1) }];
+const incRows = rows => rows.map(r => ({ ...r, firstL: r.first.map(L).join(', '), peakL: L(r.peak_metric) }));
+tableFig($('#inc-stack'), 'Largest device-specific incidents', 'Ranked by number of metrics, then duration. Click a column to sort.', { cols: incCols, rows: incRows(I.top_device), maxRows: 10 });
+tableFig($('#inc-stack'), 'Largest shared incidents', null, { cols: incCols, rows: incRows(I.top_shared), maxRows: 10 });
+
+// ---- events -------------------------------------------------------------------------------------------
+A.events_device.forEach(e => {
+  const pts = j => e.context.map(c => [ts(c[0]), c[j]]);
+  const t0 = ts(e.context[0][0]), t1 = ts(e.context[e.context.length - 1][0]), ticks = [];
+  for (let t = Math.ceil(t0 / 864e5) * 864e5; t <= t1; t += 864e5) { const d = new Date(t); ticks.push([t, `${d.getUTCDate()} ${MON[d.getUTCMonth()]}`]); }
+  figure($('#event-row'), {
+    title: `${L(e.metric)} · ${e.device}`,
+    caption: `${e.agency}, ${fmtTs(ts(e.time))}: measured ${fmtN(e.y)}, forecast ${fmtN(e.yhat)}, z = ${fmtN(e.z, 1)} (${e.kind}, ${e.scope === 'shared' ? 'shared' : 'device-specific'}).`,
+    render: b => lineChart(b, { series: [{ name: 'measured', points: pts(1), color: css('--s1') }, { name: 'forecast', points: pts(2), color: css('--muted'), dashed: true, width: 1.5 }], x: { type: 'time', ticks, tipFmt: fmtTs }, height: 190 }),
+    table: { cols: [{ key: 't', label: 'Hour (UTC)', left: true }, { key: 'y', label: 'Measured', fmt: v => fmtN(v) }, { key: 'f', label: 'Forecast', fmt: v => fmtN(v) }, { key: 'flag', label: 'Flagged', left: true }],
+      rows: e.context.map(c => ({ t: c[0], y: c[1], f: c[2], flag: c[3] ? 'yes' : '' })), maxRows: 8, sortable: false },
+  });
+});
+tableFig($('#event-stack'), 'Largest shared events', 'A shared event is a run of hours in which a peer group (same agency, or the fleet for small agencies) flags the same metric together.', {
+  cols: [{ key: 'm', label: 'Metric', left: true }, { key: 'peer_group', label: 'Peer group', left: true }, { key: 'start', label: 'Start (UTC)', left: true }, { key: 'end', label: 'End (UTC)', left: true }, { key: 'hours', label: 'Hours', fmt: int }, { key: 'n_devices', label: 'Signs flagged', fmt: int }, { key: 'n_peers', label: 'Peers', fmt: int }, { key: 'median_z', label: 'Median z', fmt: v => fmtN(v, 1) }],
+  rows: A.events_shared.map(e => ({ ...e, m: L(e.metric), peer_group: e.peer_group.replace('agency:', '') })), maxRows: 10,
+});
+
+// ---- joint score ---------------------------------------------------------------------------------------
+const jt = $('#joint-tiles');
+tile(jt, 'Sign-hours scored', fmtN(J.n_scored), `${J.n_devices} signs`);
+tile(jt, 'Flagged', pct(J.rate, 2), `score above ${J.threshold.toFixed(2)}`);
+tile(jt, 'Already flagged by a metric', int(J.with_layer1), `of ${int(J.n_flag)} flagged`);
+tile(jt, 'New: no single metric flagged', int(J.joint_only), J.joint_only ? `median of ${fmtN(J.joint_only_n_z2_median, 0)} metrics with |z| ≥ 2` : null);
+figure($('#joint-row'), {
+  title: 'Median joint score by number of flagged metrics',
+  caption: `The score rises with the number of metrics that are flagged in the same hour. Threshold: ${J.threshold.toFixed(2)}.`,
+  render: b => barChart(b, { items: J.score_by_n_uni.map(r => ({ label: (r[0] >= 5 ? '5 or more' : String(r[0])) + ' flagged', value: r[1], extra: [{ label: 'sign-hours', value: int(r[2]) }] })), fmt: v => v.toFixed(2), valueLabels: true, valueName: 'median score', max: 1, labW: 110 }),
+  table: { cols: [{ key: 'k', label: 'Metrics flagged in the hour', left: true }, { key: 's', label: 'Median score', fmt: v => v.toFixed(3) }, { key: 'n', label: 'Sign-hours', fmt: int }], rows: J.score_by_n_uni.map(r => ({ k: r[0] >= 5 ? '5 or more' : String(r[0]), s: r[1], n: r[2] })), sortable: false },
+});
+const hs = J.hist, mids = hs.all.map((_, i) => (hs.edges[i] + hs.edges[i + 1]) / 2), sAll = sum(hs.all), sL1 = sum(hs.layer1);
+figure($('#joint-row'), {
+  title: 'Distribution of the joint score',
+  caption: 'Share of sign-hours per score bin, for all hours and for hours in which at least one metric is flagged.',
+  render: b => lineChart(b, { series: [{ name: 'all sign-hours', points: mids.map((x, i) => [x, 100 * hs.all[i] / sAll]), color: css('--s1') }, { name: 'hours with a flagged metric', points: mids.map((x, i) => [x, 100 * hs.layer1[i] / sL1]), color: css('--s2') }], x: { min: 0, max: 1, ticks: [0, 0.2, 0.4, 0.6, 0.8, 1].map(v => [v, v.toFixed(1)]), tipFmt: v => 'score ' + v.toFixed(2) }, y: { min: 0, fmt: v => v + '%' }, height: 230 }),
+  table: { cols: [{ key: 'b', label: 'Score bin', left: true }, { key: 'a', label: 'All sign-hours', fmt: int }, { key: 'l', label: 'With a flagged metric', fmt: int }], rows: hs.all.map((v, i) => ({ b: `${hs.edges[i].toFixed(3)} – ${hs.edges[i + 1].toFixed(3)}`, a: v, l: hs.layer1[i] })), maxRows: 40, sortable: false },
+});
+
+// ---- causal graph --------------------------------------------------------------------------------------
+const skipped = sum(Object.values(C.devices_skipped));
+const ct = $('#causal-tiles');
+tile(ct, 'Signs tested', int(C.devices_tested), `${skipped} skipped: too little data before July`);
+tile(ct, 'Tests', int(C.n_tests), 'sign × ordered pair');
+tile(ct, 'Significant', pct(C.share_sig, 1), `${pct(C.null_share_sig, 1)} with a time-shifted cause`);
+tile(ct, 'Directed links', String(D.links.length), `of ${nTestedPairs} ordered pairs`);
+tile(ct, 'Hold on July', `${nRep} of ${D.links.length}`, `${C.devices_rep} signs with July data`);
+tile(ct, 'Hours per sign', int(C.rows_disc_median), `median; ${int(C.rows_rep_median)} in July`);
+const linkCols = [{ key: 'name', label: 'Link', left: true }, { key: 'n', label: 'Signs', fmt: int }, { key: 'share', label: 'Significant', fmt: v => pct(v) }, { key: 'dir', label: 'Direction', left: true }, { key: 'skill', label: 'Forecast gain', fmt: v => pct(v, 1) }, { key: 'c1', label: 'Weight, 1 h back', fmt: v => v.toFixed(2) }, { key: 'c2', label: 'Weight, 2 h back', fmt: v => v.toFixed(2) }, { key: 'null_share', label: 'Shifted cause', fmt: v => pct(v) }, { key: 'rep_share', label: 'July: significant', fmt: v => pct(v) }, { key: 'rep_skill', label: 'July: gain', fmt: v => pct(v, 1) }, { key: 'rep', label: 'Holds on July', left: true }];
+const linkRows = D.links.map(l => ({ ...l, name: `${SL(l.cause)} → ${SL(l.effect)}`, dir: l.sign >= 0 ? 'same way' : 'opposite', c1: l.coef[0], c2: l.coef[1], rep: l.replicated ? 'yes' : 'no' }));
+figure($('#graph-fig'), {
+  title: 'Which variable leads which',
+  caption: 'Only variables that at least eight signs could test are shown. Hover an arrow or a variable for its numbers; the table lists every link.',
+  render: linkGraph,
+  table: { cols: linkCols, rows: linkRows, maxRows: 30 },
+});
+const linked = new Set(D.links.flatMap(l => [l.cause, l.effect]));
+const unlinked = C.variables.filter(v => (C.variables_used[v] || 0) > 0 && !linked.has(v));
+const never = C.variables.filter(v => !(C.variables_used[v] > 0));
+[
+  `<b>Light leads the temperatures.</b> An hour brighter than usual is followed by a warmer enclosure, board and CPU on nearly every sign with a light sensor, and again in July. This fits sun heating the enclosure.`,
+  `<b>Enclosure temperature leads humidity, in the opposite direction.</b> Relative humidity falls when the air in the enclosure warms.`,
+  `<b>Humidity "leading" temperature and light is most likely weather.</b> The sign does not measure outside weather, so a passing front shows up as humidity first. These links are useful for forecasting but should not be read as mechanisms.`,
+  `<b>Power links are weaker.</b> Module power leads CPU+GPU power, and CPU temperature leads board temperature, on about two thirds of the signs. Their same-hour links are much stronger, so most of the coupling happens inside the hour.`,
+  `<b>The solar link rests on nine signs.</b> Input voltage leads solar charge power in the opposite direction. Battery charge never had enough clean hours to be tested.`,
+  unlinked.length ? `<b>No lead found for:</b> ${unlinked.map(L).join(', ')}. At an hourly step, these variables neither lead nor follow the others in a consistent way.` : null,
+  `<b>Not compared with the hand-specified graph.</b> That graph stays documentation-only until it is frozen, so these results were not used to check or edit it.`,
+].filter(Boolean).forEach(s => $('#reading').appendChild(html(el('li'), s)));
+
+// ---- link evidence ---------------------------------------------------------------------------------------
+figure($('#link-row'), {
+  title: 'Share of signs where the link is significant',
+  caption: 'Blue: same direction, red: opposite direction. Hover for the July check.',
+  render: b => barChart(b, { items: linkRows.map(l => ({ label: l.name, value: l.share, color: l.sign >= 0 ? css('--div-pos') : css('--div-neg'), extra: [{ label: 'signs tested', value: int(l.n) }, { label: 'forecast gain', value: pct(l.skill, 1) }, { label: 'July: significant', value: pct(l.rep_share) }, { label: 'holds on July', value: l.rep }] })), fmt: v => pct(v), valueLabels: true, valueName: 'significant', max: 1, labW: 190 }),
+  table: { cols: linkCols, rows: linkRows, maxRows: 30 },
+});
+const used = C.variables.filter(v => (C.variables_used[v] || 0) > 0);
+const pairRows = Object.entries(C.pairs).map(([key, p]) => { const [x, y] = key.split('>'); return { ...p, name: `${SL(x)} → ${SL(y)}`, link: p.edge ? (p.replicated ? 'yes' : 'not on July') : '' }; }).sort((a, b) => b.share - a.share);
+figure($('#link-row'), {
+  title: 'All tested pairs: cause (row) to effect (column)',
+  caption: 'Share of signs where the row variable significantly improves the forecast of the column variable. Grey: not testable on at least eight signs.',
+  render: b => seqHeat(b, { rows: used.map(SL), cols: used.map(SL), matrix: used.map(x => used.map(y => C.pairs[`${x}>${y}`] ? C.pairs[`${x}>${y}`].share : null)), vmax: 1, unit: 'signs significant', fmt: v => pct(v), labW: 120, rowH: 18 }),
+  table: { cols: [{ key: 'name', label: 'Pair', left: true }, { key: 'n', label: 'Signs', fmt: int }, { key: 'share', label: 'Significant', fmt: v => pct(v) }, { key: 'skill', label: 'Forecast gain', fmt: v => pct(v, 2) }, { key: 'null_share', label: 'Shifted cause', fmt: v => pct(v) }, { key: 'link', label: 'Kept as link', left: true }], rows: pairRows, maxRows: 15 },
+});
+const l0 = (a, b) => C.lag0[`${a}|${b}`] || C.lag0[`${b}|${a}`];
+const l0Rows = Object.entries(C.lag0).map(([key, p]) => { const [a, b] = key.split('|'); return { ...p, name: `${SL(a)} and ${SL(b)}`, lo: p.pcorr_q[0], hi: p.pcorr_q[1], kept: p.link ? 'yes' : '' }; }).sort((a, b) => Math.abs(b.pcorr) - Math.abs(a.pcorr));
+figure($('#link-row2'), {
+  title: 'Same-hour links',
+  caption: 'Median partial correlation between two variables in the same hour, after removing what the previous two hours of all variables explain. It shows that two variables move together, not which one moves first.',
+  render: b => {
+    heatmap(b, { names: used, matrix: used.map(x => used.map(y => x === y ? null : (l0(x, y) ? l0(x, y).pcorr : null))), labels: Object.fromEntries(used.map(v => [v, SL(v)])) });
+    const lab = b.querySelector('.legend span'); if (lab) lab.textContent = 'partial correlation';
+  },
+  table: { cols: [{ key: 'name', label: 'Pair', left: true }, { key: 'n', label: 'Signs', fmt: int }, { key: 'pcorr', label: 'Median', fmt: v => v.toFixed(2) }, { key: 'lo', label: '25 %', fmt: v => v.toFixed(2) }, { key: 'hi', label: '75 %', fmt: v => v.toFixed(2) }, { key: 'kept', label: 'Kept as link', left: true }], rows: l0Rows, maxRows: 15 },
+});
+const r2 = used.filter(v => C.r2_full[v] != null).sort((a, b) => C.r2_full[b] - C.r2_full[a]);
+figure($('#link-row2'), {
+  title: 'How much of each variable the model predicts',
+  caption: 'Median share of the next hour\'s deviation explained by the last two hours of all variables, scored online. Low values mean an hour tells little about the next: lead links are hard to find there.',
+  render: b => barChart(b, { items: r2.map(v => ({ label: L(v), value: C.r2_full[v], extra: [{ label: 'signs', value: int(C.variables_used[v]) }] })), fmt: v => pct(v), valueLabels: true, valueName: 'explained', max: 1, labW: 150 }),
+  table: { cols: [{ key: 'v', label: 'Variable', left: true }, { key: 'r2', label: 'Explained', fmt: v => pct(v, 1) }, { key: 'n', label: 'Signs', fmt: int }], rows: r2.map(v => ({ v: L(v), r2: C.r2_full[v], n: C.variables_used[v] })), maxRows: 20 },
+});
+
+// ---- onset order -------------------------------------------------------------------------------------------
+const parts = o => [{ name: 'cause flags first', value: o.cause_first, color: css('--s1') }, { name: 'same hour', value: o.same, color: css('--de') }, { name: 'effect flags first', value: o.effect_first, color: css('--s2') }];
+const onsetTable = key => ({ cols: [{ key: 'name', label: 'Link', left: true }, { key: 'cause_first', label: 'Cause first', fmt: int }, { key: 'same', label: 'Same hour', fmt: int }, { key: 'effect_first', label: 'Effect first', fmt: int }], rows: linkRows.map(l => ({ name: l.name, ...l[key] })), maxRows: 30 });
+const onsetFig = (key, name) => figure($('#onset-stack'), {
+  title: `Which variable flags first: ${name} incidents`,
+  caption: 'Incidents that flag both variables of a link, split by which one flagged first. Hover for counts.',
+  render: b => stackRows(b, { rows: linkRows.map(l => ({ label: l.name, parts: parts(l[key]) })), labW: 200 }),
+  table: onsetTable(key),
+});
+onsetFig('onset_device', 'device-specific');
+onsetFig('onset_shared', 'shared');
+const oc = D.links.reduce((a, l) => { a.c += l.onset_device.cause_first; a.e += l.onset_device.effect_first; a.s += l.onset_device.same; return a; }, { c: 0, e: 0, s: 0 });
+$('#onset-stack').appendChild(el('p', 'note', `Over all links, device-specific incidents flag the cause first ${int(oc.c)} times, the effect first ${int(oc.e)} times and both in the same hour ${int(oc.s)} times. Flags need a large deviation, so this check is coarse: it can support a direction but not prove it.`));
+
+// ---- methods -------------------------------------------------------------------------------------------------
+const box = (title, items) => { const d = el('div'); d.appendChild(el('h3', null, title)); const ul = el('ul'); items.forEach(s => ul.appendChild(html(el('li'), s))); d.appendChild(ul); $('#methods-box').appendChild(d); };
+box('Data', [
+  'Hourly table built from the Prometheus samples (about one sample every 120 s): one row per sign and hour, 18 metrics.',
+  `Signs with fewer than ${P.min_hours_device} hours of a metric are not scored for it.`,
+  'LTE upload is the hourly increase of a running total. The first hour after a data gap holds the increase over the whole gap, so it is not scored.',
+]);
+box('Anomaly detection', [
+  `River <code>HoltWinters</code> per sign and metric (α ${P.alpha}, β ${P.beta}, γ ${P.gamma}, period ${P.period_h} h), one hour ahead.`,
+  `Scale: ${Math.round(100 * P.scale_q)} % quantile of the absolute forecast error for that hour of day over ${P.scale_window_days} days (River <code>RollingQuantile</code>), with a floor at the sensor's resolution.`,
+  `The model starts from the first day (fenced at the quartiles ± 3 interquartile ranges) and scores after ${P.warmup_first_h} h. It coasts through gaps of up to ${P.coast_max_h} h and restarts after longer ones.`,
+  `An extreme hour is learned clipped at ${P.learn_clip} scales, so one burst does not bend the forecast. After 24 extreme hours on the same side the change is taken as a new level and learned in full.`,
+  `Shared: at least ${P.shared_min} peers and ${Math.round(100 * P.shared_share)} % of the peer group flag the same metric in the same hour. The peer group is the agency when it has ${P.min_peers} signs or more, otherwise the fleet.`,
+  `Joint score: River <code>HalfSpaceTrees</code> (${P.hst.trees} trees, height ${P.hst.height}, window ${P.hst.window_h} h) on the z values clipped at ±${P.hst.z_clip}; threshold at the ${(100 * P.hst.q).toFixed(1)} % quantile of scores before ${P.hst.cal_end}.`,
+]);
+box('Causal links', [
+  `Per sign, River <code>BayesianLinearRegression</code> forecasts each variable's z from the last ${C.params.lags} hours of all variables. A second model leaves one candidate cause out. Both are scored before they learn each hour.`,
+  `Test: Clark–West on the difference in squared errors, with Newey–West variance (${C.params.nw_lags} lags). Benjamini–Hochberg at ${pct(C.params.q)} over all signs and pairs.`,
+  `Null check: the same test with the cause shifted by ${C.params.null_shift_h[0]}–${C.params.null_shift_h[1]} h.`,
+  `Link: significant on at least ${pct(C.params.edge_share)} of at least ${C.params.min_devices} signs, median gain of ${pct(C.params.edge_skill, 1)} or more. Found on data before ${C.params.fit_end}; checked on July (p < ${C.params.p_rep}, same sign, on at least half of the signs).`,
+  'Same-hour links: partial correlations of the full model\'s forecast errors (River <code>EmpiricalPrecision</code>).',
+  `A sign needs ${C.params.min_rows} complete hours before July; a variable needs ${pct(C.params.coverage)} coverage and some variation. ${C.devices_tested} signs qualified; ${Object.entries(C.devices_skipped).map(([r, n]) => `${n} ${r}`).join(', ')}.`,
+]);
+box('Limits', [
+  '<b>Leading is not causing.</b> A link says that A helps to forecast B. A common driver that the signs do not measure, such as weather or a software release, can create the same pattern.',
+  '<b>Hourly step.</b> Effects faster than an hour appear as same-hour links without a direction.',
+  '<b>August to October are not used</b> for the causal part: they are the test months of the research protocol. Anomaly detection runs over the whole period because it is online.',
+  '<b>A sustained change is flagged for about a day</b> and then becomes the new normal. Bursts in the first week of a sign, before a scale exists, are learned in full.',
+  `<b>No labels.</b> There is no list of confirmed faults, so the flag rate says how often the detector fires, not how often it is right.${never.length ? ` ${never.map(L).join(', ')} could not be tested for links.` : ''}`,
+]);
+})();
+</script>

@@ -1,0 +1,37 @@
+id,role,metric,devices,in_drawn_graph,definition
+input_voltage_volts,measured,device_input_voltage_volts,86,yes,"Voltage at the sign's power input (battery / supply), INA238 bus voltage (sysfs:ina238). About 11-14 V on 12 V systems, about 55.9 V on 13 devices."
+input_current_amperes,measured,device_input_current_amperes,86,yes,"Current at the sign's power input, INA238 (sysfs:ina238)."
+input_power_watts,measured,device_input_power_watts,86,yes,"Power at the sign's power input, INA238 (sysfs:ina238); README: 'about input voltage x input current'."
+input_energy_rate_w,measured,device_input_energy_wh_total (hourly increase),86,yes,"Hourly increase of the energy counter (Wh per hour = mean W), which the device computes by integrating input power (calc:integrated_input_power); resets about daily."
+orin_power_watts,measured,device_orin_power_watts,86,yes,Power of the Jetson Orin module from the INA3221 rail monitor (sysfs:ina3221). Which channel is read is not documented.
+cpu_gpu_power_watts,measured,device_cpu_gpu_power_watts,86,yes,CPU + GPU power logged by the heartbeat service (sqlite:heartbeat). Sensor not documented (possibly INA3221 VDD_CPU_GPU_CV).
+device_power_watts,measured,device_power,81,no,'Device power' from the heartbeat service (sqlite:heartbeat). Definition undocumented.
+cpu_temp_celsius,measured,device_cpu_temp_celsius,86,yes,CPU temperature (sysfs:thermal).
+gpu_temp_celsius,measured,device_gpu_temp_celsius,86,yes,GPU temperature (sysfs:thermal). Reads -256 when the sensor is unavailable.
+board_temp_celsius,measured,device_board_temp_celsius,86,yes,Die temperature of the INA238 power-monitor chip (sysfs:ina238).
+battery_soc_pct,measured,device_battery_remaining_capacity,40,no,Battery state of charge from the on-device power manager (sqlite:powermanager).
+mppt_solar_voltage,measured,device_mppt_solar_voltage,13,yes,Solar-panel voltage at the charge controller input (about 0 at night).
+mppt_solar_current,measured,device_mppt_solar_current,13,yes,Current from the solar panel into the charge controller (0 at night).
+mppt_charge_power,measured,device_mppt_charge_power,13,yes,"Charge power reported by the controller (panel side or battery side is unconfirmed, Q14)."
+mppt_battery_charge_current,measured,device_mppt_battery_charge_current,13,yes,Current into the battery from the charge controller.
+mppt_battery_voltage,measured,device_mppt_battery_voltage,13,yes,Battery voltage at the charge controller.
+mppt_load_voltage,measured,device_mppt_load_voltage,13,yes,Voltage on the controller's load output.
+mppt_load_current,measured,device_mppt_load_current,13,yes,Current on the controller's load output.
+mppt_load_power,measured,device_mppt_load_power,13,yes,Power on the controller's load output.
+mppt_battery_temperature,measured,device_mppt_battery_temperature,13,no,Battery temperature from the controller's sensor.
+mppt_controller_temperature,measured,device_mppt_controller_temperature,13,yes,Temperature of the charge controller.
+mppt_battery_soc_pct,measured,device_mppt_battery_remaining_capacity,17,yes,Battery state of charge reported by the charge controller.
+enclosure_temperature,context,device_temperature,64,yes,Temperature from the heater / environment sensor (sqlite:heaterenv); placement unconfirmed (Q13).
+humidity_pct,context,device_humidity,64,no,Relative humidity from the heater / environment sensor.
+light_lux,context,device_lightsensor,64,no,Ambient light level (sqlite:lightsensor).
+pir_rate,context,device_pir_count (hourly rate),62,no,Motion detections per hour.
+deepstream_running,context,device_deepstream_app_running,82,yes,Fraction of the hour the DeepStream process is running.
+ds_error_rate,context,device_ds_consumer_error_total (hourly rate),86,no,DeepStream consumer errors per hour.
+mem_used_gb,context,device_memory_total_gb - device_memory_free_gb,86,no,RAM in use.
+wwan_rx_rate,context,device_wwan_rx_gb (hourly rate),86,no,LTE data received per hour.
+wwan_tx_rate,context,device_wwan_tx_gb (hourly rate),86,no,LTE data sent per hour.
+wifi_hotspot_running,context,device_wifi_hotspot_running,86,no,Fraction of the hour the Wi-Fi hotspot service is active.
+time_of_day,context,timestamp,97,yes,"Hour of day and day of week (should be local time, Q5)."
+supply_56v,context,hardware record (today inferred from input voltage),97,yes,The sign runs from a ~56 V supply rather than 12 V.
+has_solar,context,hardware record (today inferred from mppt_* presence),97,no,The sign has a solar charge controller and battery.
+mppt_load_state,context,device_mppt_load_state,13,yes,Whether the controller's load output is on (0/1).

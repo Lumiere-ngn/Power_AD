@@ -1,0 +1,53 @@
+column,dtype,non_null,kind
+device,category,442161,id/time
+agency,category,442161,id/time
+time,"datetime64[ms, UTC]",442161,id/time
+has_data,int8,442161,id/time
+n_samples,int64,442161,id/time
+hour_sin,float64,442161,id/time
+hour_cos,float64,442161,id/time
+dow,int8,442161,id/time
+is_weekend,int8,442161,id/time
+days_since_first,float32,442161,id/time
+battery_remaining_capacity,float64,53116,bucket mean
+board_temp_celsius,float64,297246,bucket mean
+cpu_gpu_power_watts,float64,297403,bucket mean
+cpu_temp_celsius,float64,297403,bucket mean
+deepstream_app_running,float64,225926,bucket mean
+ds_consumer_error_total_rate,float64,238288,counter rate per bucket
+gpu_temp_celsius,float64,296388,bucket mean
+humidity,float64,221035,bucket mean
+input_current_amperes,float64,297357,bucket mean
+input_energy_wh_total_rate,float64,249549,counter rate per bucket
+input_power_watts,float64,297246,bucket mean
+input_soc_poly5_percent,float64,288642,bucket mean
+input_voltage_volts,float64,297357,bucket mean
+lightsensor,float64,218439,bucket mean
+memory_free_gb,float64,297403,bucket mean
+memory_total_gb,float64,297403,bucket mean
+mppt_battery_charge_current,float64,48058,bucket mean
+mppt_battery_remaining_capacity,float64,50354,bucket mean
+mppt_battery_remaining_capacity_mppt,float64,4867,bucket mean
+mppt_battery_temperature,float64,48004,bucket mean
+mppt_battery_voltage,float64,48072,bucket mean
+mppt_charge_power,float64,48042,bucket mean
+mppt_controller_temperature,float64,48045,bucket mean
+mppt_load_current,float64,48047,bucket mean
+mppt_load_power,float64,48047,bucket mean
+mppt_load_state,float64,48047,bucket mean
+mppt_load_voltage,float64,48051,bucket mean
+mppt_max_battery_temperature,float64,48045,bucket mean
+mppt_min_battery_temperature,float64,37690,bucket mean
+mppt_solar_current,float64,48044,bucket mean
+mppt_solar_voltage,float64,48047,bucket mean
+mppt_total_load_operation_time,float64,48047,bucket mean
+orin_power_watts,float64,297269,bucket mean
+pir_count_rate,float64,201703,counter rate per bucket
+power,float64,291686,bucket mean
+storage_free_gb,float64,297403,bucket mean
+storage_total_gb,float64,297403,bucket mean
+temperature,float64,221035,bucket mean
+up,float64,434435,share of successful scrapes
+wifi_hotspot_running,float64,278263,bucket mean
+wwan_rx_gb_rate,float64,297403,counter rate per bucket
+wwan_tx_gb_rate,float64,297403,counter rate per bucket

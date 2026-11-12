@@ -16,3 +16,8 @@ dataset/
 analysis/out/*.parquet
 analysis/out/profile/
 analysis/out/*.log
+
+# Archived results: keep the small files, not the large ones
+archive/**/*.parquet
+archive/**/profile/
+archive/**/*.log
