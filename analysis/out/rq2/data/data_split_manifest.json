@@ -1,0 +1,140 @@
+{
+  "generated": "2026-11-15T19:43:12.418696+00:00",
+  "phase": "RQ2 Phase 1: dataset, inventory, availability and split manifest",
+  "source": {
+    "features": "/home/sunday/workspace/masters-polytechnique/buspas/Power_AD/analysis/out/features.parquet",
+    "loader": "rq_common.load()",
+    "excluded_agencies": [
+      "demo",
+      "show",
+      "buspas"
+    ],
+    "exclusion_reasons": {
+      "demo": "demonstration units, not installed at a stop (decision D6)",
+      "show": "show unit, not installed at a stop (decision D6)",
+      "buspas": "vendor's own units, not a transit agency (decision D7)"
+    }
+  },
+  "device_rule": {
+    "min_hours_per_window": 168,
+    "definition": "a device is eligible for a window when it reports input power in at least MIN_HOURS grid hours of that window",
+    "eligible_rq2": "eligibility in all four windows (fit / calibrate / develop / test)",
+    "eligible_rq1_comparable": "eligibility in fit + Aug-Oct test only (same rule as rq1.py MIN_HOURS = 168; reported for comparison)"
+  },
+  "windows": {
+    "fit": {
+      "start": "2026-03-08",
+      "end": "2026-07-01",
+      "purpose": "normal-model training"
+    },
+    "calibrate": {
+      "start": "2026-07-01",
+      "end": "2026-08-01",
+      "purpose": "residual scales and thresholds"
+    },
+    "develop": {
+      "start": "2026-08-01",
+      "end": "2026-09-01",
+      "purpose": "detector and synthetic-fault tuning"
+    },
+    "test": {
+      "start": "2026-09-01",
+      "end": "2026-10-07",
+      "purpose": "final evaluation"
+    }
+  },
+  "protocol_relation": "develop + test together = protocol's [splits.development].evaluate window [2026-08-01, 2026-10-07]; RQ2 keeps August for tuning and scores Sep-Oct last.",
+  "nodes": [
+    "cpu_gpu_power_watts",
+    "orin_power_watts",
+    "power",
+    "input_power_watts",
+    "input_voltage_volts",
+    "input_current_amperes",
+    "input_energy_wh_total_rate",
+    "cpu_temp_celsius",
+    "gpu_temp_celsius",
+    "board_temp_celsius"
+  ],
+  "node_units": {
+    "input_power_watts": "W",
+    "orin_power_watts": "W",
+    "cpu_gpu_power_watts": "W",
+    "cpu_temp_celsius": "\u00b0C",
+    "gpu_temp_celsius": "\u00b0C",
+    "board_temp_celsius": "\u00b0C",
+    "power": "W",
+    "input_voltage_volts": "V",
+    "input_current_amperes": "A",
+    "input_energy_wh_total_rate": "W"
+  },
+  "targets": [
+    "input_power_watts",
+    "orin_power_watts",
+    "cpu_gpu_power_watts",
+    "cpu_temp_celsius",
+    "gpu_temp_celsius",
+    "board_temp_celsius"
+  ],
+  "context": [
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "is_weekend",
+    "v56",
+    "mem_total",
+    "disk_total",
+    "has_mppt",
+    "has_env",
+    "has_ds",
+    "agency",
+    "peer_temperature",
+    "peer_humidity",
+    "peer_lightsensor",
+    "temperature",
+    "humidity",
+    "lightsensor",
+    "deepstream_app_running",
+    "mem_used_gb",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate",
+    "pir_count_rate",
+    "ds_consumer_error_total_rate",
+    "wx_temp_c",
+    "wx_humidity_pct",
+    "wx_dewpoint_c",
+    "wx_cloud_pct",
+    "wx_wind_ms",
+    "wx_solar_wm2",
+    "wx_precip_mm"
+  ],
+  "leakage_guards": [
+    "Splits are pure functions of UTC timestamp; no future data crosses a boundary.",
+    "Availability is measured, never invented: an unavailable node stays NaN and is reported as 'unavailable', so no detector silently reads a zero residual.",
+    "rq_common.load(before=...) is available so hardware and peer columns cannot see later months if a future guard is needed.",
+    "The manifest records the previous exposure of the test months (decision D1: the 2 Nov 2026 pilot and two prior RQ1 runs already scored Aug-Oct)."
+  ],
+  "counts": {
+    "devices_in_features": 92,
+    "devices_eligible_rq2": 61,
+    "devices_eligible_rq1_comparable": 62,
+    "devices_by_window": {
+      "fit": 65,
+      "calibrate": 71,
+      "develop": 74,
+      "test": 72
+    },
+    "availability_node_rows": {
+      "measured": 799,
+      "estimated": 0,
+      "unavailable": 121
+    },
+    "rows_total": 272261,
+    "rows_by_window": {
+      "fit": 129060,
+      "test": 52433,
+      "calibrate": 45384,
+      "develop": 45384
+    }
+  }
+}
