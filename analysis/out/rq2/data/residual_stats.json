@@ -1,0 +1,303 @@
+{
+  "generated": "2026-11-15T23:00:40.583196+00:00",
+  "nodes": [
+    "cpu_gpu_power_watts",
+    "orin_power_watts",
+    "power",
+    "input_power_watts",
+    "input_voltage_volts",
+    "input_current_amperes",
+    "input_energy_wh_total_rate",
+    "cpu_temp_celsius",
+    "gpu_temp_celsius",
+    "board_temp_celsius"
+  ],
+  "fit": {
+    "cpu_gpu_power_watts": {
+      "residual_mean": 0.09920695134634286,
+      "residual_std": 0.546214506010021,
+      "z_mean": -1.6555204230342284,
+      "z_std": 3.9775197802277353,
+      "n": 109922
+    },
+    "orin_power_watts": {
+      "residual_mean": 0.21258678658082927,
+      "residual_std": 0.9376772277180907,
+      "z_mean": -1.6483049567266428,
+      "z_std": 4.826653118575188,
+      "n": 109788
+    },
+    "power": {
+      "residual_mean": 0.22592413769099123,
+      "residual_std": 0.9392055887959225,
+      "z_mean": -1.6751563142069266,
+      "z_std": 3.659788181905959,
+      "n": 109180
+    },
+    "input_power_watts": {
+      "residual_mean": 0.903957489486117,
+      "residual_std": 1.3125416305415336,
+      "z_mean": -1.0007240740259506,
+      "z_std": 2.7748787876840355,
+      "n": 109811
+    },
+    "input_voltage_volts": {
+      "residual_mean": -0.48320938897001303,
+      "residual_std": 3.154587616020476,
+      "z_mean": 0.0977352546847357,
+      "z_std": 3.839261695006304,
+      "n": 109922
+    },
+    "input_current_amperes": {
+      "residual_mean": 0.06939645147495818,
+      "residual_std": 0.1614474090691583,
+      "z_mean": -1.108495983395803,
+      "z_std": 2.2287535535902565,
+      "n": 109922
+    },
+    "input_energy_wh_total_rate": {
+      "residual_mean": 1.3433319266098858,
+      "residual_std": 1.8686983901280803,
+      "z_mean": -0.9572658055157951,
+      "z_std": 3.2378811906405804,
+      "n": 71551
+    },
+    "cpu_temp_celsius": {
+      "residual_mean": 3.1949545680752367,
+      "residual_std": 9.451410340193528,
+      "z_mean": -0.9838286265662312,
+      "z_std": 1.981099185480486,
+      "n": 109922
+    },
+    "gpu_temp_celsius": {
+      "residual_mean": 3.4462390351976238,
+      "residual_std": 9.63719483815611,
+      "z_mean": -1.0156643548708995,
+      "z_std": 2.1423243043768405,
+      "n": 109922
+    },
+    "board_temp_celsius": {
+      "residual_mean": 4.361727875020755,
+      "residual_std": 9.378091350845509,
+      "z_mean": -1.3642893541917045,
+      "z_std": 2.4667031072153267,
+      "n": 109811
+    }
+  },
+  "calibrate": {
+    "cpu_gpu_power_watts": {
+      "residual_mean": 0.31841230055897546,
+      "residual_std": 0.5132925573556398,
+      "z_mean": 0.07017560585818952,
+      "z_std": 2.08005885682947,
+      "n": 43337
+    },
+    "orin_power_watts": {
+      "residual_mean": 0.5911201139927187,
+      "residual_std": 0.9117450503540917,
+      "z_mean": 0.12027144325783708,
+      "z_std": 2.731868750228321,
+      "n": 43337
+    },
+    "power": {
+      "residual_mean": 0.5989269027422348,
+      "residual_std": 0.9253682983196175,
+      "z_mean": 0.010073857461394595,
+      "z_std": 1.8825598310973761,
+      "n": 42676
+    },
+    "input_power_watts": {
+      "residual_mean": 1.1514031103891578,
+      "residual_std": 1.6697662410430782,
+      "z_mean": 0.11711751315518822,
+      "z_std": 1.47220557079502,
+      "n": 43314
+    },
+    "input_voltage_volts": {
+      "residual_mean": -0.8255418423856544,
+      "residual_std": 2.680565058132354,
+      "z_mean": -0.5060602456331305,
+      "z_std": 2.975336044441793,
+      "n": 43314
+    },
+    "input_current_amperes": {
+      "residual_mean": 0.0974276449383819,
+      "residual_std": 0.18098305706002168,
+      "z_mean": 0.07187392108287576,
+      "z_std": 1.2033101778580453,
+      "n": 43314
+    },
+    "input_energy_wh_total_rate": {
+      "residual_mean": 1.335391740167097,
+      "residual_std": 3.2110404599586135,
+      "z_mean": 0.22380102910173524,
+      "z_std": 7.9511391509420974,
+      "n": 43314
+    },
+    "cpu_temp_celsius": {
+      "residual_mean": 5.267044530973739,
+      "residual_std": 11.937817235239114,
+      "z_mean": -0.02830142605376881,
+      "z_std": 1.2812208598437302,
+      "n": 43337
+    },
+    "gpu_temp_celsius": {
+      "residual_mean": 5.535031089014574,
+      "residual_std": 12.311002608652785,
+      "z_mean": -0.03306656531862059,
+      "z_std": 1.2878279496944627,
+      "n": 43337
+    },
+    "board_temp_celsius": {
+      "residual_mean": 5.977387286241921,
+      "residual_std": 11.630771145856365,
+      "z_mean": -0.06503255367254522,
+      "z_std": 1.6457020796687525,
+      "n": 43314
+    }
+  },
+  "develop": {
+    "cpu_gpu_power_watts": {
+      "residual_mean": 0.2865852736499978,
+      "residual_std": 0.48469498535703764,
+      "z_mean": -0.09329988743190172,
+      "z_std": 2.6341243024488925,
+      "n": 42385
+    },
+    "orin_power_watts": {
+      "residual_mean": 0.4968502439061488,
+      "residual_std": 0.8401583726671675,
+      "z_mean": -0.19642181703364595,
+      "z_std": 3.1447949500651577,
+      "n": 42385
+    },
+    "power": {
+      "residual_mean": 0.5336209123585054,
+      "residual_std": 0.8511596959242602,
+      "z_mean": -0.13089235350355358,
+      "z_std": 2.5765551805627807,
+      "n": 42068
+    },
+    "input_power_watts": {
+      "residual_mean": 1.1160501369295819,
+      "residual_std": 1.58002453337261,
+      "z_mean": 0.149779759999633,
+      "z_std": 1.7232700678642565,
+      "n": 42362
+    },
+    "input_voltage_volts": {
+      "residual_mean": -0.20374894646204822,
+      "residual_std": 4.8463657335036245,
+      "z_mean": 0.7027255908945131,
+      "z_std": 7.9164668597641725,
+      "n": 42362
+    },
+    "input_current_amperes": {
+      "residual_mean": 0.09092961958601177,
+      "residual_std": 0.18218188184913495,
+      "z_mean": -0.07218865336799905,
+      "z_std": 1.738259337505748,
+      "n": 42362
+    },
+    "input_energy_wh_total_rate": {
+      "residual_mean": 1.1385173172255456,
+      "residual_std": 1.840012707914065,
+      "z_mean": -0.1273892048262429,
+      "z_std": 1.752400825386948,
+      "n": 42362
+    },
+    "cpu_temp_celsius": {
+      "residual_mean": 5.399746827565245,
+      "residual_std": 11.302196300666854,
+      "z_mean": 0.02487017461728234,
+      "z_std": 1.394595297222946,
+      "n": 42385
+    },
+    "gpu_temp_celsius": {
+      "residual_mean": 5.531080750857028,
+      "residual_std": 11.593634833593516,
+      "z_mean": -0.05016245728157301,
+      "z_std": 1.4254158626303561,
+      "n": 42385
+    },
+    "board_temp_celsius": {
+      "residual_mean": 5.8473739240804425,
+      "residual_std": 11.081747018334738,
+      "z_mean": -0.020806883342518387,
+      "z_std": 1.9479930827786156,
+      "n": 42362
+    }
+  },
+  "test": {
+    "cpu_gpu_power_watts": {
+      "residual_mean": 0.34570075973477427,
+      "residual_std": 0.5138915338799949,
+      "z_mean": 0.3372800530416002,
+      "z_std": 2.611443968388173,
+      "n": 48183
+    },
+    "orin_power_watts": {
+      "residual_mean": 0.5951219131037172,
+      "residual_std": 0.9059166452853179,
+      "z_mean": 0.23458752544919326,
+      "z_std": 3.1437221048134956,
+      "n": 48183
+    },
+    "power": {
+      "residual_mean": 0.6296625565358834,
+      "residual_std": 0.9039651953184714,
+      "z_mean": 0.3177070496442919,
+      "z_std": 2.6564280080485863,
+      "n": 47479
+    },
+    "input_power_watts": {
+      "residual_mean": 1.181864263428764,
+      "residual_std": 1.642107373648473,
+      "z_mean": 0.22956970562277207,
+      "z_std": 1.7929262223008493,
+      "n": 48183
+    },
+    "input_voltage_volts": {
+      "residual_mean": -0.41912856246957353,
+      "residual_std": 4.910148505198953,
+      "z_mean": 0.49819399589762126,
+      "z_std": 7.8245952192915675,
+      "n": 48183
+    },
+    "input_current_amperes": {
+      "residual_mean": 0.09771160082904304,
+      "residual_std": 0.18564567166351723,
+      "z_mean": 0.025834313778296807,
+      "z_std": 1.844189408569989,
+      "n": 48183
+    },
+    "input_energy_wh_total_rate": {
+      "residual_mean": 1.2285830480650848,
+      "residual_std": 1.9293194464983217,
+      "z_mean": -0.01433738471843204,
+      "z_std": 2.006221560033028,
+      "n": 48183
+    },
+    "cpu_temp_celsius": {
+      "residual_mean": 5.048207073257539,
+      "residual_std": 10.096603263463683,
+      "z_mean": -0.01904474514884315,
+      "z_std": 1.7925577213600337,
+      "n": 48183
+    },
+    "gpu_temp_celsius": {
+      "residual_mean": 5.243483214016072,
+      "residual_std": 10.395408675181717,
+      "z_mean": -0.0693821023626277,
+      "z_std": 1.833662905843926,
+      "n": 48183
+    },
+    "board_temp_celsius": {
+      "residual_mean": 5.258107262088678,
+      "residual_std": 9.866206678242158,
+      "z_mean": -0.12593018454101834,
+      "z_std": 2.4856961418973027,
+      "n": 48183
+    }
+  }
+}
