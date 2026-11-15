@@ -63,8 +63,8 @@ def synthetic_features() -> pd.DataFrame:
             # context
             "hour_sin": np.sin(2 * np.pi * times.hour / 24),
             "hour_cos": np.cos(2 * np.pi * times.hour / 24),
-            "dow": times.dayofweek.astype(float),
-            "is_weekend": (times.dayofweek >= 5).astype(float),
+            "dow": times.day_of_week.astype(float),
+            "is_weekend": (times.day_of_week >= 5).astype(float),
             "v56": 0.0,
             "mem_total": 8.0,
             "disk_total": 32.0,
