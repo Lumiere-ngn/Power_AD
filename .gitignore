@@ -14,6 +14,7 @@ dataset/
 
 # Large analysis outputs (regenerate with the pipeline)
 analysis/out/*.parquet
+!analysis/out/features.parquet
 analysis/out/profile/
 analysis/out/*.log
 
