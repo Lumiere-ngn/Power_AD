@@ -187,7 +187,7 @@ Three rows are left out of the table and are only in `rq1_test.json`. Only one 5
 | Condition | Result |
 |---|---|
 | Over time | CPU error is 1.5 °C in August, 1.6 °C in September and 1.6 °C in the first week of October. Input-power error stays at 0.45 to 0.50 W. |
-| Hot hours | On each device's hottest 10 % of hours the CPU error is 2.4 °C, and the prediction is 1.3 °C too low. |
+| Hot hours | On each device's hottest 10 % of hours the CPU error is 2.4 °C, and the prediction is 1.3 °C too low. More in section 6 (unplanned). |
 | Overall direction | The model predicts a little low: measured values are above the prediction by 0.11 W (input power) and 0.3 °C (CPU) on average. |
 
 **Normal and flagged hours.** Flagged hours are 1.4 to 2.7 times further from the prediction than other hours. This is expected: the model predicts the normal behaviour, and these are the hours that are not normal.
@@ -219,6 +219,100 @@ Leaving flagged hours out of the training data made almost no difference: keepin
 - The bands fall 4 to 6 points short of 90 %. Without the adjustment on July they held only 73 to 83 %.
 - On July, during development, they held 86 to 90 %. One month is not enough to cover the drift of the following months.
 - The bands are worse for flagged hours (59 to 75 %).
+
+## 6. Extra breakdowns (unplanned)
+
+**These tables were not in the plan.** They were added on 15 November 2026, after the results had been read, to answer a reviewer. Nothing was refitted and the test was not run again: `analysis/rq1_extra.py` only regroups the saved predictions of the third run. Read them as description, not as confirmed results. They have no confidence intervals.
+
+"Direction" is the mean of measured minus predicted. A positive value means the prediction is too low.
+
+### 6a. Cool, ordinary and hot hours
+
+Each device's own coolest 10 %, middle 80 % and hottest 10 % of test hours. Section 4 already gave the hottest hours for the CPU.
+
+| Reading | Coolest 10 %: error | Direction | Middle 80 %: error | Direction | Hottest 10 %: error | Direction |
+|---|---|---|---|---|---|---|
+| CPU temperature | 1.54 °C | +0.05 °C | 1.44 °C | +0.26 °C | 2.37 °C | +1.26 °C |
+| GPU temperature | 1.60 °C | +0.04 °C | 1.54 °C | +0.19 °C | 2.36 °C | +1.09 °C |
+| Board temperature | 1.07 °C | −0.28 °C | 1.09 °C | +0.06 °C | 1.85 °C | +0.98 °C |
+
+- **Cool hours are predicted as well as ordinary hours.** The weakness is on the hot side only.
+- **It is not one device.** On hot hours the CPU prediction is too low for 44 of the 62 devices, and by more than 1 °C for 32 of them. Without the worst device (`bp3235300141`, section 1) the hot-hour CPU error is 2.21 °C and the direction +1.08 °C.
+- **The bands miss more often on hot hours.** For the CPU, 76 % of the hottest hours fall inside the 90 % band, against 84 % of all hours. 22 % of the hottest hours are above the band, where 5 % is intended. Over all hours 12 % are above the band, so the bands are too low in general, not only too narrow.
+
+### 6b. Fixed temperature levels
+
+The 10 % above is relative to each device. For overheating a fixed level matters more. The table groups the CPU hours in three ways.
+
+| Level | By measured CPU temperature: hours | Error | Direction | By predicted CPU temperature: hours | Error | Direction |
+|---|---|---|---|---|---|---|
+| Below 30 °C | 8,461 | 1.17 °C | −0.39 °C | 8,503 | 1.30 °C | +0.24 °C |
+| 30 to 40 °C | 39,389 | 1.09 °C | −0.12 °C | 40,166 | 1.31 °C | +0.39 °C |
+| 40 to 50 °C | 33,804 | 1.72 °C | +0.44 °C | 34,832 | 1.78 °C | +0.30 °C |
+| 50 to 60 °C | 8,909 | 3.03 °C | +2.44 °C | 7,305 | 2.00 °C | +0.38 °C |
+| 60 °C or more | 283 (17 devices) | 7.82 °C | +7.82 °C | 40 (4 devices) | 1.77 °C | +1.34 °C |
+
+| City air temperature | Hours | CPU error | Direction |
+|---|---|---|---|
+| Below 10 °C | 2,153 | 1.88 °C | +0.67 °C |
+| 10 to 15 °C | 10,534 | 1.63 °C | +0.49 °C |
+| 15 to 20 °C | 27,067 | 1.46 °C | +0.41 °C |
+| 20 to 25 °C | 33,626 | 1.54 °C | +0.34 °C |
+| 25 to 30 °C | 14,404 | 1.54 °C | +0.04 °C |
+| 30 °C or more | 3,062 (18 devices) | 1.91 °C | +0.46 °C |
+
+- **The model almost never predicts 60 °C.** The CPU was measured at 60 °C or more in 283 hours. Every one of them was predicted too low, by 7.8 °C on average. The model predicted 60 °C or more in only 40 hours. Four devices hold most of these hours (`bp3235300069`, `bp3235300141`, `bp3235300112`, `bp3235300072`).
+- **Hot weather is not the problem.** Grouped by the outside air temperature, the error stays between 1.5 and 1.9 °C, and it is no worse at 25 to 30 °C than at 15 to 20 °C.
+- **When the model predicts a high temperature, it is about right** (direction +0.4 °C at 50 to 60 °C predicted). So the model is not too low on everything that is hot. It is too low on hours that are hotter than the workload, the enclosure sensors and the weather explain.
+- **Part of the gap comes from the grouping itself.** Picking the hours with the highest measured values also picks the hours where any imperfect model fell short. The "by measured" columns therefore overstate the fault of the model; the "by predicted" and "by air temperature" groups do not have this effect.
+- **What this means for overheating.** A device that runs hotter than its context explains shows up as a large positive gap, which is what a detector needs. The data cannot say whether such an hour is a fault or a cause the model does not see (sun on the enclosure, for example).
+
+### 6c. Was the heat beyond what the model had seen?
+
+**Mostly not.** The test models were fitted on 8 March to 30 June and scored on August to October. One explanation for the hot-hour error would be that August was hotter than anything in those months. The check does not support it.
+
+| Among each device's hottest 10 % of CPU hours | Share | CPU error | Direction |
+|---|---|---|---|
+| CPU reading within the device's March-to-June range | 93.8 % | 2.28 °C | +1.11 °C |
+| CPU reading above the device's March-to-June maximum | 6.2 % | 3.76 °C | +3.55 °C |
+| Air temperature above the city's March-to-June maximum | 1.1 % | 2.85 °C | +2.78 °C |
+
+- June was already about as warm as August: mean city air temperature 21.4 °C in June against 22.7 °C in August, and the 90th percentile of the CPU temperature 50.2 °C against 51.7 °C.
+- Readings above anything seen in training are predicted worse, but they are few. Hot hours inside the training range are still predicted 1.1 °C too low.
+
+### 6d. Workload level
+
+| Hours where | Input power: mean | Error | Skill | CPU temperature: error | Direction | Skill |
+|---|---|---|---|---|---|---|
+| Video-analytics application running | 14.4 W | 0.70 W | 0.80 | 1.75 °C | +0.67 °C | 0.84 |
+| Application not running | 8.7 W | 0.29 W | 0.24 | 1.43 °C | +0.14 °C | 0.65 |
+| Application state not reported (3 devices) | 9.9 W | 0.59 W | 0.56 | 0.87 °C | −0.44 °C | 0.90 |
+| Memory in use below 4 GB | 8.6 W | 0.24 W | 0.13 | 1.49 °C | +0.19 °C | 0.60 |
+| Memory in use 4 to 6 GB | 9.4 W | 0.59 W | 0.36 | 1.22 °C | −0.18 °C | 0.80 |
+| Memory in use 6 GB or more | 14.1 W | 0.67 W | 0.80 | 1.67 °C | +0.60 °C | 0.84 |
+
+- **Under load the error is larger, but the model helps most there.** With the application running the device draws 14.4 W and the error is 0.70 W (4.9 %), with skill 0.80.
+- **At idle the model adds little for power.** The device draws a steady 8.7 W. The error is small (0.29 W, 3.3 %), but the device's usual value for that hour is almost as good (skill 0.24).
+- **The CPU prediction is too low mainly under load** (+0.67 °C with the application running, +0.14 °C without).
+
+### 6e. Hardware configuration of the scored devices
+
+Section 3a gave solar against no solar. This table splits the 62 scored devices by their full configuration.
+
+| Supply | Solar | Enclosure sensor | Video analytics | Devices | CPU error | Board error | Input-power error | Input-power skill |
+|---|---|---|---|---|---|---|---|---|
+| 12 V | No | Yes | No | 14 | 1.71 °C | 0.71 °C | 0.33 W | 0.30 |
+| 12 V | No | Yes | Yes | 15 | 1.92 °C | 1.16 °C | 0.73 W | 0.83 |
+| 12 V | No | No | Yes | 10 | 1.77 °C | 1.92 °C | 0.68 W | 0.78 |
+| 12 V | Yes | Yes | No | 12 | 1.03 °C | 0.87 °C | 0.24 W | 0.04 |
+| 12 V | Yes | Yes | Yes | 7 | 1.07 °C | 1.34 °C | 0.69 W | 0.61 |
+| 12 V | Yes | No | Yes | 3 | 1.70 °C | 1.65 °C | 0.22 W | 0.60 |
+| 56 V | No | Yes | Yes | 1 (278 hours) | 0.79 °C | 0.66 °C | 0.54 W | 0.73 |
+
+- **The first row contains the worst device.** Without `bp3235300141` its CPU error is 0.98 °C, not 1.71 °C.
+- **Without an enclosure sensor the board temperature error is about twice as large**: 1.86 °C over the 13 such devices, against 0.96 °C over the 49 with a sensor.
+- **For devices that never run video analytics, the power model adds little.** Their power is predicted to within 0.29 W, but skill is 0.21 over these 26 devices and 0.04 for the 12 with solar. The overall input-power skill of 0.73 comes mainly from the 36 devices that run video analytics (0.78).
+- **Supply voltage still cannot be compared**: one 56 V device, with 278 hours.
 
 ## Against the proposed thresholds
 
@@ -292,5 +386,6 @@ The test errors are 8 to 34 % above the July errors. That is the cost of predict
 | Excluded units | `EXCLUDED_AGENCIES = ["demo", "show", "buspas"]` in `analysis/rq_common.py`; decisions D6 and D7 in [`protocol.toml`](protocol.toml) |
 | Development | `.venv/bin/python -I analysis/rq1.py dev` → `analysis/out/rq1_dev.json`, `rq1_locked.json` |
 | Test | `.venv/bin/python -I analysis/rq1.py test` → `analysis/out/rq1_test.json`. It refuses to run when that file exists. |
+| Extra breakdowns (unplanned, section 6) | `.venv/bin/python -I analysis/rq1_extra.py` → `analysis/out/rq1_extra.json`. It fits nothing; it regroups `rq1_test_predictions.parquet`. |
 | Earlier runs | `archive/2026-11-10-rq1-run1/` (all devices) and `archive/2026-11-10-rq1-run2/` (without `demo` and `show`): results text, outputs and the scripts as they were |
 | Windows | `[splits.rq1]` in [`protocol.toml`](protocol.toml) |

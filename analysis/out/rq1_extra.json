@@ -1,0 +1,2413 @@
+{
+ "note": "UNPLANNED re-aggregation of the third-run test predictions (15 November 2026). Nothing refitted.",
+ "input_power_watts": {
+  "all": {
+   "hours": 90823,
+   "devices": 62,
+   "mean_measured": 11.279209580943158,
+   "mae": 0.48817689229072997,
+   "bias": 0.11172404465075392,
+   "skill": 0.7280434365577892
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 8.905201042407091,
+    "mae": 0.32923545100898055,
+    "bias": 0.048735893142792926,
+    "skill": 0.2982516095244996
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 13.181057647424879,
+    "mae": 0.7314621892404723,
+    "bias": -0.021183865976480438,
+    "skill": 0.8267621729661929
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 15.74481540773083,
+    "mae": 0.6753277021418358,
+    "bias": 0.15464911763405978,
+    "skill": 0.7805665316044359
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19249,
+    "devices": 12,
+    "mean_measured": 8.536670051686723,
+    "mae": 0.24192803310065394,
+    "bias": 0.1416295729363341,
+    "skill": 0.035552335693424975
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 10.98900263033954,
+    "mae": 0.6891610606909048,
+    "bias": 0.3762799579741176,
+    "skill": 0.608575469442485
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 11.422086886462322,
+    "mae": 0.22211511088811187,
+    "bias": 0.08142940328687613,
+    "skill": 0.5984695289084945
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 19.33805197552303,
+    "mae": 0.54124702069385,
+    "bias": 0.32323865807359997,
+    "skill": 0.727002613597937
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70403,
+    "devices": 49,
+    "mean_measured": 10.278151690830423,
+    "mae": 0.4647364421328818,
+    "bias": 0.10425654555438378,
+    "skill": 0.7086018435452124
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 14.73060422529217,
+    "mae": 0.5689936411870565,
+    "bias": 0.1374700945470198,
+    "skill": 0.7710571448875494
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 13.40245333003936,
+    "mae": 0.6546755473085243,
+    "bias": 0.12814992844219458,
+    "skill": 0.7807331500686131
+   },
+   "no video analytics": {
+    "hours": 41302,
+    "devices": 26,
+    "mean_measured": 8.733445363738348,
+    "mae": 0.2885453999868175,
+    "bias": 0.09202944895960262,
+    "skill": 0.21466336737862535
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 9.949552304229409,
+    "mae": 0.5894533393211945,
+    "bias": -0.3772650565783491,
+    "skill": 0.5639284771477933
+   },
+   "not running": {
+    "hours": 46362,
+    "devices": 44,
+    "mean_measured": 8.681070991864622,
+    "mae": 0.29448479816620854,
+    "bias": 0.16168923014421538,
+    "skill": 0.2443516834130658
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 14.432819729376185,
+    "mae": 0.701229959793047,
+    "bias": 0.10769171427847643,
+    "skill": 0.7979454664496893
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37254,
+    "devices": 41,
+    "mean_measured": 8.580702089559294,
+    "mae": 0.24391003176094916,
+    "bias": 0.11883956149429821,
+    "skill": 0.12540885879410368
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 9.384001342916733,
+    "mae": 0.5894715326321763,
+    "bias": 0.2301751075533894,
+    "skill": 0.3603986391269943
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 14.079887932738524,
+    "mae": 0.6748500078977131,
+    "bias": 0.07654522809999444,
+    "skill": 0.796838429408645
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22598,
+    "devices": 49,
+    "mean_measured": 10.76637951768869,
+    "mae": 0.5088234771058803,
+    "bias": -0.009298520364296844,
+    "skill": 0.7590656933891363
+   },
+   "middle third": {
+    "hours": 22436,
+    "devices": 48,
+    "mean_measured": 10.264546428445456,
+    "mae": 0.4337023584019803,
+    "bias": 0.1581291184017439,
+    "skill": 0.7319147893293072
+   },
+   "highest third": {
+    "hours": 22460,
+    "devices": 47,
+    "mean_measured": 9.593369559210949,
+    "mae": 0.4065151946197533,
+    "bias": 0.24440188709134605,
+    "skill": 0.5971125587231287
+   }
+  }
+ },
+ "orin_power_watts": {
+  "all": {
+   "hours": 90846,
+   "devices": 62,
+   "mean_measured": 6.6693670597433865,
+   "mae": 0.29672317678276006,
+   "bias": 0.10745735616884776,
+   "skill": 0.8056278004604043
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 4.906947726269001,
+    "mae": 0.0953563323186524,
+    "bias": 0.011996572667919,
+    "skill": 0.6321783135500274
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 8.51201811801728,
+    "mae": 0.6644889307699392,
+    "bias": 0.20539110204927055,
+    "skill": 0.8187623181882372
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 9.422141070171891,
+    "mae": 0.3840984126350458,
+    "bias": 0.24211353167939131,
+    "skill": 0.867679080707867
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 4.672642179156239,
+    "mae": 0.07186506156322826,
+    "bias": 0.020287325136051887,
+    "skill": -0.1118142012674419
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 6.746378342639246,
+    "mae": 0.41983923907953613,
+    "bias": 0.17865804590132472,
+    "skill": 0.7276985830019069
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 6.407163742376767,
+    "mae": 0.15063201333914214,
+    "bias": -0.05429511933172178,
+    "skill": 0.6226638053364695
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 8.48281942443838,
+    "mae": 0.32292261618598966,
+    "bias": -0.23117819180719829,
+    "skill": 0.8065032338984768
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70426,
+    "devices": 49,
+    "mean_measured": 6.0763064157272035,
+    "mae": 0.28727120170144066,
+    "bias": 0.08857817437617094,
+    "skill": 0.7786572681050106
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 8.714758289688715,
+    "mae": 0.329321844612192,
+    "bias": 0.17256926884911494,
+    "skill": 0.8577677994708899
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 8.231280499693833,
+    "mae": 0.4739047485902314,
+    "bias": 0.18389235337427626,
+    "skill": 0.8218325539180517
+   },
+   "no video analytics": {
+    "hours": 41325,
+    "devices": 26,
+    "mean_measured": 4.7976788453504975,
+    "mae": 0.08440112917289234,
+    "bias": 0.015862982385181117,
+    "skill": 0.4990734729197842
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 5.749386788439144,
+    "mae": 0.16622761262324465,
+    "bias": -0.0947954333458586,
+    "skill": 0.8279076740921344
+   },
+   "not running": {
+    "hours": 46385,
+    "devices": 44,
+    "mean_measured": 4.69148451546785,
+    "mae": 0.0910537377838738,
+    "bias": 0.016896531424489564,
+    "skill": 0.5859246829119467
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 9.061099093294555,
+    "mae": 0.5492590253675288,
+    "bias": 0.23458553061230822,
+    "skill": 0.8229036090827855
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37277,
+    "devices": 41,
+    "mean_measured": 4.675132110135572,
+    "mae": 0.07643788490978425,
+    "bias": 0.026929550425597585,
+    "skill": 0.22919709815304556
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 5.100812428117986,
+    "mae": 0.25599470500271165,
+    "bias": -0.041132221833379896,
+    "skill": 0.6681305454720974
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 8.781322776683371,
+    "mae": 0.49754342513691113,
+    "bias": 0.21362352137319418,
+    "skill": 0.831238448498625
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22602,
+    "devices": 49,
+    "mean_measured": 6.502545482771922,
+    "mae": 0.3832231923517996,
+    "bias": 0.11137386350306105,
+    "skill": 0.7841521891341815
+   },
+   "middle third": {
+    "hours": 22441,
+    "devices": 48,
+    "mean_measured": 6.071652625889526,
+    "mae": 0.24837983678836714,
+    "bias": 0.06654170227565961,
+    "skill": 0.8093884769860707
+   },
+   "highest third": {
+    "hours": 22474,
+    "devices": 47,
+    "mean_measured": 5.5386730624108935,
+    "mae": 0.19303139921691212,
+    "bias": 0.09926352039719562,
+    "skill": 0.7491616246037867
+   }
+  }
+ },
+ "cpu_gpu_power_watts": {
+  "all": {
+   "hours": 90846,
+   "devices": 62,
+   "mean_measured": 1.728320459628483,
+   "mae": 0.19679292610483048,
+   "bias": 0.07492154966246098,
+   "skill": 0.7806799490461338
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 0.7146415834688724,
+    "mae": 0.06939091498630597,
+    "bias": -0.00019673025853396263,
+    "skill": 0.5585758641958118
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 2.8422040841265885,
+    "mae": 0.43851440751162657,
+    "bias": 0.1450127873462139,
+    "skill": 0.8003398390171703
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 3.2367484326377682,
+    "mae": 0.22638310883748392,
+    "bias": 0.1566193128318942,
+    "skill": 0.8617163345746248
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 0.607123243003499,
+    "mae": 0.052088522786829634,
+    "bias": 0.02076104505903728,
+    "skill": -0.03985706454179305
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 1.7300581898964735,
+    "mae": 0.2937426447492807,
+    "bias": 0.1352525572349079,
+    "skill": 0.6719613548540313
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 1.5908588319135655,
+    "mae": 0.12389022797456022,
+    "bias": -0.017297864700789648,
+    "skill": 0.5039082990481425
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 2.8064547679814775,
+    "mae": 0.18496630387941557,
+    "bias": -0.12369430626482442,
+    "skill": 0.8183604197542308
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70426,
+    "devices": 49,
+    "mean_measured": 1.4029201510523899,
+    "mae": 0.19518573360225308,
+    "bias": 0.06306469102558343,
+    "skill": 0.7488476061883118
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 2.85058501064611,
+    "mae": 0.20233592998272054,
+    "bias": 0.1158143570258664,
+    "skill": 0.8457318402405549
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 2.616072585287185,
+    "mae": 0.30984273955652436,
+    "bias": 0.12945123750832202,
+    "skill": 0.8009450177910828
+   },
+   "no video analytics": {
+    "hours": 41325,
+    "devices": 26,
+    "mean_measured": 0.6645001809897755,
+    "mae": 0.06132190827200934,
+    "bias": 0.009576972002088735,
+    "skill": 0.42822757039500303
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 1.1630200461919429,
+    "mae": 0.09661822127584191,
+    "bias": -0.03437737749259924,
+    "skill": 0.8237598005396286
+   },
+   "not running": {
+    "hours": 46385,
+    "devices": 44,
+    "mean_measured": 0.6134543306131405,
+    "mae": 0.07467741713537981,
+    "bias": 0.013391479449784938,
+    "skill": 0.4581992253870222
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 3.0816021372734497,
+    "mae": 0.3492320784424078,
+    "bias": 0.15820293675956312,
+    "skill": 0.8076056099248331
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37277,
+    "devices": 41,
+    "mean_measured": 0.605958218485547,
+    "mae": 0.0574289726412737,
+    "bias": 0.019627952164761632,
+    "skill": 0.19242012691121635
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 0.8147570957491579,
+    "mae": 0.1947008944618342,
+    "bias": -0.0480434520913497,
+    "skill": 0.5497146250630737
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 2.924475723218173,
+    "mae": 0.3180423961896551,
+    "bias": 0.15294873004287973,
+    "skill": 0.8158332014689442
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22602,
+    "devices": 49,
+    "mean_measured": 1.6652423254524369,
+    "mae": 0.2620034705483651,
+    "bias": 0.08542635953225958,
+    "skill": 0.7553687059462046
+   },
+   "middle third": {
+    "hours": 22441,
+    "devices": 48,
+    "mean_measured": 1.3889417330867102,
+    "mae": 0.1631491736688936,
+    "bias": 0.043025685498319956,
+    "skill": 0.7880719247004258
+   },
+   "highest third": {
+    "hours": 22474,
+    "devices": 47,
+    "mean_measured": 1.088250026041934,
+    "mae": 0.13060000369802577,
+    "bias": 0.0697709702478245,
+    "skill": 0.7151244257595568
+   }
+  }
+ },
+ "cpu_temp_celsius": {
+  "all": {
+   "hours": 90846,
+   "devices": 62,
+   "mean_measured": 39.84715207511068,
+   "mae": 1.5451637929866517,
+   "bias": 0.3421516275182921,
+   "skill": 0.78826963786678
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 37.174451530553206,
+    "mae": 1.7120340718624711,
+    "bias": 0.33444510509453074,
+    "skill": 0.6484416768081658
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 40.016252567513476,
+    "mae": 1.923116567864273,
+    "bias": 0.8824781463321899,
+    "skill": 0.8437896789183681
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 47.392701132646316,
+    "mae": 1.7662103905942326,
+    "bias": 0.3872385521888874,
+    "skill": 0.8302027347218635
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 35.996297694770455,
+    "mae": 1.0325091439900873,
+    "bias": -0.10004366517981428,
+    "skill": 0.7276791950534499
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 42.1379961986727,
+    "mae": 1.0729788470868213,
+    "bias": 0.4155275594831117,
+    "skill": 0.8319372633053101
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 37.23012273621282,
+    "mae": 1.7008023092952247,
+    "bias": -0.21783804334844667,
+    "skill": 0.6723151536426409
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 44.228659730836014,
+    "mae": 0.7863960933223032,
+    "bias": -0.14062308601249834,
+    "skill": 0.7143577103534087
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70426,
+    "devices": 49,
+    "mean_measured": 38.35067068105785,
+    "mae": 1.485521027450582,
+    "bias": 0.3702413524415564,
+    "skill": 0.7799975989357466
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 45.00832732768487,
+    "mae": 1.7508641556528248,
+    "bias": 0.24527371530253245,
+    "skill": 0.8092561092092425
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 42.53600590938387,
+    "mae": 1.6703609847924183,
+    "bias": 0.517671904166363,
+    "skill": 0.8285674911237728
+   },
+   "no video analytics": {
+    "hours": 41325,
+    "devices": 26,
+    "mean_measured": 36.62501703029416,
+    "mae": 1.3951362035029653,
+    "bias": 0.1318203602493479,
+    "skill": 0.6805249192937892
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 35.618677900160044,
+    "mae": 0.8744491442794192,
+    "bias": -0.4365948022355872,
+    "skill": 0.899472136554394
+   },
+   "not running": {
+    "hours": 46385,
+    "devices": 44,
+    "mean_measured": 36.81774286495282,
+    "mae": 1.4320399028368493,
+    "bias": 0.13588708898987917,
+    "skill": 0.6455898261900563
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 43.82063866576779,
+    "mae": 1.7499645894477136,
+    "bias": 0.6667013887298012,
+    "skill": 0.8396831303054402
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37277,
+    "devices": 41,
+    "mean_measured": 36.580480183903724,
+    "mae": 1.4906240324295965,
+    "bias": 0.19473721492839752,
+    "skill": 0.5974409948314294
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 36.93991570108756,
+    "mae": 1.2184895754249487,
+    "bias": -0.1804978106831906,
+    "skill": 0.8018353334352537
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 43.38942470472626,
+    "mae": 1.672442578465951,
+    "bias": 0.5979017155120481,
+    "skill": 0.8436046470887745
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22602,
+    "devices": 49,
+    "mean_measured": 35.5575007393593,
+    "mae": 1.475817475238498,
+    "bias": 0.5879689595327225,
+    "skill": 0.8037907099402979
+   },
+   "middle third": {
+    "hours": 22441,
+    "devices": 48,
+    "mean_measured": 39.043729848224366,
+    "mae": 1.666851099907724,
+    "bias": 0.49905336896774416,
+    "skill": 0.7656176635407264
+   },
+   "highest third": {
+    "hours": 22474,
+    "devices": 47,
+    "mean_measured": 40.91465020581023,
+    "mae": 1.3105636098209226,
+    "bias": 0.12412539356780555,
+    "skill": 0.7646126091715069
+   }
+  },
+  "by_own_level": {
+   "coolest 10 %": {
+    "hours": 9107,
+    "devices": 62,
+    "mean_measured": 29.820342986629598,
+    "mae": 1.5369423195239416,
+    "bias": 0.053248885533422434,
+    "skill": 0.7172039733745694
+   },
+   "hottest 10 %": {
+    "hours": 9108,
+    "devices": 62,
+    "mean_measured": 50.65556950461118,
+    "mae": 2.3725002870177967,
+    "bias": 1.255668976707603,
+    "skill": 0.7897685522466003
+   },
+   "middle 80 %": {
+    "hours": 72631,
+    "devices": 62,
+    "mean_measured": 39.74899955650164,
+    "mae": 1.442445837446858,
+    "bias": 0.2638203537486891,
+    "skill": 0.7948553998621655
+   }
+  },
+  "band_by_own_level": {
+   "coolest 10 %": {
+    "inside": 0.7908202481607555,
+    "above": 0.1197979576150214
+   },
+   "middle 80 %": {
+    "inside": 0.8553234844625573,
+    "above": 0.10739216037229282
+   },
+   "hottest 10 %": {
+    "inside": 0.7619675010979359,
+    "above": 0.22332015810276679
+   },
+   "all": {
+    "inside": 0.8394976113422715,
+    "above": 0.12025845937080333
+   }
+  },
+  "hottest_10pct_devices": {
+   "devices": 62,
+   "predicted_too_low": 44,
+   "too_low_by_more_than_1": 32,
+   "median_bias": 1.1103533855056
+  },
+  "by_own_level_without_bp3235300141": {
+   "coolest 10 %": {
+    "hours": 8946,
+    "devices": 61,
+    "mean_measured": 29.627852336873744,
+    "mae": 1.359851096147521,
+    "bias": -0.15054417585691202,
+    "skill": 0.7475721565932673
+   },
+   "hottest 10 %": {
+    "hours": 8947,
+    "devices": 61,
+    "mean_measured": 50.489204412177166,
+    "mae": 2.2128198386862343,
+    "bias": 1.0758913068537492,
+    "skill": 0.8048646952359245
+   },
+   "middle 80 %": {
+    "hours": 71347,
+    "devices": 61,
+    "mean_measured": 39.55426321552512,
+    "mae": 1.2713750678797326,
+    "bias": 0.07215110166840055,
+    "skill": 0.8210168011933714
+   }
+  },
+  "by_measured_band_without_bp3235300141": {
+   "below 30 \u00b0C": {
+    "hours": 8460,
+    "devices": 47,
+    "mean_measured": 26.81347497613968,
+    "mae": 1.1653532156112885,
+    "bias": -0.39428407674334065,
+    "skill": 0.7735509052019455
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39342,
+    "devices": 60,
+    "mean_measured": 35.39706687374771,
+    "mae": 1.0819761664788772,
+    "bias": -0.12930695986193383,
+    "skill": 0.7884615015274998
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 33120,
+    "devices": 61,
+    "mean_measured": 44.59807710323809,
+    "mae": 1.5269624190974316,
+    "bias": 0.2231398054727664,
+    "skill": 0.828052160242238
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 8095,
+    "devices": 56,
+    "mean_measured": 52.93516452664238,
+    "mae": 2.251164561134744,
+    "bias": 1.6071014626952678,
+    "skill": 0.8400664955423536
+   },
+   "60 \u00b0C or more": {
+    "hours": 223,
+    "devices": 16,
+    "mean_measured": 61.990236645524924,
+    "mae": 6.5020492479846705,
+    "bias": 6.5020492479846705,
+    "skill": 0.6003661505832432
+   }
+  },
+  "by_configuration_without_bp3235300141": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 20447,
+    "devices": 13,
+    "mean_measured": 36.12801382634504,
+    "mae": 0.9808608314175405,
+    "bias": -0.5027922372444439,
+    "skill": 0.8011760015741101
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 40.016252567513476,
+    "mae": 1.923116567864273,
+    "bias": 0.8824781463321899,
+    "skill": 0.8437896789183681
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 47.392701132646316,
+    "mae": 1.7662103905942326,
+    "bias": 0.3872385521888874,
+    "skill": 0.8302027347218635
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 35.996297694770455,
+    "mae": 1.0325091439900873,
+    "bias": -0.10004366517981428,
+    "skill": 0.7276791950534499
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 42.1379961986727,
+    "mae": 1.0729788470868213,
+    "bias": 0.4155275594831117,
+    "skill": 0.8319372633053101
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 37.23012273621282,
+    "mae": 1.7008023092952247,
+    "bias": -0.21783804334844667,
+    "skill": 0.6723151536426409
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 44.228659730836014,
+    "mae": 0.7863960933223032,
+    "bias": -0.14062308601249834,
+    "skill": 0.7143577103534087
+   }
+  },
+  "by_measured_band": {
+   "below 30 \u00b0C": {
+    "hours": 8461,
+    "devices": 48,
+    "mean_measured": 26.813802060214524,
+    "mae": 1.1666201504910805,
+    "bias": -0.3928328093623838,
+    "skill": 0.7733880780309389
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39389,
+    "devices": 61,
+    "mean_measured": 35.39922216596659,
+    "mae": 1.094557872902411,
+    "bias": -0.11527991827025616,
+    "skill": 0.7863056447352507
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 33804,
+    "devices": 62,
+    "mean_measured": 44.63246414097273,
+    "mae": 1.7219412901049789,
+    "bias": 0.4436888572839357,
+    "skill": 0.8037395446440648
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 8909,
+    "devices": 57,
+    "mean_measured": 53.0291999002659,
+    "mae": 3.026782576114216,
+    "bias": 2.439739620088207,
+    "skill": 0.7691910931581876
+   },
+   "60 \u00b0C or more": {
+    "hours": 283,
+    "devices": 17,
+    "mean_measured": 62.0136980772442,
+    "mae": 7.821651757233275,
+    "bias": 7.821651757233275,
+    "skill": 0.4785330961595464
+   }
+  },
+  "by_predicted_band": {
+   "below 30 \u00b0C": {
+    "hours": 8503,
+    "devices": 48,
+    "mean_measured": 27.1965960863861,
+    "mae": 1.2981900477761321,
+    "bias": 0.23571593712650915,
+    "skill": 0.752471787386486
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 40166,
+    "devices": 61,
+    "mean_measured": 35.781215299499166,
+    "mae": 1.3069551935028616,
+    "bias": 0.3948046958027612,
+    "skill": 0.7526739065661266
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 34832,
+    "devices": 62,
+    "mean_measured": 44.8826306672603,
+    "mae": 1.7849049397478127,
+    "bias": 0.29935185219442106,
+    "skill": 0.8002441257657568
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 7305,
+    "devices": 56,
+    "mean_measured": 52.79509038164766,
+    "mae": 1.9980625078009704,
+    "bias": 0.37516680068706393,
+    "skill": 0.8453178543574245
+   },
+   "60 \u00b0C or more": {
+    "hours": 40,
+    "devices": 4,
+    "mean_measured": 62.33751333333332,
+    "mae": 1.7655544601768987,
+    "bias": 1.3367883467818724,
+    "skill": 0.8667743617602672
+   }
+  },
+  "by_air_temperature": {
+   "below 10 \u00b0C": {
+    "hours": 2153,
+    "devices": 48,
+    "mean_measured": 25.035211749184906,
+    "mae": 1.8781278108191177,
+    "bias": 0.6706381178166798,
+    "skill": 0.6779548415974905
+   },
+   "10 to 15 \u00b0C": {
+    "hours": 10534,
+    "devices": 49,
+    "mean_measured": 30.84256858306955,
+    "mae": 1.6283921672887751,
+    "bias": 0.48693005290411245,
+    "skill": 0.710934331893882
+   },
+   "15 to 20 \u00b0C": {
+    "hours": 27067,
+    "devices": 61,
+    "mean_measured": 36.13723960491052,
+    "mae": 1.456028006917163,
+    "bias": 0.41426161728194794,
+    "skill": 0.7529283056000979
+   },
+   "20 to 25 \u00b0C": {
+    "hours": 33626,
+    "devices": 62,
+    "mean_measured": 41.94135514501233,
+    "mae": 1.539661190007503,
+    "bias": 0.3368287909886026,
+    "skill": 0.7942618138449452
+   },
+   "25 to 30 \u00b0C": {
+    "hours": 14404,
+    "devices": 62,
+    "mean_measured": 47.85781808188108,
+    "mae": 1.5374332560733641,
+    "bias": 0.0381692790760826,
+    "skill": 0.8464063792627732
+   },
+   "30 \u00b0C or more": {
+    "hours": 3062,
+    "devices": 18,
+    "mean_measured": 53.3531237497525,
+    "mae": 1.9094421331979026,
+    "bias": 0.4641042756402367,
+    "skill": 0.8364306439176045
+   }
+  },
+  "training_range": {
+   "reading above the device's fit-months maximum": {
+    "share_of_all_hours": 0.007507210003742598,
+    "share_of_hottest_10pct": 0.06159420289855073,
+    "hottest_10pct_outside": {
+     "hours": 561,
+     "devices": 35,
+     "mean_measured": 55.6437571145671,
+     "mae": 3.7621861551469813,
+     "bias": 3.546242937286045,
+     "skill": 0.797989071276279
+    },
+    "hottest_10pct_inside": {
+     "hours": 8547,
+     "devices": 61,
+     "mean_measured": 50.328159507046514,
+     "mae": 2.281285384476499,
+     "bias": 1.1053224233105623,
+     "skill": 0.7888384105441049
+    }
+   },
+   "reading above the device's fit-months 99th percentile": {
+    "share_of_all_hours": 0.03669946943178566,
+    "share_of_hottest_10pct": 0.30368906455862976,
+    "hottest_10pct_outside": {
+     "hours": 2766,
+     "devices": 56,
+     "mean_measured": 54.419498286784815,
+     "mae": 3.285196216138215,
+     "bias": 2.9423240097827423,
+     "skill": 0.819556249732279
+    },
+    "hottest_10pct_inside": {
+     "hours": 6342,
+     "devices": 52,
+     "mean_measured": 49.0139695343349,
+     "mae": 1.9744370672216636,
+     "bias": 0.5200512186682089,
+     "skill": 0.7611562407599772
+    }
+   },
+   "air temperature above the city's fit-months maximum": {
+    "share_of_all_hours": 0.001155802126675913,
+    "share_of_hottest_10pct": 0.01108915239350022,
+    "hottest_10pct_outside": {
+     "hours": 101,
+     "devices": 11,
+     "mean_measured": 57.75152007378862,
+     "mae": 2.845666274313071,
+     "bias": 2.77939249978882,
+     "skill": 0.817192577383803
+    },
+    "hottest_10pct_inside": {
+     "hours": 9007,
+     "devices": 62,
+     "mean_measured": 50.57599905857067,
+     "mae": 2.367194439930329,
+     "bias": 1.2385827020510911,
+     "skill": 0.7893425563378444
+    }
+   },
+   "air temperature above the city's fit-months 99th percentile": {
+    "share_of_all_hours": 0.015443717940250535,
+    "share_of_hottest_10pct": 0.12220026350461133,
+    "hottest_10pct_outside": {
+     "hours": 1113,
+     "devices": 38,
+     "mean_measured": 54.795237148719266,
+     "mae": 2.1258053262457155,
+     "bias": 1.02242297902022,
+     "skill": 0.8669842070987954
+    },
+    "hottest_10pct_inside": {
+     "hours": 7995,
+     "devices": 62,
+     "mean_measured": 50.07927806147269,
+     "mae": 2.406843187748169,
+     "bias": 1.288139620288098,
+     "skill": 0.7736096259627521
+    }
+   }
+  },
+  "by_month_context": {
+   "2026-03": {
+    "mean_reading": 21.420417510530132,
+    "p90_reading": 33.376053333333346,
+    "mean_air": 5.253065586090088,
+    "p90_air": 15.649999618530273
+   },
+   "2026-04": {
+    "mean_reading": 27.390016576786884,
+    "p90_reading": 38.31311,
+    "mean_air": 10.564253807067871,
+    "p90_air": 20.200000762939453
+   },
+   "2026-05": {
+    "mean_reading": 33.475337675448344,
+    "p90_reading": 44.27433333333334,
+    "mean_air": 15.618738174438477,
+    "p90_air": 23.850000381469727
+   },
+   "2026-06": {
+    "mean_reading": 40.58902673646604,
+    "p90_reading": 50.16720333333333,
+    "mean_air": 21.383657455444336,
+    "p90_air": 27.5
+   },
+   "2026-07": {
+    "mean_reading": 43.31139441944141,
+    "p90_reading": 52.45896666666667,
+    "mean_air": 24.23676300048828,
+    "p90_air": 29.799999237060547
+   },
+   "2026-08": {
+    "mean_reading": 42.262020734085866,
+    "p90_reading": 51.73996666666667,
+    "mean_air": 22.705177307128906,
+    "p90_air": 28.350000381469727
+   },
+   "2026-09": {
+    "mean_reading": 38.35166517668132,
+    "p90_reading": 48.18913333333333,
+    "mean_air": 18.986328125,
+    "p90_air": 25.350000381469727
+   },
+   "2026-10": {
+    "mean_reading": 34.13654385221732,
+    "p90_reading": 43.64546666666667,
+    "mean_air": 15.527182579040527,
+    "p90_air": 21.804999351501483
+   }
+  }
+ },
+ "gpu_temp_celsius": {
+  "all": {
+   "hours": 90846,
+   "devices": 62,
+   "mean_measured": 39.595353442527006,
+   "mae": 1.625474262127614,
+   "bias": 0.2670585957382855,
+   "skill": 0.7878934609960389
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 36.79563332251579,
+    "mae": 1.8313436288207405,
+    "bias": 0.27916163867086247,
+    "skill": 0.6301070456657443
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 40.111272844436144,
+    "mae": 1.8402121364095718,
+    "bias": 0.6013609778097532,
+    "skill": 0.8607488116317473
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 47.73291627336984,
+    "mae": 2.014295787234481,
+    "bias": 0.2546804895563652,
+    "skill": 0.8208925004909668
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 35.17282506083162,
+    "mae": 1.0630786977123499,
+    "bias": -0.026960215695871804,
+    "skill": 0.7206008802601176
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 41.745585839039215,
+    "mae": 1.2445411715238115,
+    "bias": 0.4323396144923938,
+    "skill": 0.8070395870973388
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 36.835506516569495,
+    "mae": 1.692553884333947,
+    "bias": -0.18604580759981776,
+    "skill": 0.6791322274253744
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 44.8127421819441,
+    "mae": 0.8879691281563378,
+    "bias": -0.2563608555039853,
+    "skill": 0.708693166987896
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70426,
+    "devices": 49,
+    "mean_measured": 37.97720754667917,
+    "mae": 1.5346232967755313,
+    "bias": 0.30062972881286154,
+    "skill": 0.7817306478516285
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 45.176134189881566,
+    "mae": 1.9388077629055651,
+    "bias": 0.15127599936658695,
+    "skill": 0.8030722615905984
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 42.5632497850613,
+    "mae": 1.7526617214625924,
+    "bias": 0.37609157423562933,
+    "skill": 0.8310371723844008
+   },
+   "no video analytics": {
+    "hours": 41325,
+    "devices": 26,
+    "mean_measured": 36.038833302692986,
+    "mae": 1.4730616747415899,
+    "bias": 0.1364010729756246,
+    "skill": 0.6664645728966238
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 35.55510841252407,
+    "mae": 0.9542996703930835,
+    "bias": -0.3276293445915181,
+    "skill": 0.8922333620755782
+   },
+   "not running": {
+    "hours": 46385,
+    "devices": 44,
+    "mean_measured": 36.175460793197374,
+    "mae": 1.5097149221984445,
+    "bias": 0.1390610646524373,
+    "skill": 0.6277336713588888
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 44.00033372879999,
+    "mae": 1.833377677726271,
+    "bias": 0.4807190349566037,
+    "skill": 0.8434435997377387
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37277,
+    "devices": 41,
+    "mean_measured": 35.9466412936769,
+    "mae": 1.5374990076978612,
+    "bias": 0.22412361324716026,
+    "skill": 0.5878429521145885
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 36.32797522184937,
+    "mae": 1.3869778718750727,
+    "bias": -0.2577018120495998,
+    "skill": 0.7754319683490567
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 43.55683147071443,
+    "mae": 1.7601178432615254,
+    "bias": 0.43281082221438893,
+    "skill": 0.8460796847658986
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22602,
+    "devices": 49,
+    "mean_measured": 35.24343129457992,
+    "mae": 1.5139079720701265,
+    "bias": 0.39684220196725045,
+    "skill": 0.8092044205199987
+   },
+   "middle third": {
+    "hours": 22441,
+    "devices": 48,
+    "mean_measured": 38.69225359905203,
+    "mae": 1.6995612962846243,
+    "bias": 0.41802887818608425,
+    "skill": 0.7703708846791062
+   },
+   "highest third": {
+    "hours": 22474,
+    "devices": 47,
+    "mean_measured": 40.438184068855065,
+    "mae": 1.37715613170389,
+    "bias": 0.19659652504714534,
+    "skill": 0.7584973975476511
+   }
+  },
+  "by_own_level": {
+   "coolest 10 %": {
+    "hours": 9108,
+    "devices": 62,
+    "mean_measured": 29.444877823674236,
+    "mae": 1.5953024615885285,
+    "bias": 0.04427415380074068,
+    "skill": 0.7186913157895944
+   },
+   "hottest 10 %": {
+    "hours": 9108,
+    "devices": 62,
+    "mean_measured": 50.52152427478699,
+    "mae": 2.362661769174033,
+    "bias": 1.0902648983060803,
+    "skill": 0.7988808198997053
+   },
+   "middle 80 %": {
+    "hours": 72630,
+    "devices": 62,
+    "mean_measured": 39.498079148107166,
+    "mae": 1.5368125651033984,
+    "bias": 0.19176405757746615,
+    "skill": 0.792355910325464
+   }
+  },
+  "band_by_own_level": {
+   "coolest 10 %": {
+    "inside": 0.8151075977162934,
+    "above": 0.10287659200702678
+   },
+   "middle 80 %": {
+    "inside": 0.8541374087842489,
+    "above": 0.10311166184772133
+   },
+   "hottest 10 %": {
+    "inside": 0.7933684672815108,
+    "above": 0.19598155467720685
+   },
+   "all": {
+    "inside": 0.8441318274882769,
+    "above": 0.11239900490940713
+   }
+  },
+  "hottest_10pct_devices": {
+   "devices": 62,
+   "predicted_too_low": 48,
+   "too_low_by_more_than_1": 31,
+   "median_bias": 1.013807016115266
+  },
+  "by_own_level_without_bp3235300141": {
+   "coolest 10 %": {
+    "hours": 8947,
+    "devices": 61,
+    "mean_measured": 29.25051432660041,
+    "mae": 1.4128281090288057,
+    "bias": -0.16611073386056163,
+    "skill": 0.7490755198798897
+   },
+   "hottest 10 %": {
+    "hours": 8947,
+    "devices": 61,
+    "mean_measured": 50.354420377537785,
+    "mae": 2.2061251392989445,
+    "bias": 0.9108316666415944,
+    "skill": 0.8132531286931367
+   },
+   "middle 80 %": {
+    "hours": 71346,
+    "devices": 61,
+    "mean_measured": 39.30454350845911,
+    "mae": 1.3687169510758783,
+    "bias": -9.705883499470953e-05,
+    "skill": 0.8169868020856242
+   }
+  },
+  "by_measured_band_without_bp3235300141": {
+   "below 30 \u00b0C": {
+    "hours": 9824,
+    "devices": 47,
+    "mean_measured": 26.708007213193735,
+    "mae": 1.1772206997467032,
+    "bias": -0.3696153970821015,
+    "skill": 0.7688670187334679
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39199,
+    "devices": 60,
+    "mean_measured": 35.26616080040486,
+    "mae": 1.1540725241664596,
+    "bias": -0.14004721841496612,
+    "skill": 0.781470019471609
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 31285,
+    "devices": 61,
+    "mean_measured": 44.624322035944125,
+    "mae": 1.691527862358907,
+    "bias": 0.0673480065199848,
+    "skill": 0.8209842474275012
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 8689,
+    "devices": 56,
+    "mean_measured": 52.99873104588869,
+    "mae": 2.180976614596033,
+    "bias": 1.4201269922138737,
+    "skill": 0.8571639642163064
+   },
+   "60 \u00b0C or more": {
+    "hours": 243,
+    "devices": 17,
+    "mean_measured": 62.105855649069774,
+    "mae": 5.587630851901243,
+    "bias": 5.475062478226826,
+    "skill": 0.6854874983140846
+   }
+  },
+  "by_configuration_without_bp3235300141": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 20447,
+    "devices": 13,
+    "mean_measured": 35.74225728831028,
+    "mae": 1.1126346424114326,
+    "bias": -0.5599237122747296,
+    "skill": 0.778352591935958
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 40.111272844436144,
+    "mae": 1.8402121364095718,
+    "bias": 0.6013609778097532,
+    "skill": 0.8607488116317473
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 47.73291627336984,
+    "mae": 2.014295787234481,
+    "bias": 0.2546804895563652,
+    "skill": 0.8208925004909668
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19272,
+    "devices": 12,
+    "mean_measured": 35.17282506083162,
+    "mae": 1.0630786977123499,
+    "bias": -0.026960215695871804,
+    "skill": 0.7206008802601176
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 41.745585839039215,
+    "mae": 1.2445411715238115,
+    "bias": 0.4323396144923938,
+    "skill": 0.8070395870973388
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 36.835506516569495,
+    "mae": 1.692553884333947,
+    "bias": -0.18604580759981776,
+    "skill": 0.6791322274253744
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 44.8127421819441,
+    "mae": 0.8879691281563378,
+    "bias": -0.2563608555039853,
+    "skill": 0.708693166987896
+   }
+  },
+  "by_measured_band": {
+   "below 30 \u00b0C": {
+    "hours": 9825,
+    "devices": 48,
+    "mean_measured": 26.708306296429036,
+    "mae": 1.1783210020819281,
+    "bias": -0.3683576559583951,
+    "skill": 0.7687241475809199
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39251,
+    "devices": 61,
+    "mean_measured": 35.26889114467574,
+    "mae": 1.1687977346649097,
+    "bias": -0.1236075490081,
+    "skill": 0.7789836726418027
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 32014,
+    "devices": 62,
+    "mean_measured": 44.66078923477855,
+    "mae": 1.9042557957712969,
+    "bias": 0.31642594961545584,
+    "skill": 0.7955627673856032
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 9452,
+    "devices": 57,
+    "mean_measured": 53.07837630925731,
+    "mae": 2.8702906856431047,
+    "bias": 2.169679892744938,
+    "skill": 0.7996956678780274
+   },
+   "60 \u00b0C or more": {
+    "hours": 304,
+    "devices": 18,
+    "mean_measured": 62.05198592245099,
+    "mae": 6.97867921689796,
+    "bias": 6.888698576099,
+    "skill": 0.5693805077772849
+   }
+  },
+  "by_predicted_band": {
+   "below 30 \u00b0C": {
+    "hours": 9805,
+    "devices": 48,
+    "mean_measured": 27.040205138880353,
+    "mae": 1.251382077381607,
+    "bias": 0.22862754166816016,
+    "skill": 0.7563289536834868
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39692,
+    "devices": 61,
+    "mean_measured": 35.602384679651514,
+    "mae": 1.381052418648447,
+    "bias": 0.3900148034886164,
+    "skill": 0.746243146522297
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 33416,
+    "devices": 62,
+    "mean_measured": 44.86250592033086,
+    "mae": 1.9257589178857963,
+    "bias": 0.15740981733091705,
+    "skill": 0.7981799532267532
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 7853,
+    "devices": 51,
+    "mean_measured": 52.81534814117891,
+    "mae": 2.052705470371408,
+    "bias": 0.16407973910696755,
+    "skill": 0.8531081391018189
+   },
+   "60 \u00b0C or more": {
+    "hours": 80,
+    "devices": 10,
+    "mean_measured": 61.69984952380953,
+    "mae": 1.3780611078246858,
+    "bias": -0.11850106028903103,
+    "skill": 0.9102115497254128
+   }
+  },
+  "by_air_temperature": {
+   "below 10 \u00b0C": {
+    "hours": 2153,
+    "devices": 48,
+    "mean_measured": 24.73234394015447,
+    "mae": 1.846293886471984,
+    "bias": 0.7594818929452263,
+    "skill": 0.6956533355192909
+   },
+   "10 to 15 \u00b0C": {
+    "hours": 10534,
+    "devices": 49,
+    "mean_measured": 30.405939527780184,
+    "mae": 1.6200535154207953,
+    "bias": 0.43330126631194543,
+    "skill": 0.7251481858264712
+   },
+   "15 to 20 \u00b0C": {
+    "hours": 27067,
+    "devices": 61,
+    "mean_measured": 35.762760308373004,
+    "mae": 1.5214547820531248,
+    "bias": 0.30839939446642656,
+    "skill": 0.7540551185757268
+   },
+   "20 to 25 \u00b0C": {
+    "hours": 33626,
+    "devices": 62,
+    "mean_measured": 41.7051435964317,
+    "mae": 1.6367183617711591,
+    "bias": 0.29865769630438027,
+    "skill": 0.7911914783385008
+   },
+   "25 to 30 \u00b0C": {
+    "hours": 14404,
+    "devices": 62,
+    "mean_measured": 47.85252436808188,
+    "mae": 1.6999367436811188,
+    "bias": -0.058996221526579934,
+    "skill": 0.8390301034622476
+   },
+   "30 \u00b0C or more": {
+    "hours": 3062,
+    "devices": 18,
+    "mean_measured": 53.52678723475623,
+    "mae": 1.9345928391563132,
+    "bias": 0.1702536259027381,
+    "skill": 0.8437697520262349
+   }
+  },
+  "training_range": {
+   "reading above the device's fit-months maximum": {
+    "share_of_all_hours": 0.009378508685027409,
+    "share_of_hottest_10pct": 0.08102766798418973,
+    "hottest_10pct_outside": {
+     "hours": 738,
+     "devices": 36,
+     "mean_measured": 55.17896979913252,
+     "mae": 3.495180546436389,
+     "bias": 3.0156527475006536,
+     "skill": 0.8262347254550743
+    },
+    "hottest_10pct_inside": {
+     "hours": 8370,
+     "devices": 61,
+     "mean_measured": 50.11086778769416,
+     "mae": 2.262805274834771,
+     "bias": 0.9204995180545158,
+     "skill": 0.7944745064520314
+    }
+   },
+   "reading above the device's fit-months 99th percentile": {
+    "share_of_all_hours": 0.04211522796820994,
+    "share_of_hottest_10pct": 0.31016688625384276,
+    "hottest_10pct_outside": {
+     "hours": 2825,
+     "devices": 56,
+     "mean_measured": 54.42852751880396,
+     "mae": 3.0775030822643767,
+     "bias": 2.5221444611698653,
+     "skill": 0.8390350856513518
+    },
+    "hottest_10pct_inside": {
+     "hours": 6283,
+     "devices": 49,
+     "mean_measured": 48.7648341324429,
+     "mae": 2.0412505469107476,
+     "bias": 0.4464546539816824,
+     "skill": 0.7579490150110775
+    }
+   },
+   "air temperature above the city's fit-months maximum": {
+    "share_of_all_hours": 0.001155802126675913,
+    "share_of_hottest_10pct": 0.01108915239350022,
+    "hottest_10pct_outside": {
+     "hours": 101,
+     "devices": 11,
+     "mean_measured": 57.76639779091608,
+     "mae": 2.5956925905060255,
+     "bias": 2.2724559658727848,
+     "skill": 0.8380700721646269
+    },
+    "hottest_10pct_inside": {
+     "hours": 9007,
+     "devices": 62,
+     "mean_measured": 50.44028388118989,
+     "mae": 2.36004867791673,
+     "bias": 1.0770083980480327,
+     "skill": 0.7982787248349522
+    }
+   },
+   "air temperature above the city's fit-months 99th percentile": {
+    "share_of_all_hours": 0.015443717940250535,
+    "share_of_hottest_10pct": 0.12154150197628459,
+    "hottest_10pct_outside": {
+     "hours": 1107,
+     "devices": 38,
+     "mean_measured": 55.057750201471954,
+     "mae": 2.0872060850004996,
+     "bias": 0.6579048075318008,
+     "skill": 0.8756717186031098
+    },
+    "hottest_10pct_inside": {
+     "hours": 8001,
+     "devices": 62,
+     "mean_measured": 49.89390246490819,
+     "mae": 2.400773185544499,
+     "bias": 1.1500852483232191,
+     "skill": 0.7827395361045071
+    }
+   }
+  },
+  "by_month_context": {
+   "2026-03": {
+    "mean_reading": 20.846758933822183,
+    "p90_reading": 32.88584666666667,
+    "mean_air": 5.253065586090088,
+    "p90_air": 15.649999618530273
+   },
+   "2026-04": {
+    "mean_reading": 26.791313344471824,
+    "p90_reading": 37.850273333333334,
+    "mean_air": 10.564253807067871,
+    "p90_air": 20.200000762939453
+   },
+   "2026-05": {
+    "mean_reading": 33.01417517719173,
+    "p90_reading": 44.36571333333334,
+    "mean_air": 15.618738174438477,
+    "p90_air": 23.850000381469727
+   },
+   "2026-06": {
+    "mean_reading": 40.25415753231473,
+    "p90_reading": 50.22045,
+    "mean_air": 21.383657455444336,
+    "p90_air": 27.5
+   },
+   "2026-07": {
+    "mean_reading": 43.05431130126706,
+    "p90_reading": 52.51580666666666,
+    "mean_air": 24.23676300048828,
+    "p90_air": 29.799999237060547
+   },
+   "2026-08": {
+    "mean_reading": 42.036489664315724,
+    "p90_reading": 52.01425333333333,
+    "mean_air": 22.705177307128906,
+    "p90_air": 28.350000381469727
+   },
+   "2026-09": {
+    "mean_reading": 38.08897162285258,
+    "p90_reading": 48.45018333333333,
+    "mean_air": 18.986328125,
+    "p90_air": 25.350000381469727
+   },
+   "2026-10": {
+    "mean_reading": 33.79276917113091,
+    "p90_reading": 43.960033333333335,
+    "mean_air": 15.527182579040527,
+    "p90_air": 21.804999351501483
+   }
+  }
+ },
+ "board_temp_celsius": {
+  "all": {
+   "hours": 90823,
+   "devices": 62,
+   "mean_measured": 32.45586043233695,
+   "mae": 1.1651176328199995,
+   "bias": 0.11698857819789851,
+   "skill": 0.8283167183863149
+  },
+  "by_configuration": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 22053,
+    "devices": 14,
+    "mean_measured": 29.847797018084982,
+    "mae": 0.7088760453166744,
+    "bias": -0.2279775896551066,
+    "skill": 0.8565587507391924
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 31.510961982933033,
+    "mae": 1.1641181828140168,
+    "bias": 0.34339935595555743,
+    "skill": 0.8879620899768191
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 38.89341651808907,
+    "mae": 1.91703503051425,
+    "bias": 0.530521450500471,
+    "skill": 0.7821101704186766
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19249,
+    "devices": 12,
+    "mean_measured": 29.78393990819521,
+    "mae": 0.8724133393145355,
+    "bias": -0.23949678163074756,
+    "skill": 0.7882497580730927
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 35.642801335893175,
+    "mae": 1.3377720682065186,
+    "bias": 0.5918178887296692,
+    "skill": 0.80678445204647
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 30.25764062332951,
+    "mae": 1.6535983409351633,
+    "bias": -0.11248177624603248,
+    "skill": 0.6943796350469043
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 46.48006381532705,
+    "mae": 0.6573440928118667,
+    "bias": 0.27032691224148,
+    "skill": 0.6800262095187455
+   }
+  },
+  "by_enclosure_sensor": {
+   "enclosure sensor": {
+    "hours": 70403,
+    "devices": 49,
+    "mean_measured": 31.17635681801276,
+    "mae": 0.9649553090391493,
+    "bias": 0.04080272257987044,
+    "skill": 0.8500100497704484
+   },
+   "no enclosure sensor": {
+    "hours": 20420,
+    "devices": 13,
+    "mean_measured": 36.867265572359734,
+    "mae": 1.8552267455106553,
+    "bias": 0.379658156703091,
+    "skill": 0.7681947878422883
+   }
+  },
+  "by_video_analytics_device": {
+   "has video analytics": {
+    "hours": 49521,
+    "devices": 36,
+    "mean_measured": 34.65588508134852,
+    "mae": 1.4820692427409927,
+    "bias": 0.40917826723899076,
+    "skill": 0.8285494259756192
+   },
+   "no video analytics": {
+    "hours": 41302,
+    "devices": 26,
+    "mean_measured": 29.818036098316732,
+    "mae": 0.7850934045768756,
+    "bias": -0.23334616566447935,
+    "skill": 0.8277876627397976
+   }
+  },
+  "by_app_running": {
+   "not reported": {
+    "hours": 4407,
+    "devices": 3,
+    "mean_measured": 28.869847450617435,
+    "mae": 0.7445173805595422,
+    "bias": -0.34557318586174074,
+    "skill": 0.9092693779800646
+   },
+   "not running": {
+    "hours": 46362,
+    "devices": 44,
+    "mean_measured": 30.299239438321713,
+    "mae": 0.9573844634917693,
+    "bias": -0.08655669663114274,
+    "skill": 0.7858621306645625
+   },
+   "running": {
+    "hours": 40054,
+    "devices": 36,
+    "mean_measured": 35.346678371493375,
+    "mae": 1.451843315850589,
+    "bias": 0.4034837029253874,
+    "skill": 0.8440638219715212
+   }
+  },
+  "by_memory_in_use": {
+   "below 4 GB": {
+    "hours": 37254,
+    "devices": 41,
+    "mean_measured": 29.767309899445472,
+    "mae": 0.8471983242617868,
+    "bias": -0.25152430113501995,
+    "skill": 0.7879303150145234
+   },
+   "4 to 6 GB": {
+    "hours": 10541,
+    "devices": 35,
+    "mean_measured": 31.217290922338808,
+    "mae": 1.1818818050387927,
+    "bias": 0.37360669692465515,
+    "skill": 0.8239348095502649
+   },
+   "6 GB or more": {
+    "hours": 43028,
+    "devices": 41,
+    "mean_measured": 35.08705460258026,
+    "mae": 1.4362679252265569,
+    "bias": 0.3731837817204839,
+    "skill": 0.8442465238151987
+   }
+  },
+  "by_motion_count_third": {
+   "lowest third": {
+    "hours": 22598,
+    "devices": 49,
+    "mean_measured": 27.632211138699418,
+    "mae": 0.7120995803955724,
+    "bias": 0.07652491023533914,
+    "skill": 0.8935168562375819
+   },
+   "middle third": {
+    "hours": 22436,
+    "devices": 48,
+    "mean_measured": 31.755072845491675,
+    "mae": 0.941739830783788,
+    "bias": 0.034763811138071754,
+    "skill": 0.8629845840149404
+   },
+   "highest third": {
+    "hours": 22460,
+    "devices": 47,
+    "mean_measured": 34.53477686302291,
+    "mae": 1.1933081251446889,
+    "bias": 0.025457754845339468,
+    "skill": 0.7922009629862335
+   }
+  },
+  "by_own_level": {
+   "coolest 10 %": {
+    "hours": 9101,
+    "devices": 62,
+    "mean_measured": 22.17414444456155,
+    "mae": 1.0741917085163215,
+    "bias": -0.28368057623217413,
+    "skill": 0.7782466386951442
+   },
+   "hottest 10 %": {
+    "hours": 9100,
+    "devices": 62,
+    "mean_measured": 43.89307555955808,
+    "mae": 1.8540698542101297,
+    "bias": 0.9835392373705526,
+    "skill": 0.8215174042814628
+   },
+   "middle 80 %": {
+    "hours": 72622,
+    "devices": 62,
+    "mean_measured": 32.31121059546977,
+    "mae": 1.0901823738411445,
+    "bias": 0.058616170057072564,
+    "skill": 0.8342824810862134
+   }
+  },
+  "band_by_own_level": {
+   "coolest 10 %": {
+    "inside": 0.7935391715196133,
+    "above": 0.11042742555763103
+   },
+   "middle 80 %": {
+    "inside": 0.857095645947509,
+    "above": 0.09349783812067969
+   },
+   "hottest 10 %": {
+    "inside": 0.8203296703296703,
+    "above": 0.17087912087912088
+   },
+   "all": {
+    "inside": 0.8470431498629202,
+    "above": 0.1029474912742367
+   }
+  },
+  "hottest_10pct_devices": {
+   "devices": 62,
+   "predicted_too_low": 48,
+   "too_low_by_more_than_1": 29,
+   "median_bias": 0.9514544167342261
+  },
+  "by_own_level_without_bp3235300141": {
+   "coolest 10 %": {
+    "hours": 8940,
+    "devices": 61,
+    "mean_measured": 22.195205214190025,
+    "mae": 1.0881579531825507,
+    "bias": -0.29076867432848197,
+    "skill": 0.7732987463141241
+   },
+   "hottest 10 %": {
+    "hours": 8939,
+    "devices": 61,
+    "mean_measured": 43.8964848253487,
+    "mae": 1.869521871826437,
+    "bias": 0.9942289138877611,
+    "skill": 0.821870983204384
+   },
+   "middle 80 %": {
+    "hours": 71338,
+    "devices": 61,
+    "mean_measured": 32.337581665149,
+    "mae": 1.1007746950531825,
+    "bias": 0.06001191453830191,
+    "skill": 0.8340823137780526
+   }
+  },
+  "by_measured_band_without_bp3235300141": {
+   "below 30 \u00b0C": {
+    "hours": 35476,
+    "devices": 59,
+    "mean_measured": 25.124986828185754,
+    "mae": 0.754452753094412,
+    "bias": -0.2593288905464453,
+    "skill": 0.8478913587565249
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 38450,
+    "devices": 61,
+    "mean_measured": 34.86571348390032,
+    "mae": 1.317151279408956,
+    "bias": 0.12077716986485072,
+    "skill": 0.8123721657516282
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 14640,
+    "devices": 61,
+    "mean_measured": 43.14734581215592,
+    "mae": 1.7104649195388204,
+    "bias": 0.8671434303090803,
+    "skill": 0.8403055162255287
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 643,
+    "devices": 28,
+    "mean_measured": 52.29217252628743,
+    "mae": 3.84869541723713,
+    "bias": 3.714862861660593,
+    "skill": 0.6588798487079788
+   },
+   "60 \u00b0C or more": {
+    "hours": 8,
+    "devices": 1,
+    "mean_measured": 61.5609375,
+    "mae": 5.187896503617024,
+    "bias": 5.187896503617024,
+    "skill": 0.46609700174498503
+   }
+  },
+  "by_configuration_without_bp3235300141": {
+   "12 V, no solar, enclosure sensor, no video analytics": {
+    "hours": 20447,
+    "devices": 13,
+    "mean_measured": 29.74563842572213,
+    "mae": 0.7228550873561043,
+    "bias": -0.248631738164638,
+    "skill": 0.8559973162706808
+   },
+   "12 V, no solar, enclosure sensor, video analytics": {
+    "hours": 18609,
+    "devices": 15,
+    "mean_measured": 31.510961982933033,
+    "mae": 1.1641181828140168,
+    "bias": 0.34339935595555743,
+    "skill": 0.8879620899768191
+   },
+   "12 V, no solar, no enclosure sensor, video analytics": {
+    "hours": 15629,
+    "devices": 10,
+    "mean_measured": 38.89341651808907,
+    "mae": 1.91703503051425,
+    "bias": 0.530521450500471,
+    "skill": 0.7821101704186766
+   },
+   "12 V, solar, enclosure sensor, no video analytics": {
+    "hours": 19249,
+    "devices": 12,
+    "mean_measured": 29.78393990819521,
+    "mae": 0.8724133393145355,
+    "bias": -0.23949678163074756,
+    "skill": 0.7882497580730927
+   },
+   "12 V, solar, enclosure sensor, video analytics": {
+    "hours": 10214,
+    "devices": 7,
+    "mean_measured": 35.642801335893175,
+    "mae": 1.3377720682065186,
+    "bias": 0.5918178887296692,
+    "skill": 0.80678445204647
+   },
+   "12 V, solar, no enclosure sensor, video analytics": {
+    "hours": 4791,
+    "devices": 3,
+    "mean_measured": 30.25764062332951,
+    "mae": 1.6535983409351633,
+    "bias": -0.11248177624603248,
+    "skill": 0.6943796350469043
+   },
+   "56 V, no solar, enclosure sensor, video analytics": {
+    "hours": 278,
+    "devices": 1,
+    "mean_measured": 46.48006381532705,
+    "mae": 0.6573440928118667,
+    "bias": 0.27032691224148,
+    "skill": 0.6800262095187455
+   }
+  },
+  "by_measured_band": {
+   "below 30 \u00b0C": {
+    "hours": 36250,
+    "devices": 60,
+    "mean_measured": 25.142933683610867,
+    "mae": 0.7453530374549435,
+    "bias": -0.25200940640837877,
+    "skill": 0.8494196198778502
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 39114,
+    "devices": 62,
+    "mean_measured": 34.85189224623815,
+    "mae": 1.3058387303453685,
+    "bias": 0.11704540270286838,
+    "skill": 0.8122570284956969
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 14797,
+    "devices": 62,
+    "mean_measured": 43.145670176036745,
+    "mae": 1.7020183499029486,
+    "bias": 0.8603435362025235,
+    "skill": 0.840019913012974
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 654,
+    "devices": 29,
+    "mean_measured": 52.280403059739264,
+    "mae": 3.818939393879958,
+    "bias": 3.6857404609079487,
+    "skill": 0.6612888621547754
+   },
+   "60 \u00b0C or more": {
+    "hours": 8,
+    "devices": 1,
+    "mean_measured": 61.5609375,
+    "mae": 5.187896503617024,
+    "bias": 5.187896503617024,
+    "skill": 0.46609700174498503
+   }
+  },
+  "by_predicted_band": {
+   "below 30 \u00b0C": {
+    "hours": 35892,
+    "devices": 60,
+    "mean_measured": 25.232003786636213,
+    "mae": 0.7585315569682921,
+    "bias": -0.011023602531207611,
+    "skill": 0.8485928997740109
+   },
+   "30 to 40 \u00b0C": {
+    "hours": 40186,
+    "devices": 62,
+    "mean_measured": 34.9490184441128,
+    "mae": 1.3570970276874352,
+    "bias": 0.2457165101047477,
+    "skill": 0.8110440935050158
+   },
+   "40 to 50 \u00b0C": {
+    "hours": 14451,
+    "devices": 61,
+    "mean_measured": 43.04008224699116,
+    "mae": 1.6252518141460408,
+    "bias": 0.054494315014768833,
+    "skill": 0.8380405838888871
+   },
+   "50 to 60 \u00b0C": {
+    "hours": 294,
+    "devices": 19,
+    "mean_measured": 53.326695203417145,
+    "mae": 1.9437040885481842,
+    "bias": 1.2212644842517844,
+    "skill": 0.8040191250855371
+   }
+  },
+  "by_air_temperature": {
+   "below 10 \u00b0C": {
+    "hours": 2153,
+    "devices": 48,
+    "mean_measured": 17.205040067824623,
+    "mae": 1.0535572677908032,
+    "bias": -0.11558620763984812,
+    "skill": 0.7932472602770066
+   },
+   "10 to 15 \u00b0C": {
+    "hours": 10531,
+    "devices": 49,
+    "mean_measured": 23.311742407827555,
+    "mae": 0.9990121225145159,
+    "bias": 0.06025781341828821,
+    "skill": 0.8070360998673014
+   },
+   "15 to 20 \u00b0C": {
+    "hours": 27051,
+    "devices": 61,
+    "mean_measured": 28.647400578564252,
+    "mae": 1.0166632317820368,
+    "bias": 0.13778363775702468,
+    "skill": 0.8176252055126167
+   },
+   "20 to 25 \u00b0C": {
+    "hours": 33622,
+    "devices": 62,
+    "mean_measured": 34.763687633443304,
+    "mae": 1.1689238607281107,
+    "bias": 0.13079902569283358,
+    "skill": 0.8364218981706857
+   },
+   "25 to 30 \u00b0C": {
+    "hours": 14404,
+    "devices": 62,
+    "mean_measured": 40.45202535247024,
+    "mae": 1.4030779539679377,
+    "bias": 0.04375423684108973,
+    "skill": 0.8439223864201297
+   },
+   "30 \u00b0C or more": {
+    "hours": 3062,
+    "devices": 18,
+    "mean_measured": 45.3179913925298,
+    "mae": 1.9651611131829687,
+    "bias": 0.4847778103656289,
+    "skill": 0.801579540793097
+   }
+  },
+  "training_range": {
+   "reading above the device's fit-months maximum": {
+    "share_of_all_hours": 0.004745493982801713,
+    "share_of_hottest_10pct": 0.03604395604395604,
+    "hottest_10pct_outside": {
+     "hours": 328,
+     "devices": 35,
+     "mean_measured": 47.84423741931039,
+     "mae": 2.915192272383656,
+     "bias": 2.5316960387631338,
+     "skill": 0.7917375277796111
+    },
+    "hottest_10pct_inside": {
+     "hours": 8772,
+     "devices": 61,
+     "mean_measured": 43.745334897223515,
+     "mae": 1.8143926821671614,
+     "bias": 0.9256510213586094,
+     "skill": 0.823037615640799
+    }
+   },
+   "reading above the device's fit-months 99th percentile": {
+    "share_of_all_hours": 0.02940885018112152,
+    "share_of_hottest_10pct": 0.27,
+    "hottest_10pct_outside": {
+     "hours": 2457,
+     "devices": 56,
+     "mean_measured": 46.898249443492475,
+     "mae": 2.3847560849530485,
+     "bias": 1.9765353910816552,
+     "skill": 0.8465945527323289
+    },
+    "hottest_10pct_inside": {
+     "hours": 6643,
+     "devices": 58,
+     "mean_measured": 42.781572890157676,
+     "mae": 1.657788645579187,
+     "bias": 0.6162666873678161,
+     "skill": 0.8045151638574578
+    }
+   },
+   "air temperature above the city's fit-months maximum": {
+    "share_of_all_hours": 0.001156094821796241,
+    "share_of_hottest_10pct": 0.01098901098901099,
+    "hottest_10pct_outside": {
+     "hours": 100,
+     "devices": 11,
+     "mean_measured": 48.984584122108984,
+     "mae": 3.054759420753029,
+     "bias": 2.875644689206469,
+     "skill": 0.7756266217423878
+    },
+    "hottest_10pct_inside": {
+     "hours": 9000,
+     "devices": 62,
+     "mean_measured": 43.8365032421964,
+     "mae": 1.8407288590263193,
+     "bias": 0.9625158434612648,
+     "skill": 0.8221879986296772
+    }
+   },
+   "air temperature above the city's fit-months 99th percentile": {
+    "share_of_all_hours": 0.01544762890457263,
+    "share_of_hottest_10pct": 0.12186813186813186,
+    "hottest_10pct_outside": {
+     "hours": 1109,
+     "devices": 38,
+     "mean_measured": 46.41945782340944,
+     "mae": 2.028960731232165,
+     "bias": 1.013644263244877,
+     "skill": 0.8542776683485238
+    },
+    "hottest_10pct_inside": {
+     "hours": 7991,
+     "devices": 62,
+     "mean_measured": 43.54246137727662,
+     "mae": 1.8297983008854597,
+     "bias": 0.9793612278980679,
+     "skill": 0.8151213997351454
+    }
+   }
+  },
+  "by_month_context": {
+   "2026-03": {
+    "mean_reading": 15.157005054886934,
+    "p90_reading": 26.88708333333334,
+    "mean_air": 5.253065586090088,
+    "p90_air": 15.649999618530273
+   },
+   "2026-04": {
+    "mean_reading": 21.01344536474507,
+    "p90_reading": 32.17666666666667,
+    "mean_air": 10.564253807067871,
+    "p90_air": 20.200000762939453
+   },
+   "2026-05": {
+    "mean_reading": 26.60022863060735,
+    "p90_reading": 37.55,
+    "mean_air": 15.618738174438477,
+    "p90_air": 23.850000381469727
+   },
+   "2026-06": {
+    "mean_reading": 33.489461699137294,
+    "p90_reading": 43.37458333333334,
+    "mean_air": 21.383657455444336,
+    "p90_air": 27.5
+   },
+   "2026-07": {
+    "mean_reading": 36.116724677866074,
+    "p90_reading": 44.99166666666667,
+    "mean_air": 24.23676300048828,
+    "p90_air": 29.799999237060547
+   },
+   "2026-08": {
+    "mean_reading": 34.92693866412285,
+    "p90_reading": 43.6875,
+    "mean_air": 22.705177307128906,
+    "p90_air": 28.350000381469727
+   },
+   "2026-09": {
+    "mean_reading": 30.88530737074649,
+    "p90_reading": 40.325,
+    "mean_air": 18.986328125,
+    "p90_air": 25.350000381469727
+   },
+   "2026-10": {
+    "mean_reading": 26.843818649263138,
+    "p90_reading": 35.760000000000005,
+    "mean_air": 15.527182579040527,
+    "p90_air": 21.804999351501483
+   }
+  }
+ }
+}
