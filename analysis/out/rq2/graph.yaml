@@ -1,0 +1,435 @@
+version: '1.0'
+generated: '2026-11-15T20:27:47.384433+00:00'
+nodes:
+  board_temp_celsius:
+    type: target
+  cpu_gpu_power_watts:
+    type: target
+  cpu_temp_celsius:
+    type: target
+  deepstream_app_running:
+    type: context
+  gpu_temp_celsius:
+    type: target
+  humidity:
+    type: context
+  input_current_amperes:
+    type: target
+  input_energy_wh_total_rate:
+    type: target
+  input_power_watts:
+    type: target
+  input_voltage_volts:
+    type: target
+  lightsensor:
+    type: context
+  orin_power_watts:
+    type: target
+  power:
+    type: target
+  temperature:
+    type: context
+  v56:
+    type: context
+  wwan_rx_gb_rate:
+    type: context
+  wwan_tx_gb_rate:
+    type: context
+edges:
+- edge_id: E01
+  status: drawn
+  source: v56
+  destination: input_voltage_volts
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: The supply type sets the input level (about 56 V or 12
+    V); the INA238 reads up to 85 V.
+  required_metrics: v56 -> input_voltage_volts
+  applicable_configurations: 56V
+  buspas_question: '2'
+  main_source: INA238 85-V, 16-Bit, High-Precision Power Monitor With I2C Interface
+    (TI SLYS025B, Rev. May 2025), 6.3.1 Versa
+  main_source_url: https://www.ti.com/lit/ds/symlink/ina238.pdf
+  note: .nan
+- edge_id: E02
+  status: drawn
+  source: input_power_watts
+  destination: input_current_amperes
+  relationship: identity
+  lag_hours: 0
+  sign: +
+  engineering_justification: I = P / V for the single INA238 at the sign input.
+  required_metrics: input_power_watts -> input_current_amperes
+  applicable_configurations: all
+  buspas_question: '4'
+  main_source: TI INA238 datasheet SLYS025B, 6.3.2 Power Calculation
+  main_source_url: https://www.ti.com/lit/ds/symlink/ina238.pdf
+  note: .nan
+- edge_id: E03
+  status: drawn
+  source: input_voltage_volts
+  destination: input_current_amperes
+  relationship: identity
+  lag_hours: 0
+  sign: '-'
+  engineering_justification: Second term of I = P / V.
+  required_metrics: input_voltage_volts -> input_current_amperes
+  applicable_configurations: all
+  buspas_question: '4'
+  main_source: TI INA238 datasheet SLYS025B, 6.3.2 Power Calculation
+  main_source_url: https://www.ti.com/lit/ds/symlink/ina238.pdf
+  note: .nan
+- edge_id: E04
+  status: drawn
+  source: input_power_watts
+  destination: input_energy_wh_total_rate
+  relationship: identity
+  lag_hours: 0
+  sign: +
+  engineering_justification: The energy counter integrates input power, so its hourly
+    increase is the hour's mean power.
+  required_metrics: input_power_watts -> input_energy_wh_total_rate
+  applicable_configurations: all
+  buspas_question: '5'
+  main_source: Smart-sign telemetry dataset README, Power and energy table, row device_input_energy_wh_total
+    (dataset-readme;
+  main_source_url: /home/minh/buspas/dataset/smart-sign-telemetry/README.md
+  note: .nan
+- edge_id: E05
+  status: drawn
+  source: cpu_gpu_power_watts
+  destination: orin_power_watts
+  relationship: containment
+  lag_hours: 0
+  sign: +
+  engineering_justification: The CPU+GPU+CV rail is fed from the module input (VDD_IN),
+    so it is part of module power.
+  required_metrics: cpu_gpu_power_watts -> orin_power_watts
+  applicable_configurations: all
+  buspas_question: '6'
+  main_source: Jetson Linux Developer Guide r36.4 - Platform Power and Performance
+    (Orin NX / Orin Nano INA3221), official do
+  main_source_url: https://docs.nvidia.com/jetson/archives/r36.4/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html
+  note: .nan
+- edge_id: E06
+  status: drawn
+  source: deepstream_app_running
+  destination: cpu_gpu_power_watts
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: DeepStream inference runs on the GPU and CPU; load-based
+    DVFS raises their rail power.
+  required_metrics: deepstream_app_running -> cpu_gpu_power_watts
+  applicable_configurations: has_ds
+  buspas_question: '9'
+  main_source: Jetson Linux Developer Guide r36.4 - Platform Power and Performance
+    (Orin Nano/NX INA3221 channels)
+  main_source_url: https://docs.nvidia.com/jetson/archives/r36.4/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html
+  note: .nan
+- edge_id: E07
+  status: drawn
+  source: deepstream_app_running
+  destination: orin_power_watts
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Video decode, scaling and memory traffic load the SOC
+    rail, which is in module power but not in CPU+GPU power.
+  required_metrics: deepstream_app_running -> orin_power_watts
+  applicable_configurations: has_ds
+  buspas_question: '9'
+  main_source: Jetson Linux Developer Guide r36.4.3 - Platform Power and Performance
+    (Orin NX / Orin Nano INA3221 at 0x40)
+  main_source_url: https://docs.nvidia.com/jetson/archives/r36.4.3/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html
+  note: Kind relabelled from control to physical, to match the CPU+GPU edge (same
+    mechanism).
+- edge_id: E08
+  status: drawn
+  source: cpu_gpu_power_watts
+  destination: cpu_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Die temperature = surrounding air + thermal resistance
+    x dissipated power (NVIDIA Thermal Design Guide).
+  required_metrics: cpu_gpu_power_watts -> cpu_temp_celsius
+  applicable_configurations: all
+  buspas_question: '8'
+  main_source: Jetson Orin NX/Nano Thermal Design Guide TDG-11127-001_v1.5, 3.1.1
+    (PDF p.12)
+  main_source_url: https://developer.nvidia.com/downloads/jetson-orin-nx-orin-nano-series-thermal-design-guide
+  note: .nan
+- edge_id: E09
+  status: drawn
+  source: orin_power_watts
+  destination: cpu_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: NVIDIA's thermal model uses total module power as the
+    heat load; SOC, memory and regulator heat also reach the die.
+  required_metrics: orin_power_watts -> cpu_temp_celsius
+  applicable_configurations: all
+  buspas_question: '8'
+  main_source: Jetson Orin NX/Orin Nano Thermal Design Guide TDG-11127-001_v1.5, 1.2.1
+    (nv-thermal-13; official, verified ver
+  main_source_url: https://developer.nvidia.com/downloads/jetson-orin-nx-orin-nano-series-thermal-design-guide
+  note: .nan
+- edge_id: E10
+  status: drawn
+  source: temperature
+  destination: cpu_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: The air around the passive heat sink sets the baseline
+    die temperature.
+  required_metrics: temperature -> cpu_temp_celsius
+  applicable_configurations: has_env
+  buspas_question: '13'
+  main_source: Jetson Orin NX Series and Jetson Orin Nano Series Modules Thermal Design
+    Guide (TDG-11127-001_v1.5), 3.1.1
+  main_source_url: https://developer.nvidia.com/downloads/jetson-orin-nx-orin-nano-series-thermal-design-guide
+  note: Holds only if the heater/environment sensor is in that air (Q13).
+- edge_id: E11
+  status: drawn
+  source: cpu_temp_celsius
+  destination: gpu_temp_celsius
+  relationship: redundancy
+  lag_hours: 0
+  sign: +
+  engineering_justification: CPU and GPU sensors sit on the same die; CPU is primary
+    because the GPU sensor fails (-256) when the GPU is power-gated.
+  required_metrics: cpu_temp_celsius -> gpu_temp_celsius
+  applicable_configurations: all
+  buspas_question: '8'
+  main_source: 'NVIDIA Jetson Linux Developer Guide r36.4.3 - Jetson Orin Nano/NX/AGX
+    Orin Series, Thermal Management in BPMP '
+  main_source_url: https://docs.nvidia.com/jetson/archives/r36.4.3/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html#thermal-sensing
+  note: .nan
+- edge_id: E12
+  status: drawn
+  source: deepstream_app_running
+  destination: gpu_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: GPU inference heats the GPU area more than the CPU area,
+    widening the GPU-CPU gap.
+  required_metrics: deepstream_app_running -> gpu_temp_celsius
+  applicable_configurations: has_ds
+  buspas_question: '9'
+  main_source: Jetson Orin NX / Orin Nano Series Thermal Design Guide TDG-11127-001_v1.5,
+    3.1.1
+  main_source_url: https://developer.nvidia.com/downloads/jetson-orin-nx-orin-nano-series-thermal-design-guide
+  note: Composed from separate official facts; no single source states it end to end.
+- edge_id: E13
+  status: drawn
+  source: temperature
+  destination: board_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: board_temp is the INA238 die temperature, which TI says
+    tracks the local (system) ambient.
+  required_metrics: temperature -> board_temp_celsius
+  applicable_configurations: has_env
+  buspas_question: '13'
+  main_source: TI INA238 datasheet (SLYS025B), 3 Description
+  main_source_url: https://www.ti.com/lit/ds/symlink/ina238.pdf
+  note: Holds only if the sensor and the INA238 share the same air (Q13).
+- edge_id: E14
+  status: drawn
+  source: input_power_watts
+  destination: board_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Conversion losses on the same board warm the INA238 die.
+  required_metrics: input_power_watts -> board_temp_celsius
+  applicable_configurations: all
+  buspas_question: '13'
+  main_source: TI SPRA953D Semiconductor and IC Package Thermal Metrics, 1.1 Usage
+  main_source_url: https://www.ti.com/lit/an/spra953d/spra953d.pdf
+  note: Depends on where the INA238 sits on the board (Q13).
+- edge_id: P01
+  status: pending
+  source: orin_power_watts
+  destination: input_power_watts
+  relationship: containment
+  lag_hours: 0
+  sign: +
+  engineering_justification: Module power is part of sign input power if the module
+    is fed through the INA238.
+  required_metrics: orin_power_watts -> input_power_watts
+  applicable_configurations: all
+  buspas_question: '1'
+  main_source: NVIDIA Jetson Linux Developer Guide r36.4.3, Platform Power and Performance
+  main_source_url: https://docs.nvidia.com/jetson/archives/r36.4.3/DeveloperGuide/SD/PlatformPowerAndPerformance/JetsonOrinNanoSeriesJetsonOrinNxSeriesAndJetsonAgxOrinSeries.html
+  note: 'Most important pending edge: without it input power has no parent.'
+- edge_id: P02
+  status: pending
+  source: wwan_tx_gb_rate
+  destination: input_power_watts
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Modem power rises with uplink traffic and transmit power.
+  required_metrics: wwan_tx_gb_rate -> input_power_watts
+  applicable_configurations: has_modem
+  buspas_question: 1, 10
+  main_source: Quectel EG25-G Hardware Design V1.4, 3.4 Operating Modes, Table 5
+  main_source_url: https://wiki.pine64.org/images/2/20/Quectel_EG25-G_Hardware_Design_V1.4.pdf
+  note: Kept by the checks, moved here because it rests on the same wiring question
+    as wwan_rx_rate.
+- edge_id: P03
+  status: pending
+  source: wwan_rx_gb_rate
+  destination: input_power_watts
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Downlink traffic also costs modem power, less per byte
+    than uplink.
+  required_metrics: wwan_rx_gb_rate -> input_power_watts
+  applicable_configurations: has_modem
+  buspas_question: 1, 10
+  main_source: Junxian Huang, Performance and Power Characterization of Cellular Networks
+    and Mobile Application Optimization
+  main_source_url: https://web.eecs.umich.edu/~zmao/Papers/Thesis/JunxianHuangThesis2013.pdf
+  note: .nan
+- edge_id: P05
+  status: pending
+  source: v56
+  destination: input_power_watts
+  relationship: physical
+  lag_hours: 0
+  sign: mixed
+  engineering_justification: A 56 V sign may have an extra conversion stage with its
+    own losses.
+  required_metrics: v56 -> input_power_watts
+  applicable_configurations: 56V
+  buspas_question: '2'
+  main_source: TI INA238 data sheet
+  main_source_url: https://www.ti.com/lit/ds/symlink/ina238.pdf
+  note: .nan
+- edge_id: P06
+  status: pending
+  source: temperature
+  destination: input_power_watts
+  relationship: control
+  lag_hours: 0
+  sign: '-'
+  engineering_justification: A thermostat heater would switch on in the cold.
+  required_metrics: temperature -> input_power_watts
+  applicable_configurations: has_env
+  buspas_question: '12'
+  main_source: STEGO FTO 011 thermostat (NC) product page
+  main_source_url: https://www.stego-group.com/products/fto-011
+  note: .nan
+- edge_id: P07
+  status: pending
+  source: humidity
+  destination: input_power_watts
+  relationship: control
+  lag_hours: 0
+  sign: +
+  engineering_justification: A hygrostat heater would switch on when humid.
+  required_metrics: humidity -> input_power_watts
+  applicable_configurations: has_env
+  buspas_question: '12'
+  main_source: STEGO EFR 012 electronic hygrostat, product page
+  main_source_url: https://www.stego-group.com/en-us/products/efr-012
+  note: .nan
+- edge_id: P08
+  status: pending
+  source: lightsensor
+  destination: input_power_watts
+  relationship: control
+  lag_hours: 0
+  sign: mixed
+  engineering_justification: The display brightness may follow the light sensor.
+  required_metrics: lightsensor -> input_power_watts
+  applicable_configurations: has_env
+  buspas_question: '11'
+  main_source: TI SBOA209, Automatic control of Display backlight using an Ambient
+    Light Sensor (application note, Aug 2017)
+  main_source_url: https://www.ti.com/lit/pdf/sboa209
+  note: .nan
+- edge_id: P09
+  status: pending
+  source: orin_power_watts
+  destination: power
+  relationship: redundancy
+  lag_hours: 0
+  sign: +
+  engineering_justification: device_power may be a copy of an INA3221 rail.
+  required_metrics: orin_power_watts -> power
+  applicable_configurations: all
+  buspas_question: '6'
+  main_source: .nan
+  main_source_url: .nan
+  note: .nan
+- edge_id: P23
+  status: pending
+  source: lightsensor
+  destination: board_temp_celsius
+  relationship: physical
+  lag_hours: 0
+  sign: +
+  engineering_justification: Sun on the enclosure warms the board.
+  required_metrics: lightsensor -> board_temp_celsius
+  applicable_configurations: has_env
+  buspas_question: '13'
+  main_source: Characterization of Realistic Environmental Conditions for Predicting
+    the Reliability of Outdoor Cellular Elec
+  main_source_url: https://www.electronics-cooling.com/2011/06/characterization-of-realistic-environmental-conditions-for-predicting-the-reliability-of-outdoor-cellular-electronics/
+  note: .nan
+protocol_hand_graph:
+  edges:
+  - from: cpu_gpu_power_watts
+    to: orin_power_watts
+    why: the CPU+GPU rail is part of the Orin module rail
+  - from: orin_power_watts
+    to: power
+    why: heartbeat power is assumed to log the Orin rail (definition undocumented)
+  - from: orin_power_watts
+    to: input_power_watts
+    why: input draw = module draw + display, modem and conversion losses
+  - from: input_power_watts
+    to: input_current_amperes
+    why: I = P / V
+  - from: input_voltage_volts
+    to: input_current_amperes
+    why: I = P / V
+  - from: input_power_watts
+    to: input_energy_wh_total_rate
+    why: the energy counter integrates input power
+  - from: cpu_gpu_power_watts
+    to: cpu_temp_celsius
+    why: compute power heats the SoC
+  - from: cpu_gpu_power_watts
+    to: gpu_temp_celsius
+    why: compute power heats the SoC
+  - from: cpu_temp_celsius
+    to: gpu_temp_celsius
+    why: CPU and GPU share one die
+  - from: input_power_watts
+    to: board_temp_celsius
+    why: input-stage dissipation heats the board sensor
+  candidates:
+  - from: board_temp_celsius
+    to: cpu_temp_celsius
+    why: 'the board is the SoC''s local ambient: T_SoC = T_board + R_th * P'
+  - from: board_temp_celsius
+    to: gpu_temp_celsius
+    why: same as above, if the GPU is not left to inherit it through cpu_temp
+statistics:
+  total_nodes: 17
+  target_nodes: 10
+  context_nodes: 7
+  drawn_edges: 14
+  pending_edges: 9
+  not_drawn_edges: 0

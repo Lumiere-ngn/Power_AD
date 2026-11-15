@@ -1,0 +1,37 @@
+{
+  "is_dag": true,
+  "num_nodes": 17,
+  "num_drawn_edges": 14,
+  "cycles": [],
+  "nodes_not_in_features": [],
+  "context_missing": [],
+  "dangling_nodes": [
+    "humidity",
+    "lightsensor",
+    "power",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate"
+  ],
+  "root_nodes": [
+    "deepstream_app_running",
+    "humidity",
+    "input_power_watts",
+    "lightsensor",
+    "power",
+    "temperature",
+    "v56",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate"
+  ],
+  "leaf_nodes": [
+    "board_temp_celsius",
+    "gpu_temp_celsius",
+    "humidity",
+    "input_current_amperes",
+    "input_energy_wh_total_rate",
+    "lightsensor",
+    "power",
+    "wwan_rx_gb_rate",
+    "wwan_tx_gb_rate"
+  ]
+}
