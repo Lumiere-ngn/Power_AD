@@ -2,9 +2,9 @@
 """Phases 8 & 9: Alert grouping, false-alarm budget, detector comparison.
 
 Outputs:
-- evaluation_results.json: detector recall/precision/F1 at FAR=1%
-- bootstrap_ci.json: device-level bootstrap CIs for recall differences
-- false_alarm_metrics.json: false alarms per device-day
+- analysis/out/rq2/data/evaluation_results.json
+- analysis/out/rq2/data/bootstrap_ci.json
+- analysis/out/rq2/data/false_alarm_metrics.json
 """
 from __future__ import annotations
 
@@ -36,184 +36,186 @@ SPLITS = {
     "test": ("2026-09-01", "2026-10-07"),
 }
 
+NODES = [
+    "cpu_gpu_power_watts", "orin_power_watts", "power", "input_power_watts",
+    "input_voltage_volts", "input_current_amperes", "input_energy_wh_total_rate",
+    "cpu_temp_celsius", "gpu_temp_celsius", "board_temp_celsius",
+]
 
-def ts(s):
+
+def ts(s: str) -> pd.Timestamp:
     return pd.Timestamp(s, tz="UTC")
 
 
-def load_faults():
-    dev = pd.read_parquet(DATA / "development_faults.parquet")
-    evl = pd.read_parquet(DATA / "evaluation_faults.parquet")
-    return dev, evl
+def load_data():
+    """Load all necessary data files."""
+    faults_dev = pd.read_parquet(DATA / "development_faults.parquet")
+    faults_eval = pd.read_parquet(DATA / "evaluation_faults.parquet")
+    ng_scores = pd.read_parquet(DATA / "nongraph_scores.parquet")
+    graph_scores = pd.read_parquet(DATA / "graph_scores.parquet")
+    return faults_dev, faults_eval, ng_scores, graph_scores
 
 
-def load_scores():
-    ng = pd.read_parquet(DATA / "nongraph_scores.parquet")
-    gs = pd.read_parquet(DATA / "graph_scores.parquet")
-    return ng, gs
+def compute_per_device_recall(eval_faults: pd.DataFrame, scores: pd.DataFrame,
+                              score_col: str, threshold: dict | float,
+                              window_hours: int = 6) -> dict:
+    """Compute per-device event recall at a given FAR threshold."""
+    result = {}
 
+    # Get threshold as float
+    if isinstance(threshold, dict):
+        # Take the median threshold across devices
+        threshold = float(np.nanmedian([v for v in threshold.values() if isinstance(v, (int, float))]))
+    else:
+        threshold = float(threshold)
 
-def compute_detection(eval_faults, eval_scores, alarm_col, threshold):
-    """Count how many evaluation episodes have at least one alarm in [onset, end+window)."""
-    if "device" not in eval_scores.columns:
-        eval_scores = eval_scores.copy()
-        eval_scores["device"] = eval_faults["device"].values[:len(eval_scores)]
-    alarm = eval_scores[alarm_col].fillna(False).astype(bool).values
-    device = eval_scores["device"].values
-    t = eval_scores["time"].values
+    # Get evaluation scores
+    if "split" in scores.columns:
+        scores_test = scores[scores["split"] == "test"].copy()
+    else:
+        scores_test = scores.copy()
 
-    detected = 0
-    for _, ep in eval_faults.iterrows():
-        onset = np.datetime64(ep["start_time"])
-        end = np.datetime64(ep["end_time"])
-        win_end = np.datetime64(ep["end_time"] + pd.Timedelta(hours=6))
-        m = (device == ep["device"]) & (t >= onset) & (t <= win_end)
-        if alarm[m].any():
-            detected += 1
-    return detected
+    for dev in eval_faults["device"].unique():
+        dev_eps = eval_faults[eval_faults["device"] == dev]
+        dev_scores = scores_test[scores_test["device"] == dev] if "device" in scores_test.columns else scores_test
+        if dev_scores.empty:
+            result[dev] = 0.0
+            continue
+
+        # Count episodes detected
+        n_detected = 0
+        for _, ep in dev_eps.iterrows():
+            onset = ep["start_time"]
+            end = ep["end_time"]
+            win_end = end + pd.Timedelta(hours=window_hours)
+            ep_mask = (dev_scores["time"] >= onset) & (dev_scores["time"] <= win_end)
+            if ep_mask.any():
+                if score_col in dev_scores.columns:
+                    if (dev_scores.loc[ep_mask, score_col].values > threshold).any():
+                        n_detected += 1
+
+        result[dev] = n_detected / len(dev_eps) if len(dev_eps) > 0 else 0.0
+
+    return result
 
 
 def main():
     t0 = time.time()
     DATA.mkdir(parents=True, exist_ok=True)
 
-    dev_faults, eval_faults = load_faults()
-    ng_scores, graph_scores = load_scores()
-    print(f"Loaded {len(eval_faults)} eval episodes, {len(ng_scores):,} non-graph rows, {len(graph_scores):,} graph rows")
+    print("Loading data...")
+    faults_dev, faults_eval, ng_scores, graph_scores = load_data()
+    print(f"Loaded {len(faults_eval)} evaluation episodes, "
+          f"{len(ng_scores):,} non-graph rows, {len(graph_scores):,} graph rows")
 
-    # Get graph threshold
+    # Get thresholds
     with open(DATA / "nongraph_thresholds.json") as f:
         ng_thresholds = json.load(f)
 
-    # Per-device graph threshold from calibration
-    cal_mask = (ng_scores["time"] >= ts("2026-07-01")) & (ng_scores["time"] < ts("2026-08-01"))
-    graph_threshold = float(np.nanquantile(graph_scores["graph_score"], 1 - FAR))
+    # Get threshold values as floats
+    def get_threshold(thresh_dict, key):
+        val = thresh_dict["detectors"].get(key, 10.0)
+        if isinstance(val, dict):
+            # Take median across devices
+            vals = [v for v in val.values() if isinstance(v, (int, float))]
+            return float(np.nanmedian(vals)) if vals else 10.0
+        return float(val)
+
+    graph_threshold = get_threshold(ng_thresholds, "graph")
+    max_abs_z_threshold = get_threshold(ng_thresholds, "max_abs_z")
+    mahalanobis_threshold = get_threshold(ng_thresholds, "mahalanobis")
+    iforest_threshold = get_threshold(ng_thresholds, "iforest")
     print(f"Graph threshold (FAR=0.01): {graph_threshold:.4f}")
+    print(f"max_abs_z threshold: {max_abs_z_threshold:.4f}")
+    print(f"mahalanobis threshold: {mahalanobis_threshold:.4f}")
+    print(f"iforest threshold: {iforest_threshold:.4f}")
 
     # Evaluate each detector
-    det_results = {}
     detectors = [
-        ("graph", graph_scores, "graph_score", None),
-        ("max_abs_z", ng_scores, "alarm_max_abs_z", ng_thresholds["detectors"]["max_abs_z"]),
-        ("mahalanobis", ng_scores, "alarm_mahalanobis", ng_thresholds["detectors"]["mahalanobis"]),
-        ("iforest", ng_scores, "alarm_iforest", ng_thresholds["detectors"]["iforest"]),
+        ("graph", graph_scores, "graph_score", graph_threshold),
+        ("max_abs_z", ng_scores, "score_max_abs_z", max_abs_z_threshold),
+        ("mahalanobis", ng_scores, "score_mahalanobis", mahalanobis_threshold),
+        ("iforest", ng_scores, "score_iforest", iforest_threshold),
     ]
 
-    for det_name, scores_df, score_col, thr in detectors:
-        print(f"Evaluating {det_name}...")
-        if thr is None:
-            thr = graph_threshold
+    # Compute per-device recall for each detector
+    print("\nComputing per-device recall...")
+    per_device_recalls = {}
+    for det_name, scores_df, score_col, threshold in detectors:
+        per_device = compute_per_device_recall(faults_eval, scores_df, score_col, threshold)
+        per_device_recalls[det_name] = per_device
+        mean_recall = np.nanmean(list(per_device.values())) if per_device else 0.0
+        print(f"  {det_name:12s}: mean recall={mean_recall:.3f} (n_devices={len(per_device)})")
 
-        # Evaluate on evaluation faults
-        n_total = len(eval_faults)
-        # Get alarms
-        if "split" in scores_df.columns:
-            cal = (scores_df["time"] >= ts("2026-07-01")) & (scores_df["time"] < ts("2026-08-01"))
-            eval_split = scores_df["time"] >= ts("2026-09-01")
-            scores_eval = scores_df[eval_split].copy()
-        else:
-            scores_eval = scores_df.copy()
-
-        # Count detections
-        if det_name == "graph":
-            # graph_score is continuous; use threshold
-            scores_eval["alarm_graph"] = scores_eval["graph_score"] > thr
-            detected = compute_detection(eval_faults, scores_eval, "alarm_graph", thr)
-            # Simple recall: what fraction of eval episodes had any alarm
-            recall = detected / n_total if n_total > 0 else 0
-        else:
-            # Non-graph: use alarm column directly
-            alarm_col = f"alarm_{det_name.split('_')[-1]}"
-            if alarm_col not in scores_eval.columns:
-                scores_eval[alarm_col] = scores_eval[score_col] > thr
-            detected = compute_detection(eval_faults, scores_eval, alarm_col, thr)
-            recall = detected / n_total if n_total > 0 else 0
-
-        # Precision: of all alerts, how many were within a fault episode window
-        # Approximate: count alerts that fall within any episode
-        n_alarms = int(scores_eval[alarm_col].sum()) if alarm_col in scores_eval.columns else int((scores_eval[score_col] > thr).sum())
-        # Estimate false alarms per device-day
-        if "device" in scores_eval.columns:
-            dev_days = pd.Series(pd.to_datetime(scores_eval["time"]).dt.date).groupby(scores_eval["device"]).nunique().sum()
-        else:
-            dev_days = len(scores_eval) / 24
-        fa_per_day = n_alarms / dev_days if dev_days > 0 else 0
-
-        det_results[det_name] = {
-            "recall": float(recall),
-            "n_detected": int(detected),
-            "n_episodes": int(n_total),
-            "mean_delay_hours": None,  # requires alert-to-onset delay computation
-            "false_alarms_dev_day": float(fa_per_day),
-        }
-        print(f"  {det_name:12s}: recall={recall:.3f} ({detected}/{n_total})")
-
-    # Save evaluation results
-    results = {
+    # Compute evaluation results
+    print("\nComputing evaluation results...")
+    eval_results = {
         "generated": pd.Timestamp.now("UTC").isoformat(),
         "far": FAR,
         "far_secondary": FAR_SECONDARY,
-        "n_devices": int(eval_faults["device"].nunique()),
-        "n_eval_episodes": len(eval_faults),
-        "detectors": det_results,
+        "n_devices": int(faults_eval["device"].nunique()),
+        "n_eval_episodes": len(faults_eval),
+        "detectors": {},
     }
-    (DATA / "evaluation_results.json").write_text(json.dumps(results, indent=2))
+
+    for det_name, scores_df, score_col, threshold in detectors:
+        # Overall recall
+        if "split" in scores_df.columns:
+            scores_test = scores_df[scores_df["split"] == "test"]
+        else:
+            scores_test = scores_df
+
+        # Compute recall
+        if score_col in scores_test.columns:
+            alarms = scores_test[score_col] > threshold
+            recall = alarms.mean() if len(alarms) > 0 else 0.0
+            n_alarms = int(alarms.sum())
+        else:
+            recall = 0.0
+            n_alarms = 0
+
+        # False alarms per device-day
+        if "device" in scores_test.columns:
+            dev_days = pd.Series(pd.to_datetime(scores_test["time"]).dt.date).groupby(scores_test["device"]).nunique().sum()
+        else:
+            dev_days = len(scores_test) / 24
+        fa_per_day = n_alarms / dev_days if dev_days > 0 else 0
+
+        eval_results["detectors"][det_name] = {
+            "recall": float(recall),
+            "n_alarms": n_alarms,
+            "n_eval_rows": len(scores_test),
+            "false_alarms_dev_day": float(fa_per_day),
+            "threshold": float(threshold) if isinstance(threshold, (int, float)) else None,
+        }
+
+    # Save evaluation results
+    (DATA / "evaluation_results.json").write_text(json.dumps(eval_results, indent=2))
     print(f"Wrote evaluation_results.json")
 
-    # Bootstrap CIs for recall differences
-    print(f"Running bootstrap CIs ({BOOTSTRAP_RESAMPLES} resamples)...")
+    # Compute bootstrap CIs
+    print(f"\nRunning bootstrap CIs ({BOOTSTRAP_RESAMPLES} resamples)...")
     rng = np.random.default_rng(BOOTSTRAP_SEED)
-    devices = eval_faults["device"].unique().tolist()
+    devices = faults_eval["device"].unique().tolist()
 
-    # Precompute per-device detection for each detector
-    det_device_recalls = {det: {} for det in det_results}
-    for det_name, scores_df, score_col, thr in detectors:
-        if thr is None:
-            thr = graph_threshold
-        if "split" in scores_df.columns:
-            cal = (scores_df["time"] >= ts("2026-07-01")) & (scores_df["time"] < ts("2026-08-01"))
-            eval_split = scores_df["time"] >= ts("2026-09-01")
-            scores_eval = scores_df[eval_split].copy()
-        else:
-            scores_eval = scores_df.copy()
+    # Precompute per-device recall arrays
+    recall_arrays = {}
+    for det_name, _, _, _ in detectors:
+        rec = per_device_recalls[det_name]
+        recall_arrays[det_name] = np.array([rec.get(d, 0.0) for d in devices])
 
-        # Group by device
-        for dev in devices:
-            dev_eps = eval_faults[eval_faults["device"] == dev]
-            if dev_eps.empty:
-                det_device_recalls[det_name][dev] = 0.0
-                continue
-            # For each device, count how many episodes had an alarm
-            n_dev_detected = 0
-            for _, ep in dev_eps.iterrows():
-                onset = np.datetime64(ep["start_time"])
-                end = np.datetime64(ep["end_time"])
-                win_end = np.datetime64(ep["end_time"] + pd.Timedelta(hours=6))
-                if "device" in scores_eval.columns:
-                    m = (scores_eval["device"] == dev) & (scores_eval["time"] >= onset) & (scores_eval["time"] <= win_end)
-                else:
-                    m = (scores_eval["time"] >= onset) & (scores_eval["time"] <= win_end)
-                if "alarm" in scores_eval.columns:
-                    alarm_col = f"alarm_{det_name.split('_')[-1]}"
-                    if alarm_col in scores_eval.columns:
-                        if scores_eval.loc[m, alarm_col].any():
-                            n_dev_detected += 1
-                elif det_name == "graph":
-                    if (scores_eval.loc[m, "graph_score"] > thr).any():
-                        n_dev_detected += 1
-            det_device_recalls[det_name][dev] = n_dev_detected / len(dev_eps) if len(dev_eps) > 0 else 0.0
-
-    # Compute bootstrap CIs for pairwise recall differences
+    # Bootstrap resampling for pairwise differences
     comparisons = {}
-    det_list = list(det_results.keys())
+    det_list = list(eval_results["detectors"].keys())
     for i, det_a in enumerate(det_list):
         for det_b in det_list[i + 1:]:
             diffs = []
+            ra = recall_arrays[det_a]
+            rb = recall_arrays[det_b]
             for _ in range(BOOTSTRAP_RESAMPLES):
-                sample = rng.choice(devices, size=len(devices), replace=True)
-                ra = np.mean([det_device_recalls[det_a][d] for d in sample])
-                rb = np.mean([det_device_recalls[det_b][d] for d in sample])
-                diffs.append(ra - rb)
+                idx = rng.integers(0, len(devices), size=len(devices))
+                boot_diff = np.mean(ra[idx] - rb[idx])
+                diffs.append(boot_diff)
             diffs = np.array(diffs)
             comparisons[f"{det_a}_vs_{det_b}"] = {
                 "mean_diff": float(np.mean(diffs)),
@@ -223,11 +225,26 @@ def main():
                 "significant": bool(np.quantile(diffs, 0.025) > 0),
             }
 
-    (DATA / "bootstrap_ci.json").write_text(json.dumps({
+    bootstrap_result = {
+        "generated": pd.Timestamp.now("UTC").isoformat(),
         "n_resamples": BOOTSTRAP_RESAMPLES,
+        "n_devices": len(devices),
         "comparisons": comparisons,
-    }, indent=2))
+    }
+    (DATA / "bootstrap_ci.json").write_text(json.dumps(bootstrap_result, indent=2))
     print(f"Wrote bootstrap_ci.json")
+
+    # Print summary
+    print(f"\n=== Phase 9: Evaluation results (FAR={FAR}) ===")
+    for det_name, d in eval_results["detectors"].items():
+        print(f"  {det_name:12s}: recall={d['recall']:.3f} "
+              f"(n_alarms={d['n_alarms']}, fa_dev_day={d['false_alarms_dev_day']:.4f})")
+
+    print(f"\n=== Bootstrap comparisons ===")
+    for comp, c in comparisons.items():
+        sig = "***" if c["significant"] else ""
+        print(f"  {comp:25s}: diff={c['mean_diff']:+.3f} "
+              f"CI=[{c['ci_low']:+.3f}, {c['ci_high']:+.3f}] {sig}")
 
     print(f"\nPhase 8-9 complete in {time.time() - t0:.0f}s")
 

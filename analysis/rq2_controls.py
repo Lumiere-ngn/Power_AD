@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-"""Extension: Random DAG controls for RQ2.
+"""Extension 2: Thirty random DAG controls for RQ2.
 
-Generates 30 random DAGs preserving the in-degree and out-degree structure of
-the engineering-informed graph, trains/evaluates the same graph detector on
-each, and compares against the hand graph.
+Generates 30 random DAGs preserving the in-degree and out-degree structure
+of the engineering-informed hand graph, trains/evaluates the same graph
+detector on each, and compares against the hand graph.
 
-Usage:
-    python -I analysis/rq2_controls.py
+Usage: python -I analysis/rq2_controls.py
 """
 from __future__ import annotations
 
@@ -15,48 +14,41 @@ import sys
 import time
 from pathlib import Path
 
-import networkx as nx
 import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import rq_common as C  # noqa: E402
+import rq2_graphcore as G  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "analysis/out"
 RQ2 = OUT / "rq2"
 DATA = RQ2 / "data"
 
-NODES = [
-    "cpu_gpu_power_watts", "orin_power_watts", "power", "input_power_watts",
-    "input_voltage_volts", "input_current_amperes", "input_energy_wh_total_rate",
-    "cpu_temp_celsius", "gpu_temp_celsius", "board_temp_celsius",
-]
-
-# Load the hand graph parent map from the existing spec
-HAND_GRAPH = {
-    "cpu_gpu_power_watts": [],
-    "orin_power_watts": ["cpu_gpu_power_watts"],
-    "power": ["orin_power_watts"],
-    "input_power_watts": ["orin_power_watts"],
-    "input_voltage_volts": [],
-    "input_current_amperes": ["input_power_watts", "input_voltage_volts"],
-    "input_energy_wh_total_rate": ["input_power_watts"],
-    "cpu_temp_celsius": ["cpu_gpu_power_watts"],
-    "gpu_temp_celsius": ["cpu_gpu_power_watts", "cpu_temp_celsius"],
-    "board_temp_celsius": ["input_power_watts"],
-}
-
-FAR = 0.01
+NODES = G.NODES
+SPLITS = G.SPLITS
+FAR = G.FAR
+WINDOW_HOURS = G.WINDOW_HOURS
 
 
-def load_hand_graph_edges() -> list[tuple[str, str]]:
-    """Return hand graph edges as (parent, child) list."""
-    edges = []
-    for child, parents in HAND_GRAPH.items():
-        for parent in parents:
-            edges.append((parent, child))
-    return edges
+def ts(s: str) -> pd.Timestamp:
+    return pd.Timestamp(s, tz="UTC")
+
+
+def window_masks(t: pd.Series):
+    return G.window_masks(t)
+
+
+def load_features(devices):
+    return G.load_features(devices)
+
+
+def load_eligible_devices():
+    return G.load_eligible_devices()
+
+
+def load_eval_faults():
+    return pd.read_parquet(DATA / "evaluation_faults.parquet")
 
 
 def random_dag_from_degree(
@@ -68,56 +60,54 @@ def random_dag_from_degree(
 ) -> dict[str, list[str]]:
     """Generate a random DAG preserving in-degree and out-degree sequences.
 
-    Uses a stub-matching approach: assign each ordered pair (u, v) where u != v
-    a probability proportional to out_deg[u] * in_deg[v], then sample edges
-    and reject if a cycle is introduced (keeps it a DAG).
+    Assign a random topological order, then process nodes in reverse
+    topological order. For each node v with in-degree k, pick k parents
+    among earlier nodes with remaining out-degree > 0, preferring those
+    with the highest remaining out-degree.
     """
-    node_set = set(nodes)
-    d_out = dict(out_degrees)
-    d_in = dict(in_degrees)
-    parent_map = {n: [] for n in nodes}
-
-    remaining_out = dict(out_degrees)
-    remaining_in = dict(in_degrees)
-
-    # Prefer edges from high out-degree to high in-degree nodes, but ensure acyclicity.
-    # Process nodes in a random topological order to guarantee DAG.
-    order = rng.permutation(nodes).tolist()
-    pos = {n: i for i, n in enumerate(order)}
-
     for _ in range(max_attempts):
-        # Rebuild remaining degrees
+        order = rng.permutation(nodes).tolist()
+        pos = {n: i for i, n in enumerate(order)}
         remaining_out = dict(out_degrees)
         remaining_in = dict(in_degrees)
         parent_map = {n: [] for n in nodes}
-        edge_attempts = 0
 
-        # For each source node in topological order, assign parents to targets
-        for u in order:
-            if remaining_out[u] == 0:
+        # Process in reverse topological order (children first)
+        for v in reversed(order):
+            if remaining_in[v] == 0:
                 continue
-            # Targets must come after u in topological order
-            valid_targets = [
-                v for v in order[pos[u] + 1 :]
-                if remaining_in.get(v, 0) > 0 and v != u
-            ]
-            rng.shuffle(valid_targets)
-            for v in valid_targets:
-                if remaining_out[u] == 0:
-                    break
-                if remaining_in.get(v, 0) > 0:
-                    parent_map[v].append(u)
-                    remaining_out[u] -= 1
-                    remaining_in[v] -= 1
-
-        # Check if all degrees are satisfied
-        satisfied = all(remaining_out[n] == 0 for n in nodes) and all(
-            remaining_in[n] == 0 for n in nodes
-        )
-        if satisfied:
-            return parent_map
-
+            # Parents must be earlier in topological order
+            valid_parents = [u for u in order[:pos[v]] if remaining_out.get(u, 0) > 0]
+            if len(valid_parents) < remaining_in[v]:
+                break  # not enough parents available, restart
+            # prefer parents with highest remaining out-degree
+            valid_parents.sort(key=lambda u: -remaining_out[u])
+            for u in valid_parents[:remaining_in[v]]:
+                parent_map[v].append(u)
+                remaining_out[u] -= 1
+                remaining_in[v] -= 1
+            if remaining_in[v] != 0:
+                break  # couldn't satisfy, restart
+        else:
+            # all nodes satisfied
+            if all(remaining_out[n] == 0 for n in nodes) and all(remaining_in[n] == 0 for n in nodes):
+                return parent_map
+            continue
+        # loop continues to next attempt
     raise RuntimeError("Could not generate random DAG preserving degree sequence")
+
+
+def load_hand_parent_map():
+    return {n: [] for n in G.NODES} | G.HAND_PARENT_MAP
+
+
+def load_eval_faults():
+    return pd.read_parquet(DATA / "evaluation_faults.parquet")
+
+
+def load_eligible_devices():
+    inv = pd.read_csv(DATA / "device_inventory.csv")
+    return inv.loc[inv["eligible_rq2"], "device"].tolist()
 
 
 def main():
@@ -127,13 +117,13 @@ def main():
     rng = np.random.default_rng(20261103)
 
     # Load hand graph
-    hand_edges = load_hand_graph_edges()
+    hand_edges = [(parent, child) for child, parents in G.HAND_PARENT_MAP.items() for parent in parents]
     print(f"Hand graph edges: {len(hand_edges)}")
-    print(f"Hand graph: {HAND_GRAPH}")
+    print(f"Hand graph: {G.HAND_PARENT_MAP}")
 
     # Compute degree sequences from hand graph
-    in_degrees = {n: 0 for n in NODES}
-    out_degrees = {n: 0 for n in NODES}
+    in_degrees = {n: 0 for n in G.NODES}
+    out_degrees = {n: 0 for n in G.NODES}
     for parent, child in hand_edges:
         out_degrees[parent] += 1
         in_degrees[child] += 1
@@ -144,36 +134,46 @@ def main():
     # Load graph residuals for evaluating each random graph
     residuals = pd.read_parquet(DATA / "graph_residuals.parquet")
     scales = json.loads((DATA / "residual_scales.json").read_text())
+    devices = load_eligible_devices()
 
-    # Compute graph score per device/time from residuals
-    def graph_score_from_residuals(df, parent_map):
-        """Compute max|z| across nodes."""
-        z_by_node = {}
-        for node in NODES:
-            node_df = df[df["node"] == node].copy()
-            node_df = node_df.set_index(["device", "time"])
-            z_by_node[node] = node_df["z"]
-        # Build combined dataframe
-        all_rows = df.set_index(["device", "time"])
-        z_mat = pd.DataFrame(all_rows["z"]).rename(columns={"z": "all"})
-        z_mat["node"] = all_rows["node"]
-        z_wide = z_mat.reset_index().pivot(index=["device", "time"], columns="node", values="z")
-        return np.nanmax(np.abs(z_wide.values), axis=1)
+    # Load features
+    f = load_features(devices)
+    masks = window_masks(f["time"])
+    fit_mask = masks["fit"]
+    cal_mask = masks["calibrate"]
+    test_mask = masks["test"]
 
-    # Evaluate hand graph as baseline (already computed in graph_scores)
+    print(f"Windows: fit={int(fit_mask.sum()):,}, cal={int(cal_mask.sum()):,}, "
+          f"develop={int(masks['develop'].sum()):,}, test={int(test_mask.sum()):,}")
+
+    # Load hand graph scores (already computed)
     hand_scores = pd.read_parquet(DATA / "graph_scores.parquet")
     hand_graph_scores = hand_scores["graph_score"]
+
+    # Load thresholds
+    thresholds = json.loads((DATA / "nongraph_thresholds.json").read_text())
+    cal_scores = hand_scores.loc[cal_mask, "graph_score"].dropna()
+    graph_threshold = float(np.quantile(cal_scores, 1 - FAR))
+    print(f"Hand graph threshold (FAR={FAR}): {graph_threshold:.4f}")
+
+    # Evaluate hand graph recall
+    eval_faults_df = pd.read_parquet(DATA / "evaluation_faults.parquet")
+    hand_recall = G.evaluate_recall(
+        np.array(hand_graph_scores > graph_threshold, dtype=bool),
+        test_mask, eval_faults_df, f["device"].astype(str).to_numpy(), f["time"].values
+    )
+    print(f"Hand graph recall: {hand_recall['recall']:.3f}")
 
     # Generate 30 random DAGs
     random_graphs = []
     for i in range(30):
-        gm = random_dag_from_degree(NODES, in_degrees, out_degrees, rng)
+        gm = random_dag_from_degree(G.NODES, in_degrees, out_degrees, np.random.default_rng(20261103 + i))
         random_graphs.append(gm)
         print(f"Random DAG {i+1}: {dict((n, len(p)) for n, p in gm.items() if p)}")
 
     # Save random graphs
     random_graph_data = {
-        "hand_graph": HAND_GRAPH,
+        "hand_graph": G.HAND_PARENT_MAP,
         "random_graphs": random_graphs,
         "n_random": len(random_graphs),
         "generated": pd.Timestamp.now("UTC").isoformat(),
@@ -181,38 +181,55 @@ def main():
     (DATA / "random_graphs.json").write_text(json.dumps(random_graph_data, indent=2))
     print(f"\nSaved random graphs to {DATA / 'random_graphs.json'}")
 
-    # Evaluate each random graph on the same episodes
-    # Load fault episodes for detection comparison
-    faults = pd.read_parquet(DATA / "evaluation_faults.parquet")
-    print(f"\nLoaded {len(faults)} evaluation fault episodes")
-
+    # Evaluate each random graph
     random_results = []
     for i, gm in enumerate(random_graphs):
-        # Compute graph score for this random graph
-        # For simplicity: use per-node z-scores from residuals and combine
-        # according to random parent structure
-        gm_scores = np.nanmax(np.abs(graph_scores["graph_score"].values), axis=0) if isinstance(
-            graph_scores["graph_score"].values, np.ndarray
-        ) else graph_scores["graph_score"].values
+        print(f"\nEvaluating random DAG {i+1}/30...")
 
-        # Use hand graph scores as proxy - random graphs share same residuals
-        # but with different parent structure. We recompute using random edges.
-        # For now, reuse hand graph scores scaled by parent overlap
-        parent_overlap = sum(
-            1 for p, c in hand_edges
-            if c in gm and p in gm[c]
-        ) / max(len(hand_edges), 1)
+        # Compute residuals with random graph
+        residuals, predictions = G.compute_graph_residuals(f, gm, fit_mask)
+        z_scores = G.standardise_residuals(residuals, scales, f)
+
+        # Compute graph score (max |z|)
+        graph_score, _ = G.graph_score_and_nodes(z_scores)
+
+        # Per-device threshold from calibration
+        thresholds_per_dev = G.per_device_thresholds(
+            graph_score, cal_mask, f["device"].astype(str).to_numpy(), devices
+        )
+
+        # Build alarms
+        devs = f["device"].astype(str).to_numpy()
+        alarms = G.alarm_matrix(graph_score, thresholds_per_dev, devs)
+
+        # Evaluate recall
+        recall = G.evaluate_recall(
+            alarms, test_mask, eval_faults_df, devs, f["time"].values
+        )
 
         random_results.append({
             "graph_id": i,
             "edge_count": sum(len(p) for p in gm.values()),
-            "parent_overlap": parent_overlap,
-            "recall_est": None,  # will fill after full evaluation
+            "recall": recall["recall"],
         })
+        print(f"  Recall: {recall['recall']:.3f}")
 
     random_df = pd.DataFrame(random_results)
     random_df.to_parquet(DATA / "random_graph_results.parquet", index=False)
-    print(f"Saved random graph results to {DATA / 'random_graph_results.parquet'}")
+
+    # Save summary
+    summary = {
+        "generated": pd.Timestamp.now("UTC").isoformat(),
+        "hand_graph": G.HAND_PARENT_MAP,
+        "hand_graph_recall": hand_recall,
+        "random_graphs": random_results,
+        "n_random": len(random_graphs),
+        "mean_random_recall": float(np.mean([r["recall"] for r in random_results])),
+        "std_random_recall": float(np.std([r["recall"] for r in random_results])),
+    }
+    (DATA / "random_graph_results.json").write_text(json.dumps(summary, indent=2, default=str))
+    print(f"\nWrote random graph results to {DATA / 'random_graph_results.parquet'}")
+    print(f"Wrote random graph summary to {DATA / 'random_graph_results.json'}")
     print(f"\nPhase complete in {time.time() - t0:.0f}s")
 
 

@@ -1,0 +1,49 @@
+{
+  "generated": "2026-11-16T15:09:04.223085+00:00",
+  "n_resamples": 2000,
+  "n_devices": 61,
+  "comparisons": {
+    "graph_vs_max_abs_z": {
+      "mean_diff": 0.7649613282891973,
+      "ci_low": 0.687248543805921,
+      "ci_high": 0.8320151023839546,
+      "p_le_0": 0.0,
+      "significant": true
+    },
+    "graph_vs_mahalanobis": {
+      "mean_diff": 0.6912975199663725,
+      "ci_low": 0.6054152404972076,
+      "ci_high": 0.769202546087792,
+      "p_le_0": 0.0,
+      "significant": true
+    },
+    "graph_vs_iforest": {
+      "mean_diff": 0.38077410076262536,
+      "ci_low": 0.29360955983906806,
+      "ci_high": 0.46199528613463026,
+      "p_le_0": 0.0,
+      "significant": true
+    },
+    "max_abs_z_vs_mahalanobis": {
+      "mean_diff": -0.07158278388278387,
+      "ci_low": -0.1482979042815108,
+      "ci_high": 0.0042001441181768176,
+      "p_le_0": 0.968,
+      "significant": false
+    },
+    "max_abs_z_vs_iforest": {
+      "mean_diff": -0.3826798805020117,
+      "ci_low": -0.4667163574130787,
+      "ci_high": -0.288019726175464,
+      "p_le_0": 1.0,
+      "significant": false
+    },
+    "mahalanobis_vs_iforest": {
+      "mean_diff": -0.3117656518345042,
+      "ci_low": -0.3848570828079025,
+      "ci_high": -0.2381116015132409,
+      "p_le_0": 1.0,
+      "significant": false
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "generated": "2026-11-16T15:09:03.632006+00:00",
+  "far": 0.01,
+  "far_secondary": [
+    0.001,
+    0.05
+  ],
+  "n_devices": 61,
+  "n_eval_episodes": 833,
+  "detectors": {
+    "graph": {
+      "recall": 0.5032119914346895,
+      "n_alarms": 137005,
+      "n_eval_rows": 272261,
+      "false_alarms_dev_day": 12.050752045034743,
+      "threshold": 10.0
+    },
+    "max_abs_z": {
+      "recall": 0.03783492103023888,
+      "n_alarms": 1823,
+      "n_eval_rows": 48183,
+      "false_alarms_dev_day": 0.8366223038090868,
+      "threshold": 12.707690146708007
+    },
+    "mahalanobis": {
+      "recall": 0.0421517962766951,
+      "n_alarms": 2031,
+      "n_eval_rows": 48183,
+      "false_alarms_dev_day": 0.932078935291418,
+      "threshold": 5.315362490449253
+    },
+    "iforest": {
+      "recall": 0.10098997571757674,
+      "n_alarms": 4866,
+      "n_eval_rows": 48183,
+      "false_alarms_dev_day": 2.2331344653510783,
+      "threshold": 0.5811681389947284
+    }
+  }
+}
