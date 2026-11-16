@@ -1,0 +1,147 @@
+{
+  "generated": "2026-11-16T01:01:15.403441+00:00",
+  "devices_tested": 61,
+  "development_episodes": 714,
+  "evaluation_episodes": 833,
+  "fault_definitions": {
+    "F1": {
+      "severities": [
+        0.05,
+        0.1,
+        0.2
+      ],
+      "hours": [
+        6,
+        24
+      ],
+      "root": [
+        "input_power_watts"
+      ],
+      "layer": "load"
+    },
+    "F2": {
+      "severities": [
+        0.25,
+        0.5,
+        1.0
+      ],
+      "hours": [
+        6,
+        24
+      ],
+      "root": [
+        "cpu_gpu_power_watts"
+      ],
+      "layer": "compute"
+    },
+    "F3": {
+      "severities": [
+        0.05,
+        0.1,
+        0.2
+      ],
+      "hours": [
+        24,
+        72
+      ],
+      "root": [
+        "input_energy_wh_total_rate"
+      ],
+      "layer": "accounting"
+    },
+    "F4": {
+      "severities": [
+        1,
+        2,
+        3
+      ],
+      "hours": [
+        6,
+        48
+      ],
+      "root": [
+        "input_power_watts"
+      ],
+      "layer": "sensing"
+    },
+    "F5": {
+      "severities": [
+        0.03,
+        0.06,
+        0.12
+      ],
+      "hours": [
+        6,
+        24
+      ],
+      "root": [
+        "input_voltage_volts"
+      ],
+      "layer": "supply"
+    },
+    "F6": {
+      "severities": [
+        3.0,
+        6.0,
+        12.0
+      ],
+      "hours": [
+        6,
+        24
+      ],
+      "root": [
+        "cpu_temp_celsius",
+        "gpu_temp_celsius"
+      ],
+      "layer": "thermal"
+    },
+    "F7": {
+      "severities": [
+        1.0,
+        2.0,
+        4.0
+      ],
+      "hours": [
+        24,
+        72
+      ],
+      "root": [
+        "any node"
+      ],
+      "layer": "sensing"
+    },
+    "F8": {
+      "severities": [
+        4.0,
+        6.0,
+        8.0
+      ],
+      "hours": [
+        12,
+        48
+      ],
+      "root": [
+        "any node"
+      ],
+      "layer": "sensing"
+    },
+    "F9": {
+      "severities": [
+        1.0,
+        2.0,
+        4.0
+      ],
+      "hours": [
+        6,
+        24
+      ],
+      "root": [
+        "each node in turn"
+      ],
+      "layer": "sensing"
+    }
+  },
+  "min_gap_hours": 48,
+  "min_coverage": 0.8,
+  "episodes_per_device": 6
+}
