@@ -59,6 +59,10 @@ def ts(s: str) -> pd.Timestamp:
 
 
 def window_masks(t: pd.Series) -> dict[str, np.ndarray]:
+    # normalise the Series to tz-aware UTC if it is naive, so the comparison
+    # with tz-aware constants works in every caller
+    if isinstance(t, pd.Series) and getattr(t.dt, "tz", None) is None and hasattr(t, "dt"):
+        t = t.dt.tz_localize("UTC")
     return {name: ((t >= ts(a)) & (t < ts(b))).to_numpy() for name, (a, b) in SPLITS.items()}
 
 

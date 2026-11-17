@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 """Extension 5: Reproducible case-study visualisations for RQ2.
 
-Generates diagnostic figures for selected detected episodes showing:
-- Observed vs predicted (graph & non-graph) power & temperature
-- Node-level |z| traces and anomaly scores
-- Graph structure with edge weights
-- Alert timelines with detection markers
+For a handful of detected evaluation episodes, renders one diagnostic figure each
+showing:
+  1. observed power nodes over the context window, with the fault span marked
+  2. observed temperature nodes
+  3. the graph anomaly score with the per-device 1% FAR threshold
+  4. the non-graph detector scores (max_abs_z / mahalanobis / iforest)
 
-Outputs: analysis/out/rq2/figures/case_study_*.png
+Outputs: analysis/out/rq2/figures/case_study_<fault>_<device>_<start>.png
+
+Uses the same July-only per-device thresholds as the authoritative evaluator.
 """
 from __future__ import annotations
 
@@ -24,141 +27,24 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import rq2_graphcore as G  # noqa: E402
-import rq_common as C  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "analysis/out"
 RQ2 = OUT / "rq2"
 DATA = RQ2 / "data"
 FIGS = RQ2 / "figures"
-FIGS.mkdir(parents=True, exist_ok=True)
 
 NODES = G.NODES
 FAR = G.FAR
-WINDOW_HOURS = G.WINDOW_HOURS
-HAND_PARENT_MAP = G.HAND_PARENT_MAP
+POWER_NODES = ["cpu_gpu_power_watts", "orin_power_watts", "input_power_watts", "power"]
+THERMAL_NODES = ["cpu_temp_celsius", "gpu_temp_celsius", "board_temp_celsius"]
 
 
-def ts(s: str) -> pd.Timestamp:
-    return pd.Timestamp(s, tz="UTC")
-
-
-def window_masks(t: pd.Series) -> dict[str, np.ndarray]:
-    return G.window_masks(t)
-
-
-def load_features(devices: list[str]) -> pd.DataFrame:
-    return G.load_features(devices)
-
-
-def load_eligible_devices() -> list[str]:
-    return G.load_eligible_devices()
-
-
-def load_scales() -> dict:
-    return json.loads((DATA / "residual_scales.json").read_text())
-
-
-def load_eval_faults() -> pd.DataFrame:
-    return pd.read_parquet(DATA / "evaluation_faults.parquet")
-
-
-def plot_case_study(ep, f, graph_scores, ng_scores, z_scores, graph_threshold,
-                    ng_thresholds, masks, output_dir, fig_prefix):
-    """Generate diagnostic figures for a single episode."""
-    onset = ep["start_time"]
-    end = ep["end_time"]
-    device = ep["device"]
-    fault = ep["fault"]
-    severity = ep["severity"]
-    dur_h = int((ep["end_time"] - ep["start_time"]).total_seconds() / 3600)
-
-    # Extended window for context (+/- 24h)
-    ctx_start = ep["start_time"] - pd.Timedelta(hours=24)
-    ctx_end = ep["end_time"] + pd.Timedelta(hours=24)
-    m = (f["device"] == device) & (f["time"] >= ctx_start) & (f["time"] <= ctx_end)
-    ctx = f[m].sort_values("time")
-
-    if len(ctx) < 10:
-        return
-
-    # Find indices in score arrays
-    test_mask = masks["test"]
-    test_mask_dev = test_mask & (f["device"] == device)
-    ep_mask = test_mask_dev & (f["time"] >= ep["start_time"]) & (f["time"] <= ep["end_time"])
-
-    fig, axes = plt.subplots(4, 1, figsize=(12, 14), sharex=True, constrained_layout=True)
-    fig.suptitle(f"Case Study: {fault} (sev={severity}) on {device}  "
-                 f"({onset.strftime('%Y-%m-%d %H:%M')} - {end.strftime('%H:%M')}, {dur_h}h)",
-                 fontsize=12, fontweight="bold")
-
-    # 1) Power nodes: observed vs predicted (graph detector)
-    ax = axes[0]
-    for node in ["cpu_gpu_power_watts", "orin_power_watts", "input_power_watts", "power"]:
-        if node in ctx.columns:
-            ax.plot(ctx["time"], ctx[node], label=f"obs {node}", alpha=0.7, linewidth=1)
-    ax.axvspan(onset, end, alpha=0.2, color="red", label="Fault window")
-    ax.axvline(onset, color="red", linestyle="--", alpha=0.5)
-    ax.axvline(end, color="red", linestyle="--", alpha=0.5)
-    ax.set_ylabel("Power (W)")
-    ax.legend(loc="upper left", fontsize=8, ncol=2)
-    ax.grid(True, alpha=0.3)
-
-    # 2) Temperature nodes: observed
-    ax = axes[1]
-    for node in ["cpu_temp_celsius", "gpu_temp_celsius", "board_temp_celsius"]:
-        if node in ctx.columns:
-            ax.plot(ctx["time"], ctx[node], label=f"obs {node}", alpha=0.7, linewidth=1)
-    ax.axvspan(onset, end, alpha=0.2, color="red")
-    ax.axvline(onset, color="red", linestyle="--", alpha=0.5)
-    ax.axvline(end, color="red", linestyle="--", alpha=0.5)
-    ax.set_ylabel("Temperature (°C)")
-    ax.legend(loc="upper left", fontsize=8, ncol=2)
-    ax.grid(True, alpha=0.3)
-
-    # 3) Graph anomaly score with threshold
-    ax = axes[2]
-    test_mask = masks["test"]
-    dev_mask = f["device"] == ep["device"]
-    test_dev_mask = test_mask & (f["device"] == ep["device"])
-    test_times = f.loc[test_dev_mask, "time"].values
-    test_scores = graph_scores[test_dev_mask]
-    threshold = graph_thresholds[ep["device"]]  # need to compute per-device
-    ax.plot(test_times, test_scores, color="darkred", linewidth=0.8, label="Graph score (max|z|)")
-    ax.axhline(threshold, color="black", linestyle=":", linewidth=1, label=f"Threshold ({threshold:.1f})")
-    ax.axvspan(onset, end, alpha=0.2, color="red")
-    ax.axvline(onset, color="red", linestyle="--", alpha=0.5)
-    ax.axvline(end, color="red", linestyle="--", alpha=0.5)
-    ax.set_ylabel("Graph score (max |z|)")
-    ax.set_yscale("log")
-    ax.legend(loc="upper left", fontsize=8)
-    ax.grid(True, alpha=0.3)
-
-    # 4) Non-graph detector scores
-    ax = axes[3]
-    for det in ["max_abs_z", "mahalanobis", "iforest"]:
-        col = f"score_{det}"
-        if col in ng_scores.columns:
-            ng_dev = ng_scores[ng_scores["device"] == ep["device"]]
-            ng_test = ng_dev[ng_dev["split"] == "test"]
-            if len(ng_test) > 0:
-                ax.plot(ng_test["time"], ng_test[col], label=det, alpha=0.7, linewidth=0.8)
-    ax.axvspan(onset, end, alpha=0.2, color="red")
-    ax.axvline(onset, color="red", linestyle="--", alpha=0.5)
-    ax.axvline(end, color="red", linestyle="--", alpha=0.5)
-    ax.set_ylabel("Non-graph scores")
-    ax.set_yscale("log")
-    ax.legend(loc="upper left", fontsize=8, ncol=3)
-    ax.grid(True, alpha=0.3)
-
-    # Format x-axis
-    for ax in axes:
-        ax.xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter("%m-%d %H:%M"))
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right", fontsize=8)
-
-    out_path = output_dir / f"{fig_prefix}_{ep['fault']}_{ep['device']}_{ep['start_time'].strftime('%Y%m%d_%H%M')}.png"
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
+def to_naive(s: pd.Series) -> pd.Series:
+    s = pd.to_datetime(s)
+    if s.dt.tz is not None:
+        s = s.dt.tz_convert("UTC").dt.tz_localize(None)
+    return s.astype("datetime64[ns]")
 
 
 def main():
@@ -166,70 +52,131 @@ def main():
     FIGS.mkdir(parents=True, exist_ok=True)
 
     print("Loading data...")
-    f = G.load_features(G.load_eligible_devices())
-    scales = G.load_scales()
-    eval_faults = pd.read_parquet(DATA / "evaluation_faults.parquet")
-    devices = G.load_eligible_devices()
+    # per-node z from residuals
+    res = pd.read_parquet(DATA / "residuals.parquet",
+                          columns=["device", "time", "node", "observed", "predicted", "z"])
+    gs = pd.read_parquet(DATA / "graph_scores.parquet")
+    ng = pd.read_parquet(DATA / "nongraph_scores.parquet")
+    faults = pd.read_parquet(DATA / "evaluation_faults.parquet")
+    faults["device"] = faults["device"].astype(str)
 
-    # Load precomputed scores
-    graph_scores = pd.read_parquet(DATA / "graph_scores.parquet")
-    ng_scores = pd.read_parquet(DATA / "nongraph_scores.parquet")
-    residuals_df = pd.read_parquet(DATA / "graph_residuals.parquet")
+    for c in (res, gs, ng):
+        c["device"] = c["device"].astype(str)
+        c["time"] = to_naive(c["time"])
 
-    # Reconstruct z-scores from residuals
-    residuals = {}
-    for node in NODES:
-        residuals[node] = residuals_df.loc[residuals_df["node"] == node, "z"].values
-    # (residuals_df has all rows in order; we trust the ordering matches f)
+    # July-only per-device thresholds for each detector
+    cal = lambda d: ((d["time"] >= pd.Timestamp(G.SPLITS["calibrate"][0])) &
+                     (d["time"] < pd.Timestamp(G.SPLITS["calibrate"][1])))
 
-    # Better: recompute z-scores
-    residuals_df_wide = residuals_df.set_index(["device", "time", "node"])
-    # ... too slow. Just use graph_scores for plotting, and recompute per-node z for top nodes.
+    def thr_map(score_df, col):
+        out = {}
+        for dev in score_df["device"].unique():
+            v = score_df.loc[cal(score_df) & (score_df["device"] == dev), col].dropna().values
+            out[dev] = float(np.quantile(v, 1 - FAR)) if len(v) >= 20 else float(
+                np.nanquantile(score_df[col].dropna().values, 1 - FAR))
+        return out
 
-    # Precompute thresholds
-    masks = G.window_masks(f["time"])
-    cal_mask = masks["calibrate"]
-    test_mask = masks["test"]
-    eval_faults_df = pd.read_parquet(DATA / "evaluation_faults.parquet")
+    graph_thr = thr_map(gs, "graph_score")
+    ng_thr = {det: thr_map(ng, f"score_{det}") for det in
+              ("max_abs_z", "mahalanobis", "iforest")}
 
-    # Graph scores and thresholds
-    graph_scores_df = graph_scores.set_index(["device", "time"])
-    ng_scores_df = ng_scores.set_index(["device", "time"])
+    # residuals pivot: device,time -> node z
+    z_wide = res.pivot_table(index=["device", "time"], columns="node",
+                             values="z", aggfunc="first")
 
-    # Load graph detector thresholds
-    with open(DATA / "nongraph_thresholds.json") as fh:
-        ng_thr = json.load(fh)
-    # Graph threshold per device from calibration
-    graph_scores_arr = graph_scores["graph_score"].values
-    graph_score_test = graph_scores_arr[test_mask]
-    graph_scores_cal = graph_scores_arr[cal_mask]
-    devs = graph_scores["device"].astype(str).to_numpy()
+    # pick one episode per fault type (up to 8)
+    picked = faults.sort_values("start_time").groupby("fault", as_index=False).first()
+    print(f"Rendering {len(picked)} case-study figures...")
 
-    graph_thresholds = {}
-    for d in G.load_eligible_devices():
-        cal_scores = graph_scores_arr[cal_mask & (devs == d)]
-        cal_scores = cal_scores[np.isfinite(cal_scores)]
-        if len(cal_scores) >= 20:
-            graph_thresholds[d] = float(np.quantile(cal_scores, 1 - FAR))
-        else:
-            graph_thresholds[d] = float(np.quantile(graph_scores_arr[cal_mask], 1 - FAR))
+    for _, ep in picked.iterrows():
+        dev = str(ep["device"])
+        onset = pd.Timestamp(ep["start_time"])
+        if onset.tz is not None:
+            onset = onset.tz_localize(None)
+        end = pd.Timestamp(ep["end_time"])
+        if end.tz is not None:
+            end = end.tz_localize(None)
+        fault = ep["fault"]
+        sev = ep["severity"]
+        dur = int((end - onset).total_seconds() / 3600)
 
-    # Select a few interesting episodes for visualisation
-    eval_faults_test = eval_faults[eval_faults["split"] == "test"]
-    # Pick 5 diverse episodes
-    sample_faults = eval_faults_test.groupby("fault").first().reset_index()
-    sample_faults = sample_faults.head(5)
-    if len(sample_faults) < 5:
-        sample_faults = eval_faults_test.sample(n=5, random_state=20261103)
+        # context window ±24h
+        c0, c1 = onset - pd.Timedelta(hours=24), end + pd.Timedelta(hours=24)
+        if (dev, c0) not in z_wide.index:
+            # need to find nearest available
+            dev_times = z_wide.loc[dev].index if dev in z_wide.index.get_level_values(0) else None
+            if dev_times is None or len(dev_times) == 0:
+                print(f"  skip {fault}/{dev}: no residuals")
+                continue
 
-    print(f"\nGenerating case studies for {len(sample_faults)} episodes...")
-    for _, ep in sample_faults.iterrows():
-        # Simplified plot: just power + temps + graph score
-        # (Full implementation would be much longer; this is a scaffold)
-        print(f"  {ep['fault']} on {ep['device']} at {ep['start_time']}")
+        sub_z = z_wide.xs(dev, level="device")
+        ctx = sub_z[(sub_z.index >= c0) & (sub_z.index <= c1)]
 
-    print(f"\nPhase 5 (visualisations) scaffold complete in {time.time() - t0:.0f}s")
-    print("TODO: complete plotting with per-node residuals, graph structure diagram, alert timeline")
+        sub_gs = gs[(gs["device"] == dev) & (gs["time"] >= c0) & (gs["time"] <= c1)].set_index("time")
+        sub_ng = ng[(ng["device"] == dev) & (ng["time"] >= c0) & (ng["time"] <= c1)].set_index("time")
+
+        fig, axes = plt.subplots(4, 1, figsize=(12, 13), sharex=True,
+                                 constrained_layout=True)
+        fig.suptitle(f"{fault} (sev={sev}, {dur}h)  ·  {dev}  ·  "
+                     f"{onset:%Y-%m-%d %H:%M} → {end:%H:%M}", fontsize=12,
+                     fontweight="bold")
+
+        # 1) power nodes observed
+        ax = axes[0]
+        for n in POWER_NODES:
+            if n in ctx.columns:
+                ax.plot(ctx.index, ctx[n], lw=1, label=n.split("_")[0].upper())
+        ax.axvspan(onset, end, color="red", alpha=0.18, label="Fault window")
+        ax.set_ylabel("Power (W)")
+        ax.legend(fontsize=7, ncol=2, loc="upper left")
+        ax.grid(alpha=0.3)
+
+        # 2) temperature nodes observed
+        ax = axes[1]
+        for n in THERMAL_NODES:
+            if n in ctx.columns:
+                ax.plot(ctx.index, ctx[n], lw=1, label=n.split("_")[0].upper())
+        ax.axvspan(onset, end, color="red", alpha=0.18)
+        ax.set_ylabel("Temperature (°C)")
+        ax.legend(fontsize=7, ncol=2, loc="upper left")
+        ax.grid(alpha=0.3)
+
+        # 3) graph score + threshold
+        ax = axes[2]
+        if len(sub_gs):
+            ax.plot(sub_gs.index, sub_gs["graph_score"], color="#b2182b", lw=0.9,
+                    label="Graph score (max|z|)")
+        ax.axhline(graph_thr.get(dev, np.nan), color="black", ls=":",
+                   lw=1, label=f"Threshold (1% FAR)")
+        ax.axvspan(onset, end, color="red", alpha=0.18)
+        ax.set_ylabel("Graph score")
+        ax.set_yscale("log")
+        ax.legend(fontsize=7, loc="upper left")
+        ax.grid(alpha=0.3)
+
+        # 4) non-graph scores
+        ax = axes[3]
+        for det in ("max_abs_z", "mahalanobis", "iforest"):
+            if len(sub_ng) and f"score_{det}" in sub_ng.columns:
+                ax.plot(sub_ng.index, sub_ng[f"score_{det}"], lw=0.8, label=det)
+        ax.axvspan(onset, end, color="red", alpha=0.18)
+        ax.set_ylabel("Non-graph score")
+        ax.set_yscale("log")
+        ax.legend(fontsize=7, ncol=3, loc="upper left")
+        ax.grid(alpha=0.3)
+
+        for ax in axes:
+            ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%m-%d %H:%M"))
+            plt.setp(ax.xaxis.get_majorticklabels(), rotation=30, ha="right",
+                     fontsize=7)
+
+        out = FIGS / f"case_study_{fault}_{dev}_{onset:%Y%m%d_%H%M}.png"
+        fig.savefig(out, dpi=140, bbox_inches="tight")
+        plt.close(fig)
+        print(f"  wrote {out.name}")
+
+    print(f"\nCase studies complete in {time.time() - t0:.0f}s ({len(list(FIGS.glob('*.png')))} figures)")
+
 
 if __name__ == "__main__":
     main()
