@@ -140,7 +140,7 @@ def main():
     print(f"GDN median delay: {gdn_result['delay_median_hours']:.1f} hours")
 
     print("\nEvaluating hand graph for comparison...")
-    hand_result = G.evaluate_graph(G.HAND_PARENT_MAP, f, scales, masks, eval_faults, devices)
+    hand_result = evaluate_graph(G.HAND_PARENT_MAP, f, scales, masks, eval_faults, devices)
     print(f"Hand graph recall: {hand_result['recall']:.3f} ({hand_result['detected']}/{hand_result['n_episodes']})")
     print(f"Hand graph median delay: {hand_result['delay_median_hours']:.1f} hours")
 

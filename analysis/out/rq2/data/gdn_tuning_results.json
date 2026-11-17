@@ -1,0 +1,133 @@
+{
+  "generated": "2026-11-17T15:46:51.328874+00:00",
+  "tuning_episodes": "development (August)",
+  "grid": [
+    {
+      "alpha": 0.001,
+      "max_parents": 1,
+      "n_edges": 10,
+      "dev_recall": 0.21008403361344538,
+      "dev_detected": 150,
+      "dev_delay_median_h": 11.0
+    },
+    {
+      "alpha": 0.001,
+      "max_parents": 2,
+      "n_edges": 20,
+      "dev_recall": 0.2338935574229692,
+      "dev_detected": 167,
+      "dev_delay_median_h": 11.0
+    },
+    {
+      "alpha": 0.001,
+      "max_parents": 3,
+      "n_edges": 30,
+      "dev_recall": 0.211484593837535,
+      "dev_detected": 151,
+      "dev_delay_median_h": 10.0
+    },
+    {
+      "alpha": 0.01,
+      "max_parents": 1,
+      "n_edges": 10,
+      "dev_recall": 0.21008403361344538,
+      "dev_detected": 150,
+      "dev_delay_median_h": 11.0
+    },
+    {
+      "alpha": 0.01,
+      "max_parents": 2,
+      "n_edges": 19,
+      "dev_recall": 0.21288515406162464,
+      "dev_detected": 152,
+      "dev_delay_median_h": 11.0
+    },
+    {
+      "alpha": 0.01,
+      "max_parents": 3,
+      "n_edges": 27,
+      "dev_recall": 0.21288515406162464,
+      "dev_detected": 152,
+      "dev_delay_median_h": 10.0
+    },
+    {
+      "alpha": 0.1,
+      "max_parents": 1,
+      "n_edges": 10,
+      "dev_recall": 0.20868347338935575,
+      "dev_detected": 149,
+      "dev_delay_median_h": 11.0
+    },
+    {
+      "alpha": 0.1,
+      "max_parents": 2,
+      "n_edges": 18,
+      "dev_recall": 0.211484593837535,
+      "dev_detected": 151,
+      "dev_delay_median_h": 10.0
+    },
+    {
+      "alpha": 0.1,
+      "max_parents": 3,
+      "n_edges": 22,
+      "dev_recall": 0.21008403361344538,
+      "dev_detected": 150,
+      "dev_delay_median_h": 10.0
+    }
+  ],
+  "hand_graph_dev_recall": 0.21708683473389356,
+  "selected": {
+    "alpha": 0.001,
+    "max_parents": 2,
+    "n_edges": 20,
+    "dev_recall": 0.2338935574229692,
+    "dev_detected": 167,
+    "dev_delay_median_h": 11.0
+  },
+  "selected_graph": {
+    "cpu_gpu_power_watts": [
+      "power",
+      "input_power_watts"
+    ],
+    "orin_power_watts": [
+      "power",
+      "input_power_watts"
+    ],
+    "power": [
+      "cpu_gpu_power_watts",
+      "orin_power_watts"
+    ],
+    "input_power_watts": [
+      "input_current_amperes",
+      "power"
+    ],
+    "input_voltage_volts": [
+      "input_power_watts",
+      "input_current_amperes"
+    ],
+    "input_current_amperes": [
+      "input_power_watts",
+      "input_voltage_volts"
+    ],
+    "input_energy_wh_total_rate": [
+      "input_power_watts",
+      "cpu_gpu_power_watts"
+    ],
+    "cpu_temp_celsius": [
+      "gpu_temp_celsius",
+      "board_temp_celsius"
+    ],
+    "gpu_temp_celsius": [
+      "cpu_temp_celsius",
+      "orin_power_watts"
+    ],
+    "board_temp_celsius": [
+      "cpu_temp_celsius",
+      "cpu_gpu_power_watts"
+    ]
+  },
+  "reference_test": {
+    "gdn_recall": 0.3325330132052821,
+    "hand_recall": 0.30612244897959184
+  }
+}

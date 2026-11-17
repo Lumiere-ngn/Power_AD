@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RQ2 Final Report: Engineering-Informed Graph-Based Energy Anomaly Detection</title>
+<style>
+:root {
+  --primary: #1f77b4; --secondary: #ff7f0e; --success: #2ca02c; --danger: #d62728;
+  --bg: #fafafa; --card: #ffffff; --text: #222; --muted: #666;
+  --border: #e0e0e0; --code-bg: #f5f5f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1a1a2e; --card: #16213e; --text: #eaeaea; --muted: #aaa;
+          --border: #2a2a4a; --code-bg: #0f0f23; }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6;
+       background: var(--bg); color: var(--text); max-width: 1100px; margin: 0 auto; padding: 2rem; }
+header { border-bottom: 2px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 0.8rem; }
+h3 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; }
+p { margin: 0.8rem 0; }
+ul, ol { margin: 0.8rem 0 0.8rem 1.5rem; }
+code { background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius: 4px; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th, td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; }
+th { background: var(--code-bg); }
+img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; margin: 1rem 0; }
+figcaption { font-size: 0.85em; color: var(--muted); margin-top: 0.3rem; text-align: center; }
+.badge { display: inline-block; padding: 0.15em 0.5em; border-radius: 3px; font-size: 0.8em; font-weight: bold; }
+.badge-done { background: var(--success); color: white; }
+.badge-partial { background: var(--primary); color: white; }
+.badge-todo { background: var(--danger); color: white; }
+.badge-scaffold { background: var(--primary); color: white; }
+.kpi { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0; }
+.kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.5rem; min-width: 180px; }
+.kpi-value { font-size: 2rem; font-weight: bold; color: var(--primary); }
+.kpi-label { font-size: 0.85rem; color: var(--muted); }
+.alert { padding: 1rem; border-radius: 4px; margin: 1rem 0; }
+.alert-info { background: #e8f4fd; border-left: 4px solid var(--primary); }
+.alert-warning { background: #fff3cd; border-left: 4px solid var(--secondary); }
+.toc { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0; }
+.toc ul { list-style: none; padding-left: 1rem; }
+.toc li { margin: 0.4rem 0; }
+.toc a { text-decoration: none; color: var(--text); }
+.toc a:hover { color: var(--primary); }
+footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--border); color: var(--muted); font-size: 0.9em; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>RQ2 Final Report</h1>
+  <p style="color: var(--muted); margin-top: 0.5rem;">
+    <strong>Engineering-Informed Graph-Based Energy Anomaly Detection</strong><br>
+    Smart Bus-Stop Telemetry (Jetson Orin) · March–October 2026 · 109 devices
+  </p>
+</header>
+
+<nav class="toc">
+  <strong>Table of Contents</strong>
+  <ul>
+    <li><a href="#1-executive-summary">1. Executive Summary</a></li>
+    <li><a href="#2-methodology">2. Methodology</a></li>
+    <li><a href="#3-graph-specification">3. Graph Specification</a></li>
+    <li><a href="#4-residual-framework">4. Shared Residual Framework</a></li>
+    <li><a href="#5-detector-comparison">5. Detector Comparison</a></li>
+    <li><a href="#6-extensions">6. Extensions</a></li>
+    <li><a href="#7-conclusions">7. Conclusions & Limitations</a></li>
+  </ul>
+</nav>
+
+<section id="1-executive-summary">
+<h2>1. Executive Summary</h2>
+
+<div class="kpi">
+  <div class="kpi-card"><div class="kpi-value">0.301</div><div class="kpi-label">Hand Graph Recall @ 1% FAR</div></div>
+  <div class="kpi-card"><div class="kpi-value">0.505</div><div class="kpi-label">Best Non-Graph Recall (IForest)</div></div>
+  <div class="kpi-card"><div class="kpi-value">7th %ile</div><div class="kpi-label">Hand Graph vs 30 Random DAGs</div></div>
+  <div class="kpi-card"><div class="kpi-value">-6.7 pp</div><div class="kpi-label">Δ Recall Removing Power Edges</div></div>
+</div>
+
+<p>The primary RQ2 experiment compares three detector families on <strong>833 synthetic fault episodes</strong> across 61 eligible smart bus-stop devices (Sep–Oct 2026) with a <strong>1% false-alarm budget</strong> calibrated on July 2026 data:</p>
+
+<ul>
+  <li><strong>Non-graph detectors</strong> (max|z|, Mahalanobis, Isolation Forest): best recall <strong>50.5%</strong> (IForest) at 1% FAR</li>
+  <li><strong>Engineering-informed graph detector</strong> (max|z| over graph-conditioned residuals): recall <strong>30.1%</strong> at same FAR</li>
+  <li><strong>Random DAG controls</strong>: 30 degree-preserving random graphs → mean recall 33.6% ± 5.3%, hand graph at 7th percentile</li>
+</ul>
+
+<div class="alert alert-info">
+<strong>Key finding:</strong> The engineering-informed hand graph <strong>does not</strong> outperform the best non-graph detector (IForest) at the 1% FAR budget. It also does not significantly beat degree-preserving random graphs. The most impactful edges are power-supply relationships; removing them drops recall by 6.7 percentage points.
+</div>
+</section>
+
+<section id="2-methodology">
+<h2>2. Methodology</h2>
+<h3>2.1 Chronological Splits (Fixed by Protocol)</h3>
+<table>
+<thead><tr><th>Period</th><th>Dates</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>Fit</td><td>8 Mar – 30 Jun 2026</td><td>Normal-model training</td></tr>
+<tr><td>Calibrate</td><td>1 – 31 Jul 2026</td><td>Residual scales, thresholds</td></tr>
+<tr><td>Develop</td><td>1 – 31 Aug 2026</td><td>Detector & fault tuning</td></tr>
+<tr><td>Test</td><td>1 Sep – 7 Oct 2026</td><td>Final evaluation</td></tr>
+</tbody></table>
+
+<h3>2.2 Fault Injection (9 Types, 3 Severities Each)</h3>
+<table>
+<thead><tr><th>ID</th><th>Name</th><th>Root</th><th>Severities</th></tr></thead>
+<tbody>
+<tr><td>F1</td><td>Parasitic load</td><td>input_power</td><td>+5%, +10%, +20%</td></tr>
+<tr><td>F2</td><td>Compute runaway</td><td>cpu_gpu_power</td><td>+25%, +50%, +100%</td></tr>
+<tr><td>F3</td><td>Energy-counter drift</td><td>energy_rate</td><td>ramp 5%, 10%, 20%</td></tr>
+<tr><td>F4</td><td>Stuck power reading</td><td>input_power</td><td>6–12h, 12–24h, 24–48h</td></tr>
+<tr><td>F5</td><td>Supply sag</td><td>input_voltage</td><td>−3%, −6%, −12%</td></tr>
+<tr><td>F6</td><td>Cooling loss</td><td>cpu/gpu_temp</td><td>+3°C, +6°C, +12°C</td></tr>
+<tr><td>F7</td><td>Sensor drift</td><td>any node</td><td>1, 2, 4 σ ramp</td></tr>
+<tr><td>F8</td><td>Intermittent spikes</td><td>any node</td><td>4/6/8 σ spikes</td></tr>
+<tr><td>F9</td><td>Single-node bias</td><td>each node</td><td>1, 2, 4 σ bias</td></tr>
+</tbody></table>
+
+<h3>2.3 Evaluation Protocol</h3>
+<ul>
+  <li><strong>Event recall</strong>: episode detected if ≥1 alarm hour in [onset, end + 6h]</li>
+  <li><strong>Per-device thresholds</strong> at (1−FAR) quantile on July calibration</li>
+  <li><strong>Bootstrap CIs</strong>: 2000 device-level resamples, 95% CIs</li>
+  <li><strong>Holm correction</strong> for multiple comparisons</li>
+</ul>
+</section>
+
+<section id="3-graph-specification">
+<h2>3. Graph Specification</h2>
+<h3>3.1 Nodes (10 RQ2 Nodes)</h3>
+<table>
+<thead><tr><th>Node</th><th>Unit</th><th>Type</th></tr></thead>
+<tbody>
+<tr><td>cpu_gpu_power_watts</td><td>W</td><td>Power</td></tr>
+<tr><td>orin_power_watts</td><td>W</td><td>Power</td></tr>
+<tr><td>power</td><td>W</td><td>Power (heartbeat)</td></tr>
+<tr><td>input_power_watts</td><td>W</td><td>Power</td></tr>
+<tr><td>input_voltage_volts</td><td>V</td><td>Supply</td></tr>
+<tr><td>input_current_amperes</td><td>A</td><td>Supply</td></tr>
+<tr><td>input_energy_wh_total_rate</td><td>W</td><td>Energy counter</td></tr>
+<tr><td>cpu_temp_celsius</td><td>°C</td><td>Thermal</td></tr>
+<tr><td>gpu_temp_celsius</td><td>°C</td><td>Thermal</td></tr>
+<tr><td>board_temp_celsius</td><td>°C</td><td>Thermal</td></tr>
+</tbody></table>
+
+<h3>3.2 Hand Graph (10 Drawn Edges)</h3>
+<div class="alert alert-info">
+Graph generated from engineering documentation (INA238/INA3221 datasheets, Jetson Orin power/thermal guides, SRNE MPPT manuals). Edges reviewed in <code>analysis/protocol/hand_graph/edges.csv</code>.
+</div>
+
+<table>
+<thead><tr><th>Parent → Child</th><th>Justification</th></tr></thead>
+<tbody>
+<tr><td>cpu_gpu_power_watts → orin_power_watts</td><td>CPU+GPU rail part of Orin module rail</td></tr>
+<tr><td>orin_power_watts → power</td><td>Heartbeat logs same rail (assumed)</td></tr>
+<tr><td>orin_power_watts → input_power_watts</td><td>Module draw + display/modem/losses</td></tr>
+<tr><td>input_power_watts → input_current_amperes</td><td>I = P / V (INA238)</td></tr>
+<tr><td>input_voltage_volts → input_current_amperes</td><td>I = P / V</td></tr>
+<tr><td>input_power_watts → input_energy_wh_total_rate</td><td>Counter integrates input power</td></tr>
+<tr><td>cpu_gpu_power_watts → cpu_temp_celsius</td><td>Compute power heats SoC</td></tr>
+<tr><td>cpu_gpu_power_watts → gpu_temp_celsius</td><td>Compute power heats SoC</td></tr>
+<tr><td>cpu_temp_celsius → gpu_temp_celsius</td><td>CPU & GPU share one die</td></tr>
+<tr><td>input_power_watts → board_temp_celsius</td><td>Input-stage dissipation heats board sensor</td></tr>
+</tbody></table>
+
+<p><em>2 candidate edges pending BusPas review: board_temp → cpu_temp, board_temp → gpu_temp</em></p>
+</section>
+
+<section id="4-residual-framework">
+<h2>4. Shared Residual Framework</h2>
+<ul>
+  <li><strong>Context model</strong>: RQ1 LightGBM predictions (power: 200 trees/31 leaves; thermal: 500 trees/31 leaves) from March–June fit</li>
+  <li><strong>Parent model</strong>: Per-device ridge regression on graph parents (fit window only)</li>
+  <li><strong>Graph-conditioned residual</strong>: <code>r = observed − predicted(node | parents)</code></li>
+  <li><strong>Standardisation</strong>: Robust MAD scale per device/node from July calibration only</li>
+  <li><strong>Graph score</strong>: max |z| across all 10 nodes (analogous to max|z| non-graph)</li>
+</ul>
+</section>
+
+<section id="5-detector-comparison">
+<h2>5. Detector Comparison Results (FAR = 1%)</h2>
+
+<table>
+<thead><tr><th>Detector</th><th>Recall</th><th>Detected / 833</th><th>False Alarms / Device-Day</th><th>Median Delay (h)</th></tr></thead>
+<tbody>
+<tr><td><strong>IForest</strong></td><td><strong>0.505</strong></td><td>421</td><td>2.23</td><td>12.8</td></tr>
+<tr><td>Mahalanobis</td><td>0.270</td><td>225</td><td>1.58</td><td>12.5</td></tr>
+<tr><td>Max |z| (non-graph)</td><td>0.191</td><td>159</td><td>0.84</td><td>13.4</td></tr>
+<tr><td>Graph (hand)</td><td>0.301</td><td>251</td><td>12.05</td><td>9.3</td></tr>
+<tr><td>Graph (GDN learned)</td><td>0.000</td><td>0</td><td>0.00</td><td>—</td></tr>
+<tr><td>Empty graph</td><td>0.108</td><td>90</td><td>0.49</td><td>11.2</td></tr>
+</tbody></table>
+
+<h3>Bootstrap Confidence Intervals (2000 device resamples)</h3>
+<table>
+<thead><tr><th>Comparison</th><th>Mean Δ Recall</th><th>95% CI</th><th>Significant?</th></tr></thead>
+<tbody>
+<tr><td>Graph vs Max|z|</td><td>+0.111</td><td>[+0.034, +0.178]</td><td>✓ Significant</td></tr>
+<tr><td>Graph vs Mahalanobis</td><td>+0.031</td><td>[−0.042, +0.102]</td><td>ns</td></tr>
+<tr><td>Graph vs IForest</td><td>−0.204</td><td>[−0.278, −0.130]</td><td>✓ IForest better</td></tr>
+<tr><td>Max|z| vs Mahalanobis</td><td>−0.079</td><td>[−0.152, −0.004]</td><td>✓ Mahalanobis better</td></tr>
+</tbody></table>
+
+<div class="alert alert-warning">
+<strong>Critical finding:</strong> The engineering-informed graph detector does <strong>not</strong> outperform the best non-graph baseline (IForest) at 1% FAR. The graph detector achieves 30.1% recall vs 50.5% for IForest. The gap is statistically significant (bootstrap 95% CI: [−0.278, −0.130]).
+</div>
+</section>
+
+<section id="6-extensions">
+<h2>6. Extensions</h2>
+<h3>1. GDN Learned-Graph Baseline <span class="badge-scaffold">Scaffold</span></h3>
+<p><code>analysis/rq2_gdn.py</code> implements Lasso-based graph learning from fit-window data. Learns 24 edges (vs 10 hand) — overfits normal data (residuals too small, recall 0.000). <em>Fix: stricter Lasso (higher α, max_parents=1–2)</em>.</p>
+
+<h3>2. Random DAG Controls <span class="badge-done">Done</span></h3>
+<ul>
+  <li>30 random DAGs via degree-preserving edge swaps (NetworkX)</li>
+  <li>Hand graph recall: 0.301 → <strong>7th percentile</strong> of random recall distribution (μ=0.336, σ=0.053)</li>
+  <li>Hand graph does <strong>not</strong> significantly beat degree-preserving random graphs</li>
+  <li>Outputs: <code>random_graph_results.parquet</code>, <code>random_graph_results.json</code></li>
+</ul>
+
+<h3>3. Graph Ablations <span class="badge-done">Done</span></h3>
+<table>
+<thead><tr><th>Ablation</th><th>Edges</th><th>Recall</th><th>Δ vs Full</th></tr></thead>
+<tbody>
+<tr><td>full</td><td>10</td><td>0.301</td><td>+0.000</td></tr>
+<tr><td>no_power</td><td>5</td><td>0.234</td><td>−0.067</td></tr>
+<tr><td>no_compute</td><td>5</td><td>0.303</td><td>+0.001</td></tr>
+<tr><td>no_thermal</td><td>9</td><td>0.301</td><td>+0.000</td></tr>
+<tr><td>no_workload</td><td>7</td><td>0.295</td><td>−0.006</td></tr>
+<tr><td>no_voltage</td><td>9</td><td>0.301</td><td>+0.000</td></tr>
+<tr><td>empty_graph</td><td>0</td><td>0.108</td><td>−0.193</td></tr>
+</tbody></table>
+<p>Power edges (input_power_watts) are the <strong>only critical group</strong>; removing them costs 6.7 pp recall.</p>
+
+<h3>5. Candidate Subsystem Localisation <span class="badge-done">Done</span></h3>
+<ul>
+  <li>269/833 detected episodes localised (graph detector)</li>
+  <li>Top-1 node by mean |z|: <strong>cpu_gpu_power_watts</strong> (198/269)</li>
+  <li>Upstream rule (most upstream anomalous node with normal parents): <code>input_voltage_volts</code> (26), <code>input_current_amperes</code> (21)</li>
+  <li>Outputs: <code>localisation_graph_all.parquet</code>, <code>localisation_graph_detected.parquet</code></li>
+</ul>
+
+<h3>5. Reproducible Case-Study Visualisations <span class="badge-todo">Scaffold</span></h3>
+<p><code>analysis/rq2_casestudy.py</code> scaffolded — generates per-episode diagnostic figures (observed vs predicted, node |z| traces, graph score, non-graph scores, alert timeline).</p>
+
+<h3>6. Final RQ2 HTML Report <span class="badge-todo">Scaffold</span></h3>
+<p><strong>This document</strong> is the self-contained HTML report. Saved as <code>analysis/out/rq2/rq2_report.html</code>.</p>
+</section>
+
+<section id="7-conclusions">
+<h2>7. Conclusions & Limitations</h2>
+<h3>7.1 Conclusions</h3>
+<ol>
+  <li>The engineering-informed hand graph <strong>does not</strong> outperform the best non-graph baseline (IForest) at 1% FAR (30.1% vs 50.5% recall).</li>
+  <li>The hand graph does not significantly beat degree-preserving random DAGs (7th percentile).</li>
+  <li>Power-supply edges are the only critical substructure; removing them costs 6.7 pp recall.</li>
+  <li>Candidate localisation identifies <code>cpu_gpu_power_watts</code> as most frequent top anomaly; <code>input_voltage_volts</code> as most common upstream root cause.</li>
+  <li>GDN overfits with default Lasso settings; requires stricter regularisation.</li>
+</ol>
+
+<h3>7.2 Limitations</h3>
+<ul>
+  <li><strong>Synthetic ground truth only</strong>: evaluation on injected faults, not independently confirmed real faults</li>
+  <li><strong>Test period reuse</strong>: Sep–Oct data was previously inspected in pilot runs (Protocol D1)</li>
+  <li><strong>No real root-cause labels</strong>: localisation is candidate, not confirmed</li>
+  <li><strong>Hourly resolution</strong>: may miss transient faults <1h</li>
+  <li><strong>GDN not production-ready</strong>: requires Lasso regularisation tuning</li>
+  <li><strong>GDN learned graph has cycles</strong> (e.g., power ↔ input_power); ridge regression handles but interpretation harder</li>
+</ul>
+
+<h3>7.3 Reproducibility</h3>
+<p>All scripts accept no arguments, use fixed seeds (20261103 for data, 20261103 for GDN, 20261110 for eval), and write outputs to <code>analysis/out/rq2/data/</code>. 57 unit tests pass.</p>
+</section>
+
+<footer>
+  RQ2 Final Report · Generated 2026-11-17 · Power AD Project<br>
+  <code>git log --oneline -1</code> → <code>1c6acfd</code>
+</footer>
+</body>
+</html>
