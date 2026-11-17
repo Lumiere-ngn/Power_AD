@@ -1,0 +1,46 @@
+{
+  "cpu_gpu_power_watts": [
+    "power",
+    "input_power_watts"
+  ],
+  "orin_power_watts": [
+    "power",
+    "input_power_watts",
+    "input_energy_wh_total_rate"
+  ],
+  "power": [
+    "input_power_watts",
+    "orin_power_watts",
+    "cpu_gpu_power_watts"
+  ],
+  "input_power_watts": [
+    "input_voltage_volts",
+    "orin_power_watts",
+    "input_current_amperes"
+  ],
+  "input_voltage_volts": [
+    "input_power_watts",
+    "input_current_amperes",
+    "board_temp_celsius"
+  ],
+  "input_current_amperes": [
+    "input_power_watts",
+    "input_voltage_volts"
+  ],
+  "input_energy_wh_total_rate": [
+    "input_power_watts",
+    "input_voltage_volts"
+  ],
+  "cpu_temp_celsius": [
+    "gpu_temp_celsius",
+    "board_temp_celsius"
+  ],
+  "gpu_temp_celsius": [
+    "orin_power_watts",
+    "cpu_temp_celsius"
+  ],
+  "board_temp_celsius": [
+    "cpu_gpu_power_watts",
+    "cpu_temp_celsius"
+  ]
+}

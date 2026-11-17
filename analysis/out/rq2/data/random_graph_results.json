@@ -1,0 +1,225 @@
+{
+  "generated": "2026-11-17T15:04:34.414893+00:00",
+  "hand_graph": {
+    "cpu_gpu_power_watts": [],
+    "orin_power_watts": [
+      "cpu_gpu_power_watts"
+    ],
+    "power": [
+      "orin_power_watts"
+    ],
+    "input_power_watts": [
+      "orin_power_watts"
+    ],
+    "input_voltage_volts": [],
+    "input_current_amperes": [
+      "input_power_watts",
+      "input_voltage_volts"
+    ],
+    "input_energy_wh_total_rate": [
+      "input_power_watts"
+    ],
+    "cpu_temp_celsius": [
+      "cpu_gpu_power_watts"
+    ],
+    "gpu_temp_celsius": [
+      "cpu_gpu_power_watts",
+      "cpu_temp_celsius"
+    ],
+    "board_temp_celsius": [
+      "input_power_watts"
+    ]
+  },
+  "hand_graph_recall": 0.3013205282112845,
+  "hand_graph_detected": 251,
+  "n_random": 30,
+  "random_graphs": [
+    {
+      "graph_id": 0,
+      "edge_count": 10,
+      "recall": 0.4117647058823529,
+      "detected": 343
+    },
+    {
+      "graph_id": 1,
+      "edge_count": 10,
+      "recall": 0.35294117647058826,
+      "detected": 294
+    },
+    {
+      "graph_id": 2,
+      "edge_count": 10,
+      "recall": 0.37695078031212487,
+      "detected": 314
+    },
+    {
+      "graph_id": 3,
+      "edge_count": 10,
+      "recall": 0.3697478991596639,
+      "detected": 308
+    },
+    {
+      "graph_id": 4,
+      "edge_count": 10,
+      "recall": 0.36614645858343337,
+      "detected": 305
+    },
+    {
+      "graph_id": 5,
+      "edge_count": 10,
+      "recall": 0.3565426170468187,
+      "detected": 297
+    },
+    {
+      "graph_id": 6,
+      "edge_count": 10,
+      "recall": 0.3445378151260504,
+      "detected": 287
+    },
+    {
+      "graph_id": 7,
+      "edge_count": 10,
+      "recall": 0.09963985594237695,
+      "detected": 83
+    },
+    {
+      "graph_id": 8,
+      "edge_count": 10,
+      "recall": 0.3433373349339736,
+      "detected": 286
+    },
+    {
+      "graph_id": 9,
+      "edge_count": 10,
+      "recall": 0.30012004801920766,
+      "detected": 250
+    },
+    {
+      "graph_id": 10,
+      "edge_count": 10,
+      "recall": 0.30612244897959184,
+      "detected": 255
+    },
+    {
+      "graph_id": 11,
+      "edge_count": 10,
+      "recall": 0.304921968787515,
+      "detected": 254
+    },
+    {
+      "graph_id": 12,
+      "edge_count": 10,
+      "recall": 0.37815126050420167,
+      "detected": 315
+    },
+    {
+      "graph_id": 13,
+      "edge_count": 10,
+      "recall": 0.3205282112845138,
+      "detected": 267
+    },
+    {
+      "graph_id": 14,
+      "edge_count": 10,
+      "recall": 0.3157262905162065,
+      "detected": 263
+    },
+    {
+      "graph_id": 15,
+      "edge_count": 10,
+      "recall": 0.30732292917166865,
+      "detected": 256
+    },
+    {
+      "graph_id": 16,
+      "edge_count": 10,
+      "recall": 0.3517406962785114,
+      "detected": 293
+    },
+    {
+      "graph_id": 17,
+      "edge_count": 10,
+      "recall": 0.3085234093637455,
+      "detected": 257
+    },
+    {
+      "graph_id": 18,
+      "edge_count": 10,
+      "recall": 0.3205282112845138,
+      "detected": 267
+    },
+    {
+      "graph_id": 19,
+      "edge_count": 10,
+      "recall": 0.368547418967587,
+      "detected": 307
+    },
+    {
+      "graph_id": 20,
+      "edge_count": 10,
+      "recall": 0.34813925570228094,
+      "detected": 290
+    },
+    {
+      "graph_id": 21,
+      "edge_count": 10,
+      "recall": 0.34813925570228094,
+      "detected": 290
+    },
+    {
+      "graph_id": 22,
+      "edge_count": 10,
+      "recall": 0.3817527010804322,
+      "detected": 318
+    },
+    {
+      "graph_id": 23,
+      "edge_count": 10,
+      "recall": 0.33133253301320525,
+      "detected": 276
+    },
+    {
+      "graph_id": 24,
+      "edge_count": 10,
+      "recall": 0.37815126050420167,
+      "detected": 315
+    },
+    {
+      "graph_id": 25,
+      "edge_count": 10,
+      "recall": 0.3469387755102041,
+      "detected": 289
+    },
+    {
+      "graph_id": 26,
+      "edge_count": 10,
+      "recall": 0.34933973589435774,
+      "detected": 291
+    },
+    {
+      "graph_id": 27,
+      "edge_count": 10,
+      "recall": 0.304921968787515,
+      "detected": 254
+    },
+    {
+      "graph_id": 28,
+      "edge_count": 10,
+      "recall": 0.38895558223289317,
+      "detected": 324
+    },
+    {
+      "graph_id": 29,
+      "edge_count": 10,
+      "recall": 0.30732292917166865,
+      "detected": 256
+    }
+  ],
+  "mean_random_recall": 0.3362945178071228,
+  "std_random_recall": 0.05289540898570997,
+  "median_random_recall": 0.3475390156062425,
+  "min_random_recall": 0.09963985594237695,
+  "max_random_recall": 0.4117647058823529,
+  "hand_percentile_vs_random": 0.06666666666666667,
+  "hand_beats_random_count": 2
+}

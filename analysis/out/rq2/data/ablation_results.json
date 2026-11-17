@@ -1,0 +1,71 @@
+{
+  "generated": "2026-11-17T15:06:35.099750+00:00",
+  "full_graph_recall": 0.3013205282112845,
+  "ablations": [
+    {
+      "ablation": "full",
+      "edge_count": 10,
+      "recall": 0.3013205282112845,
+      "detected": 251,
+      "n_episodes": 833,
+      "delay_median_hours": 7.0
+    },
+    {
+      "ablation": "no_power",
+      "edge_count": 5,
+      "recall": 0.234093637454982,
+      "detected": 195,
+      "n_episodes": 833,
+      "delay_median_hours": 6.0
+    },
+    {
+      "ablation": "no_compute",
+      "edge_count": 5,
+      "recall": 0.3025210084033613,
+      "detected": 252,
+      "n_episodes": 833,
+      "delay_median_hours": 7.0
+    },
+    {
+      "ablation": "no_thermal",
+      "edge_count": 9,
+      "recall": 0.3013205282112845,
+      "detected": 251,
+      "n_episodes": 833,
+      "delay_median_hours": 7.0
+    },
+    {
+      "ablation": "no_workload",
+      "edge_count": 7,
+      "recall": 0.29531812725090034,
+      "detected": 246,
+      "n_episodes": 833,
+      "delay_median_hours": 6.0
+    },
+    {
+      "ablation": "no_voltage",
+      "edge_count": 9,
+      "recall": 0.3013205282112845,
+      "detected": 251,
+      "n_episodes": 833,
+      "delay_median_hours": 7.0
+    },
+    {
+      "ablation": "empty_graph",
+      "edge_count": 0,
+      "recall": 0.10804321728691477,
+      "detected": 90,
+      "n_episodes": 833,
+      "delay_median_hours": 9.0
+    }
+  ],
+  "delta_vs_full": {
+    "full": 0.0,
+    "no_power": -0.06722689075630253,
+    "no_compute": 0.0012004801920768027,
+    "no_thermal": 0.0,
+    "no_workload": -0.00600240096038418,
+    "no_voltage": 0.0,
+    "empty_graph": -0.19327731092436976
+  }
+}

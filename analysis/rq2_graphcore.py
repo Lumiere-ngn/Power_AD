@@ -201,9 +201,22 @@ def alarm_matrix(graph_score: np.ndarray, thresholds: dict, devs: np.ndarray) ->
 
 def evaluate_recall(alarms: np.ndarray, eval_mask: np.ndarray, eval_faults: pd.DataFrame,
                    devices: np.ndarray, times: np.ndarray) -> dict:
-    """Event recall: episode counts as detected if any alarm in [onset, end+window)."""
+    """Event recall: episode counts as detected if any alarm in [onset, end+window).
+
+    All timestamps are normalised to tz-naive numpy datetime64[ns] so that a
+    numpy array (from f["time"].values, which drops the timezone) and pandas
+    Timestamps (from the parquet, which may be tz-aware) compare cleanly.
+    """
+    def _naive64(x) -> np.datetime64:
+        ts = pd.Timestamp(x)
+        if ts.tzinfo is not None:
+            ts = ts.tz_convert("UTC").tz_localize(None)
+        return np.datetime64(ts.to_datetime64(), "ns")
+
+    # Naive datetime64 view of the evaluation rows
     eval_dev = devices[eval_mask]
-    eval_time = times[eval_mask]
+    raw_times = times[eval_mask]
+    eval_time = np.array(pd.DatetimeIndex(raw_times).tz_localize(None), dtype="datetime64[ns]")
     eval_alarm = alarms[eval_mask]
 
     detected = 0
@@ -211,9 +224,9 @@ def evaluate_recall(alarms: np.ndarray, eval_mask: np.ndarray, eval_faults: pd.D
     per_severity = {}
     delays = []
     for _, ep in eval_faults.iterrows():
-        onset = pd.Timestamp(ep["start_time"])
-        end = pd.Timestamp(ep["end_time"])
-        win_end = end + pd.Timedelta(hours=WINDOW_HOURS - 1)
+        onset = _naive64(ep["start_time"])
+        end = _naive64(ep["end_time"])
+        win_end = end + np.timedelta64(WINDOW_HOURS - 1, "h")
         m = (eval_dev == ep["device"]) & (eval_time >= onset) & (eval_time <= win_end)
         hit = eval_alarm[m]
         found = bool(hit.any())
@@ -221,9 +234,9 @@ def evaluate_recall(alarms: np.ndarray, eval_mask: np.ndarray, eval_faults: pd.D
             detected += 1
             per_fault[ep["fault"]] = per_fault.get(ep["fault"], 0) + 1
             per_severity[ep["severity"]] = per_severity.get(ep["severity"], 0) + 1
-            # delay = first alarm hour minus onset
             first_hit = np.flatnonzero(hit)[0]
-            delays.append(float((eval_time[m][first_hit] - onset).total_seconds() / 3600))
+            delay_h = (eval_time[m][first_hit] - onset) / np.timedelta64(1, "h")
+            delays.append(float(delay_h))
         else:
             per_fault.setdefault(ep["fault"], 0)
             per_severity.setdefault(ep["severity"], 0)
