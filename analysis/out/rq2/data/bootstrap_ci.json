@@ -1,49 +1,49 @@
 {
-  "generated": "2026-11-16T15:09:04.223085+00:00",
+  "generated": "2026-11-17T17:08:03.547530+00:00",
   "n_resamples": 2000,
   "n_devices": 61,
   "comparisons": {
     "graph_vs_max_abs_z": {
-      "mean_diff": 0.7649613282891973,
-      "ci_low": 0.687248543805921,
-      "ci_high": 0.8320151023839546,
-      "p_le_0": 0.0,
+      "mean_diff": 0.1250584699453552,
+      "ci_low": 0.03860820873115951,
+      "ci_high": 0.21598525791148737,
+      "p_le_0": 0.003,
       "significant": true
     },
     "graph_vs_mahalanobis": {
-      "mean_diff": 0.6912975199663725,
-      "ci_low": 0.6054152404972076,
-      "ci_high": 0.769202546087792,
-      "p_le_0": 0.0,
-      "significant": true
+      "mean_diff": 0.047142722032066285,
+      "ci_low": -0.04244970876118418,
+      "ci_high": 0.13581952200804645,
+      "p_le_0": 0.1555,
+      "significant": false
     },
     "graph_vs_iforest": {
-      "mean_diff": 0.38077410076262536,
-      "ci_low": 0.29360955983906806,
-      "ci_high": 0.46199528613463026,
-      "p_le_0": 0.0,
+      "mean_diff": -0.2083477241337897,
+      "ci_low": -0.30429194439440355,
+      "ci_high": -0.10713054704857991,
+      "p_le_0": 1.0,
       "significant": true
     },
     "max_abs_z_vs_mahalanobis": {
-      "mean_diff": -0.07158278388278387,
-      "ci_low": -0.1482979042815108,
-      "ci_high": 0.0042001441181768176,
-      "p_le_0": 0.968,
-      "significant": false
+      "mean_diff": -0.0777948717948718,
+      "ci_low": -0.12868086831201583,
+      "ci_high": -0.03118642286675073,
+      "p_le_0": 1.0,
+      "significant": true
     },
     "max_abs_z_vs_iforest": {
-      "mean_diff": -0.3826798805020117,
-      "ci_low": -0.4667163574130787,
-      "ci_high": -0.288019726175464,
+      "mean_diff": -0.33367983096138837,
+      "ci_low": -0.40692472827718745,
+      "ci_high": -0.25872440401128927,
       "p_le_0": 1.0,
-      "significant": false
+      "significant": true
     },
     "mahalanobis_vs_iforest": {
-      "mean_diff": -0.3117656518345042,
-      "ci_low": -0.3848570828079025,
-      "ci_high": -0.2381116015132409,
+      "mean_diff": -0.25531539962769473,
+      "ci_low": -0.3240422146159852,
+      "ci_high": -0.18191301867531387,
       "p_le_0": 1.0,
-      "significant": false
+      "significant": true
     }
   }
 }
