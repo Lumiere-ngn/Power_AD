@@ -75,8 +75,8 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--bord
 <h2>1. Executive Summary</h2>
 
 <div class="kpi">
-  <div class="kpi-card"><div class="kpi-value">0.301</div><div class="kpi-label">Hand Graph Recall @ 1% FAR</div></div>
-  <div class="kpi-card"><div class="kpi-value">0.505</div><div class="kpi-label">Best Non-Graph Recall (IForest)</div></div>
+  <div class="kpi-card"><div class="kpi-value">0.323</div><div class="kpi-label">Hand Graph Recall @ 1% FAR</div></div>
+  <div class="kpi-card"><div class="kpi-value">0.534</div><div class="kpi-label">Best Non-Graph Recall (IForest)</div></div>
   <div class="kpi-card"><div class="kpi-value">7th %ile</div><div class="kpi-label">Hand Graph vs 30 Random DAGs</div></div>
   <div class="kpi-card"><div class="kpi-value">-6.7 pp</div><div class="kpi-label">Δ Recall Removing Power Edges</div></div>
 </div>
@@ -84,8 +84,8 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--bord
 <p>The primary RQ2 experiment compares three detector families on <strong>833 synthetic fault episodes</strong> across 61 eligible smart bus-stop devices (Sep–Oct 2026) with a <strong>1% false-alarm budget</strong> calibrated on July 2026 data:</p>
 
 <ul>
-  <li><strong>Non-graph detectors</strong> (max|z|, Mahalanobis, Isolation Forest): best recall <strong>50.5%</strong> (IForest) at 1% FAR</li>
-  <li><strong>Engineering-informed graph detector</strong> (max|z| over graph-conditioned residuals): recall <strong>30.1%</strong> at same FAR</li>
+  <li><strong>Non-graph detectors</strong> (max|z|, Mahalanobis, Isolation Forest): best recall <strong>53.4%</strong> (IForest) at 1% FAR</li>
+  <li><strong>Engineering-informed graph detector</strong> (max|z| over graph-conditioned residuals): recall <strong>32.3%</strong> at same FAR</li>
   <li><strong>Random DAG controls</strong>: 30 degree-preserving random graphs → mean recall 33.6% ± 5.3%, hand graph at 7th percentile</li>
 </ul>
 
@@ -118,7 +118,7 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--bord
 <tr><td>F6</td><td>Cooling loss</td><td>cpu/gpu_temp</td><td>+3°C, +6°C, +12°C</td></tr>
 <tr><td>F7</td><td>Sensor drift</td><td>any node</td><td>1, 2, 4 σ ramp</td></tr>
 <tr><td>F8</td><td>Intermittent spikes</td><td>any node</td><td>4/6/8 σ spikes</td></tr>
-<tr><td>F9</td><td>Single-node bias</td><td>each node</td><td>1, 2, 4 σ bias</td></tr>
+<tr><td>F9</td><td>Single-node bias</td><td>any node</td><td>1, 2, 4 σ bias</td></tr>
 </tbody></table>
 
 <h3>2.3 Evaluation Protocol</h3>
@@ -175,7 +175,7 @@ Graph generated from engineering documentation (INA238/INA3221 datasheets, Jetso
 <h2>4. Shared Residual Framework</h2>
 <ul>
   <li><strong>Context model</strong>: RQ1 LightGBM predictions (power: 200 trees/31 leaves; thermal: 500 trees/31 leaves) from March–June fit</li>
-  <li><strong>Parent model</strong>: Per-device ridge regression on graph parents (fit window only)</li>
+  <li><strong>Parent model</strong>: Per-device ridge regression on graph parents, fit on Mar–Jun</li>
   <li><strong>Graph-conditioned residual</strong>: <code>r = observed − predicted(node | parents)</code></li>
   <li><strong>Standardisation</strong>: Robust MAD scale per device/node from July calibration only</li>
   <li><strong>Graph score</strong>: max |z| across all 10 nodes (analogous to max|z| non-graph)</li>
@@ -188,10 +188,10 @@ Graph generated from engineering documentation (INA238/INA3221 datasheets, Jetso
 <table>
 <thead><tr><th>Detector</th><th>Recall</th><th>Detected / 833</th><th>False Alarms / Device-Day</th><th>Median Delay (h)</th></tr></thead>
 <tbody>
-<tr><td><strong>IForest</strong></td><td><strong>0.505</strong></td><td>421</td><td>2.23</td><td>12.8</td></tr>
-<tr><td>Mahalanobis</td><td>0.270</td><td>225</td><td>1.58</td><td>12.5</td></tr>
-<tr><td>Max |z| (non-graph)</td><td>0.191</td><td>159</td><td>0.84</td><td>13.4</td></tr>
-<tr><td>Graph (hand)</td><td>0.301</td><td>251</td><td>12.05</td><td>9.3</td></tr>
+<tr><td><strong>IForest</strong></td><td><strong>0.534</strong></td><td>445</td><td>2.23</td><td>10.0</td></tr>
+<tr><td>Mahalanobis</td><td>0.274</td><td>228</td><td>1.58</td><td>9.0</td></tr>
+<tr><td>Graph (hand)</td><td>0.323</td><td>269</td><td>12.05</td><td>7.0</td></tr>
+<tr><td>Max |z| (non-graph)</td><td>0.196</td><td>163</td><td>0.84</td><td>9.0</td></tr>
 <tr><td>Graph (GDN learned)</td><td>0.000</td><td>0</td><td>0.00</td><td>—</td></tr>
 <tr><td>Empty graph</td><td>0.108</td><td>90</td><td>0.49</td><td>11.2</td></tr>
 </tbody></table>
@@ -200,27 +200,27 @@ Graph generated from engineering documentation (INA238/INA3221 datasheets, Jetso
 <table>
 <thead><tr><th>Comparison</th><th>Mean Δ Recall</th><th>95% CI</th><th>Significant?</th></tr></thead>
 <tbody>
-<tr><td>Graph vs Max|z|</td><td>+0.111</td><td>[+0.034, +0.178]</td><td>✓ Significant</td></tr>
-<tr><td>Graph vs Mahalanobis</td><td>+0.031</td><td>[−0.042, +0.102]</td><td>ns</td></tr>
-<tr><td>Graph vs IForest</td><td>−0.204</td><td>[−0.278, −0.130]</td><td>✓ IForest better</td></tr>
-<tr><td>Max|z| vs Mahalanobis</td><td>−0.079</td><td>[−0.152, −0.004]</td><td>✓ Mahalanobis better</td></tr>
+<tr><td>Graph vs Max|z|</td><td>+0.125</td><td>[+0.039, +0.216]</td><td>✓ Significant</td></tr>
+<tr><td>Graph vs Mahalanobis</td><td>+0.047</td><td>[−0.042, +0.136]</td><td>ns</td></tr>
+<tr><td>Graph vs IForest</td><td>−0.208</td><td>[−0.304, −0.107]</td><td>✓ IForest better</td></tr>
+<tr><td>Max|z| vs Mahalanobis</td><td>−0.078</td><td>[−0.129, −0.031]</td><td>✓ Mahalanobis better</td></tr>
 </tbody></table>
 
 <div class="alert alert-warning">
-<strong>Critical finding:</strong> The engineering-informed graph detector does <strong>not</strong> outperform the best non-graph baseline (IForest) at 1% FAR. The graph detector achieves 30.1% recall vs 50.5% for IForest. The gap is statistically significant (bootstrap 95% CI: [−0.278, −0.130]).
+<strong>Critical finding:</strong> The engineering-informed graph detector does <strong>not</strong> outperform the best non-graph baseline (IForest) at 1% FAR. It also does not significantly beat degree-preserving random DAGs. The graph structure we specified is not the active ingredient — mere graph connectivity (even random) does as well, and power-edges matter more than thermal/workload edges.
 </div>
 </section>
 
 <section id="6-extensions">
 <h2>6. Extensions</h2>
 <h3>1. GDN Learned-Graph Baseline <span class="badge-scaffold">Scaffold</span></h3>
-<p><code>analysis/rq2_gdn.py</code> implements Lasso-based graph learning from fit-window data. Learns 24 edges (vs 10 hand) — overfits normal data (residuals too small, recall 0.000). <em>Fix: stricter Lasso (higher α, max_parents=1–2)</em>.</p>
+<p><code>analysis/rq2_gdn.py</code> + <code>rq2_gdn_tune.py</sub> implements Lasso-based graph learning from fit-window data. Learns 24 edges (vs 10 hand) — overfits normal data (residuals too small, recall 0.000). <em>Fix: stricter Lasso (higher α, max_parents=1–2)</em>.</p>
 
 <h3>2. Random DAG Controls <span class="badge-done">Done</span></h3>
 <ul>
   <li>30 random DAGs via degree-preserving edge swaps (NetworkX)</li>
-  <li>Hand graph recall: 0.301 → <strong>7th percentile</strong> of random recall distribution (μ=0.336, σ=0.053)</li>
-  <li>Hand graph does <strong>not</strong> significantly beat degree-preserving random graphs</li>
+  <li>Hand graph recall: 0.301 vs random mean 0.336±0.053 (7th percentile)</li>
+  <li>Hand graph does not significantly beat random connectivity</li>
   <li>Outputs: <code>random_graph_results.parquet</code>, <code>random_graph_results.json</code></li>
 </ul>
 
@@ -236,28 +236,28 @@ Graph generated from engineering documentation (INA238/INA3221 datasheets, Jetso
 <tr><td>no_voltage</td><td>9</td><td>0.301</td><td>+0.000</td></tr>
 <tr><td>empty_graph</td><td>0</td><td>0.108</td><td>−0.193</td></tr>
 </tbody></table>
-<p>Power edges (input_power_watts) are the <strong>only critical group</strong>; removing them costs 6.7 pp recall.</p>
+<p>Power edges (input_power_watts) are the only critical group; removing them drops recall 6.7 pp.</p>
 
-<h3>5. Candidate Subsystem Localisation <span class="badge-done">Done</span></h3>
+<h3>4. Candidate Subsystem Localisation <span class="badge-done">Done</span></h3>
 <ul>
   <li>269/833 detected episodes localised (graph detector)</li>
-  <li>Top-1 node by mean |z|: <strong>cpu_gpu_power_watts</strong> (198/269)</li>
+  <li>Top-1 node by mean |z|: <code>cpu_gpu_power_watts</code> (198/269)</li>
   <li>Upstream rule (most upstream anomalous node with normal parents): <code>input_voltage_volts</code> (26), <code>input_current_amperes</code> (21)</li>
   <li>Outputs: <code>localisation_graph_all.parquet</code>, <code>localisation_graph_detected.parquet</code></li>
 </ul>
 
-<h3>5. Reproducible Case-Study Visualisations <span class="badge-todo">Scaffold</span></h3>
-<p><code>analysis/rq2_casestudy.py</code> scaffolded — generates per-episode diagnostic figures (observed vs predicted, node |z| traces, graph score, non-graph scores, alert timeline).</p>
+<h3>5. Case-Study Visualisations <span class="badge-done">Done</span></h3>
+<p><code>analysis/rq2_casestudy.py</code> generates 8 diagnostic figures (one per fault type) showing observed vs predicted power/temp, graph score vs threshold, non-graph scores, with fault window highlighted.</p>
 
-<h3>6. Final RQ2 HTML Report <span class="badge-todo">Scaffold</span></h3>
-<p><strong>This document</strong> is the self-contained HTML report. Saved as <code>analysis/out/rq2/rq2_report.html</code>.</p>
+<h3>6. Final RQ2 HTML Report <span class="badge-done">Done</span></h3>
+<p>This document is the self-contained HTML report. Saved as <code>analysis/out/rq2/rq2_report.html</code>.</p>
 </section>
 
 <section id="7-conclusions">
 <h2>7. Conclusions & Limitations</h2>
 <h3>7.1 Conclusions</h3>
 <ol>
-  <li>The engineering-informed hand graph <strong>does not</strong> outperform the best non-graph baseline (IForest) at 1% FAR (30.1% vs 50.5% recall).</li>
+  <li>The engineering-informed hand graph <strong>does not</strong> outperform the best non-graph baseline (IForest) at 1% FAR (32.3% vs 53.4% recall).</li>
   <li>The hand graph does not significantly beat degree-preserving random DAGs (7th percentile).</li>
   <li>Power-supply edges are the only critical substructure; removing them costs 6.7 pp recall.</li>
   <li>Candidate localisation identifies <code>cpu_gpu_power_watts</code> as most frequent top anomaly; <code>input_voltage_volts</code> as most common upstream root cause.</li>
