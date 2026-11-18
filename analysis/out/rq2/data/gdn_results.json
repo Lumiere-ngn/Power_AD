@@ -1,0 +1,79 @@
+{
+  "generated": "2026-11-18T16:27:39.994690+00:00",
+  "model": "GDN (Deng & Hooi 2021 adaptation)",
+  "input": "RQ1 context-model residuals (z)",
+  "recall": 0.25570228091236497,
+  "detected": 213,
+  "n_episodes": 833,
+  "per_fault": {
+    "F1": 35,
+    "F2": 40,
+    "F3": 69,
+    "F4": 42,
+    "F5": 13,
+    "F9": 3,
+    "F6": 9,
+    "F7": 2
+  },
+  "learned_graph": {
+    "cpu_gpu_power_watts": [
+      "board_temp_celsius",
+      "cpu_temp_celsius",
+      "input_current_amperes"
+    ],
+    "orin_power_watts": [
+      "cpu_temp_celsius",
+      "input_current_amperes",
+      "board_temp_celsius"
+    ],
+    "power": [
+      "gpu_temp_celsius",
+      "input_current_amperes",
+      "input_voltage_volts"
+    ],
+    "input_power_watts": [
+      "board_temp_celsius",
+      "gpu_temp_celsius",
+      "input_energy_wh_total_rate"
+    ],
+    "input_voltage_volts": [
+      "board_temp_celsius",
+      "input_energy_wh_total_rate",
+      "power"
+    ],
+    "input_current_amperes": [
+      "board_temp_celsius",
+      "cpu_temp_celsius",
+      "orin_power_watts"
+    ],
+    "input_energy_wh_total_rate": [
+      "input_voltage_volts",
+      "board_temp_celsius",
+      "input_power_watts"
+    ],
+    "cpu_temp_celsius": [
+      "orin_power_watts",
+      "input_current_amperes",
+      "board_temp_celsius"
+    ],
+    "gpu_temp_celsius": [
+      "power",
+      "input_power_watts",
+      "input_energy_wh_total_rate"
+    ],
+    "board_temp_celsius": [
+      "input_current_amperes",
+      "cpu_gpu_power_watts",
+      "cpu_temp_celsius"
+    ]
+  },
+  "hyperparameters": {
+    "window": 12,
+    "k": 3,
+    "emb_dim": 16,
+    "epochs": 40,
+    "batch": 512,
+    "lr": 0.01,
+    "seed": 20261103
+  }
+}

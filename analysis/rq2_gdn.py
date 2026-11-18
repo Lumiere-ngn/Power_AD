@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-"""Phase 5 GDN: faithful Graph Deviation Network (Deng & Hooi, 2021).
+"""Extension 1: GDN learned-graph baseline (Deng & Hooi 2021 adaptation).
 
-Implements the four components of GDN on the RQ2 residuals:
-  1. Sensor embedding        — learnable per-node embedding
-  2. Graph structure learning — cosine similarity + top-k neighbour selection
-  3. Graph attention forecast — predict each node from its neighbours' history
-  4. Graph deviation score   — per-node error → robust median/IQR normalisation
-                               → max over nodes
+Faithful four-component GDN on RQ1 context residuals:
+  1. Sensor embedding          learnable vector per node
+  2. Graph structure learning  cosine similarity -> top-k neighbours
+  3. Graph attention forecast  each node predicted from its own window plus
+                               its k neighbours' windows
+  4. Graph deviation scoring   per-node |error| robust-normalised (median/IQR)
+                               on the fit window, then max over nodes
 
-Input: RQ1 context residuals (z-scores per device × hour × node), consistent
-with the other RQ2 detectors (reviewer's recommendation).
+Input: RQ1 context-model residual z-scores (device x hour x node), the same
+residuals the other RQ2 detectors use (reviewer recommendation D).
 
-Training: fit window only (normal data). Calibration: July only (per-device 1%
-FAR thresholds). Evaluation: test episodes on the same rules as the other
-detectors.
+Protocol (no leakage): train on fit window only; per-device 1% FAR threshold
+from July calibration; evaluate on the same Sep-Oct test episodes.
 
 Usage: python3 analysis/rq2_gdn.py
 """
@@ -30,7 +30,7 @@ import torch
 import torch.nn as nn
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import rq2_graphcore as G
+import rq2_graphcore as G  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "analysis/out"
@@ -40,112 +40,108 @@ DATA = RQ2 / "data"
 NODES = G.NODES
 N = len(NODES)
 FAR = G.FAR
-WINDOW = 12       # historical input window (adapted; paper used 5)
-K_NEIGHBOURS = 3  # top-k neighbours (adapted; paper used dataset-dependent)
-EMB_DIM = 32      # embedding dimension (adapted)
-EPOCHS = 60
-BATCH = 256
-LR = 0.005
+WINDOW = 12
+K_NEIGHBOURS = 3
+EMB_DIM = 16
+EPOCHS = 40
+BATCH = 512
+LR = 0.01
 SEED = 20261103
+MAX_TRAIN_WINDOWS = 60000
 
+torch.manual_seed(SEED)
+np.random.seed(SEED)
 torch.set_default_dtype(torch.float32)
 
 
 class GDN(nn.Module):
-    """GDN: sensor embeddings + graph attention forecasting."""
+    """Sensor embeddings -> similarity graph -> graph-conditioned forecast."""
 
     def __init__(self, n=N, k=K_NEIGHBOURS, emb=EMB_DIM, window=WINDOW):
         super().__init__()
         self.n, self.k, self.w = n, k, window
-        # Sensor embeddings (component 1)
         self.embed = nn.Parameter(torch.randn(n, emb))
-        # per-node linear forecasters over the window of its own history
-        self.self_fc = nn.ModuleList([nn.Linear(window, 1) for _ in range(n)])
-        # per-node attention over neighbour windows
-        self.attn = nn.Parameter(torch.zeros(n, k, 2 * window))
+        self.heads = nn.ModuleList(
+            [nn.Linear(window * (k + 1), 1) for _ in range(n)]
+        )
+        self._neigh = None
 
     def adjacency(self):
-        """Graph structure learning: top-k by embedding cosine similarity."""
         e = self.embed / (self.embed.norm(dim=1, keepdim=True) + 1e-8)
         sim = e @ e.t()
         sim.fill_diagonal_(-1e9)
-        topk = torch.topk(sim, self.k, dim=1).indices  # [n, k] neighbour indices
-        mask = torch.zeros_like(sim)
-        mask.scatter_(1, topk, 1.0)
-        return mask  # [n, n] 1 if edge parent→child
+        return torch.topk(sim, self.k, dim=1).indices
+
+    def capture(self):
+        with torch.no_grad():
+            self._neigh = self.adjacency().tolist()
 
     def forward(self, X):
-        """X: [batch, window, n] → prediction [batch, n] for next step."""
-        B, W, _ = X.shape
-        adj = self.adjacency()
+        if self._neigh is None:
+            self.capture()
+        B = X.shape[0]
         out = []
         for i in range(self.n):
-            # self term: node i's own history
-            self_term = self.self_fc[i](X[:, :, i])
-            # neighbours
-            neigh = torch.nonzero(adj[i]).flatten()
-            if len(neigh) == 0:
-                out.append(self_term)
-                continue
-            # attention-weighted sum of neighbour windows
-            att = self.attn[i, : len(neigh), :]  # [k_i, 2*window]
-            xw = X[:, :, neigh].reshape(B, W, -1)  # flatten neighbour windows
-            # score = xw @ att_mean; combine with self
-            att_score = (xw * att.mean(0).unsqueeze(0).unsqueeze(1)).sum(1)
-            out.append(self_term + att_score)
+            cols = [i] + self._neigh[i]
+            xi = X[:, :, cols].reshape(B, self.w * (self.k + 1))
+            out.append(self.heads[i](xi))
         return torch.cat(out, dim=1)
 
 
-def make_windows(wide: pd.DataFrame, max_len=200000, seed=SEED):
-    """Build (X, y) windows of length W+1 over consecutive hours."""
-    vals = wide[NODES].to_numpy(dtype=float)
-    n_rows = len(wide)
+def load_wide() -> pd.DataFrame:
+    r = pd.read_parquet(DATA / "residuals.parquet",
+                        columns=["device", "time", "node", "z"])
+    r["device"] = r["device"].astype(str)
+    r["time"] = pd.to_datetime(r["time"])
+    if r["time"].dt.tz is not None:
+        r["time"] = r["time"].dt.tz_convert("UTC").dt.tz_localize(None)
+    wide = r.pivot_table(index=["device", "time"], columns="node",
+                         values="z", aggfunc="first").reindex(columns=NODES)
+    return wide
+
+
+def windows(vals: np.ndarray, window: int):
     Xs, ys = [], []
-    rng = np.random.default_rng(seed)
-    # random valid start indices
-    for t in range(WINDOW, n_rows):
-        chunk = vals[t - WINDOW:t + 1]
+    for t in range(window, len(vals)):
+        chunk = vals[t - window:t + 1]
         if np.isfinite(chunk).all():
-            Xs.append(chunk[:WINDOW])
+            Xs.append(chunk[:window])
             ys.append(chunk[-1])
-    if len(Xs) > max_len:
-        idx = rng.choice(len(Xs), max_len, replace=False)
-        Xs = [Xs[i] for i in idx]
-        ys = [ys[i] for i in idx]
-    return np.asarray(Xs, dtype=np.float32), np.asarray(ys, dtype=np.float32)
+    if not Xs:
+        return (np.empty((0, window, vals.shape[1]), np.float32),
+                np.empty((0, vals.shape[1]), np.float32))
+    return np.asarray(Xs, np.float32), np.asarray(ys, np.float32)
 
 
-def train(f: pd.DataFrame, devices: list[str]) -> GDN:
-    """Train GDN on fit-window normal residuals across all devices."""
-    masks = G.window_masks(f["time"])
-    fit_mask = masks["fit"]
-
-    # collect windows from a sample of devices (training scale)
+def train_gdn(wide: pd.DataFrame, fit_mask: np.ndarray) -> GDN:
+    dfw = wide.reset_index()
     rng = np.random.default_rng(SEED)
-    sample_devs = list(rng.choice(devices, min(20, len(devices)), replace=False))
+    devices = sorted(dfw["device"].unique())
+    sample = rng.choice(devices, min(25, len(devices)), replace=False)
     Xs, ys = [], []
-    for dev in sample_devs:
-        sub = f[(f["device"] == dev) & fit_mask].sort_values("time")
-        w = pivot_z(sub)
-        if w is None:
-            continue
-        X, y = make_windows(w)
-        Xs.append(X)
-        ys.append(y)
+    for dev in sample:
+        sub = dfw[(dfw["device"] == dev) & fit_mask].sort_values("time")
+        vals = sub[NODES].to_numpy(dtype=float)
+        X, y = windows(vals, WINDOW)
+        if len(X):
+            Xs.append(X)
+            ys.append(y)
     X = np.concatenate(Xs)
     y = np.concatenate(ys)
-    print(f"  training windows: {X.shape[0]:,} × {X.shape[1]} steps × {len(avail)} nodes")
-    xb = torch.from_numpy(X)
-        yb = torch.from_numpy(y)
+    if len(X) > MAX_TRAIN_WINDOWS:
+        idx = rng.choice(len(X), MAX_TRAIN_WINDOWS, replace=False)
+        X, y = X[idx], y[idx]
+    print(f"  training windows: {X.shape[0]:,} ({X.shape[1]}h x {N} nodes)")
 
+    xb = torch.from_numpy(X)
+    yb = torch.from_numpy(y)
     net = GDN()
     opt = torch.optim.Adam(net.parameters(), lr=LR)
     loss_fn = nn.MSELoss()
-
     n = len(xb)
     for ep in range(EPOCHS):
         perm = torch.randperm(n)
-        total = 0.0
+        total, nb = 0.0, 0
         for b in range(0, n, BATCH):
             idx = perm[b:b + BATCH]
             opt.zero_grad()
@@ -154,130 +150,143 @@ def train(f: pd.DataFrame, devices: list[str]) -> GDN:
             loss.backward()
             opt.step()
             total += loss.item()
+            nb += 1
         if (ep + 1) % 10 == 0 or ep == 0:
-            print(f"  epoch {ep+1}/{EPOCHS}  mse={total / max(1, (n + BATCH - 1)//BATCH):.4f}")
+            print(f"  epoch {ep+1:2d}/{EPOCHS}  mse={total/max(nb,1):.4f}")
+    net.capture()
     return net
 
 
-def predict(net, X):
+def score_series(net: GDN, vals: np.ndarray, err_med: np.ndarray,
+                 err_iqr: np.ndarray) -> np.ndarray:
+    n = len(vals)
+    score = np.full(n, np.nan)
+    net.eval()
     with torch.no_grad():
-        return net(torch.from_numpy(X)).numpy()
-
-
-def graph_score_deviation(net: GDN, dev_scores: pd.DataFrame,
-                          node_err_median: np.ndarray,
-                          node_err_iqr: np.ndarray) -> np.ndarray:
-    """Per-hour graph deviation score: max over nodes of robust-normalised error."""
-    # Use the node errors from the network
-    # For each row in dev_scores, compute per-node prediction error
-    # Then robust-normalise: (err - median) / IQR, max over nodes
-    # We need the raw per-node errors — compute from the model's predictions
-    # against observed values in the wide frame
-    # (this is handled in the main evaluation loop; here we just
-        return max_norm_errors
+        for t in range(WINDOW, n):
+            chunk = vals[t - WINDOW:t + 1]
+            if not np.isfinite(chunk).all():
+                continue
+            x = torch.from_numpy(chunk[:WINDOW].reshape(1, WINDOW, N).astype(np.float32))
+            pred = net(x)[0].numpy()
+            err = np.abs(vals[t] - pred)
+            z = (err - err_med) / np.maximum(err_iqr, 1e-8)
+            score[t] = np.nanmax(z)
+    return score
 
 
 def main():
     t0 = time.time()
     DATA.mkdir(parents=True, exist_ok=True)
 
-    print("Loading data...")
-    f = G.load_features(G.load_eligible_devices())
+    print("Loading residuals...")
+    wide = load_wide()
+    print(f"  {len(wide):,} device-hours, {wide.index.get_level_values('device').nunique()} devices")
+
+    t = pd.DatetimeIndex(wide.index.get_level_values("time"))
+    def mask(a, b):
+        return np.asarray((t >= pd.Timestamp(a)) & (t < pd.Timestamp(b)))
+    fit_mask = mask(*G.SPLITS["fit"])
+    cal_mask = mask(*G.SPLITS["calibrate"])
+    test_mask = mask(*G.SPLITS["test"])
+    print(f"  splits: fit={fit_mask.sum():,} cal={cal_mask.sum():,} test={test_mask.sum():,}")
+
+    print("\nTraining GDN...")
+    net = train_gdn(wide, fit_mask)
+    torch.save(net.state_dict(), RQ2 / "gdn_model.pt")
+    learned = {NODES[i]: [NODES[j] for j in net._neigh[i]] for i in range(N)}
+    print(f"  learned graph edges: {sum(len(v) for v in learned.values())}")
+    for node, ps in learned.items():
+        print(f"    {node}: {ps}")
+    (DATA / "gdn_learned_graph.json").write_text(json.dumps(learned, indent=2))
+
+    # per-node error stats from fit window (robust normalisation)
+    print("\nCalibrating error normalisation on fit window...")
+    dfw = wide.reset_index()
+    all_err = []
+    for dev in dfw["device"].unique()[:15]:
+        sub = dfw[(dfw["device"] == dev) & fit_mask].sort_values("time")
+        vals = sub[NODES].to_numpy(dtype=float)
+        net.eval()
+        with torch.no_grad():
+            for tt in range(WINDOW, len(vals)):
+                chunk = vals[tt - WINDOW:tt + 1]
+                if not np.isfinite(chunk).all():
+                    continue
+                x = torch.from_numpy(chunk[:WINDOW].reshape(1, WINDOW, N).astype(np.float32))
+                pred = net(x)[0].numpy()
+                all_err.append(np.abs(vals[tt] - pred))
+    all_err = np.asarray(all_err)
+    err_med = np.nanmedian(all_err, axis=0)
+    q75 = np.nanquantile(all_err, 0.75, axis=0)
+    q25 = np.nanquantile(all_err, 0.25, axis=0)
+    err_iqr = np.maximum(q75 - q25, 1e-6)
+    print(f"  error median (first 4): {np.round(err_med[:4], 3)}")
+    print(f"  error IQR   (first 4): {np.round(err_iqr[:4], 3)}")
+
+    # score every device
+    print("\nScoring devices...")
+    score_by_dev, thr, times_by_dev = {}, {}, {}
     eval_faults = pd.read_parquet(DATA / "evaluation_faults.parquet")
-    devices = G.load_eligible_devices()
+    eval_faults["device"] = eval_faults["device"].astype(str)
+    wide_by_dev = {d: g for d, g in wide.groupby(level="device")}
 
-    print(f"Loaded {len(f):,} rows, {len(devices)} devices")
+    for dev in wide_by_dev:
+        w = wide_by_dev[dev].droplevel("device")
+        vals = w[NODES].to_numpy(dtype=float)
+        times = w.index.to_numpy()
+        sc = score_series(net, vals, err_med, err_iqr)
+        score_by_dev[dev] = sc
+        times_by_dev[dev] = times
+        cm = ((w.index >= pd.Timestamp(G.SPLITS["calibrate"][0])) &
+              (w.index < pd.Timestamp(G.SPLITS["calibrate"][1])))
+        cs = sc[cm]
+        cs = cs[np.isfinite(cs)]
+        thr[dev] = float(np.quantile(cs, 1 - FAR)) if len(cs) >= 20 else np.nan
 
-    # Load RQ1 residuals (z-scores) — the GDN input
-    res = pd.read_parquet(DATA / "residuals.parquet",
-                          columns=["device", "time", "node", "z", "split"])
-    res["device"] = res["device"].astype(str)
-
-    # Pivot residuals to wide: device × time × node
-    z_wide = res.pivot_table(index=["device", "time"], columns="node",
-                             values="z", aggfunc="first")
-
-    # --- train GDN ---
-    print("\nTraining GDN (PyTorch)...")
-    net = train(f, devices)
-
-    # Save model
-    model_path = RQ2 / "gdn_model.pt"
-    torch.save(net.state_dict(), model_path)
-    print(f"  saved model to {model_path}")
-
-    # ---- evaluation: forecast + score on test ---
-    print("\nEvaluating GDN on test episodes...")
-    # per-node error stats from fit window for robust normalisation
-    masks = G.window_masks(f["time"])
-    fit_mask = masks["fit"]
-
-    # get fit-window residuals for normalisation stats
-    res_fit = res[res["split"] == "fit"].copy()
-    z_fit = res_fit.pivot_table(index=["device", "time"], columns="node",
-                                values="z", aggfunc="first")
-    node_err_median = z_fit.median().to_numpy(dtype=float)
-    node_err_iqr = (z_fit.quantile(0.75) - z_fit.quantile(0.25)).to_numpy(dtype=float)
-    node_err_iqr = np.where(node_err_iqr > 0, node_err_iqr, 1e-6)
-
-    # evaluate per device
-    results = {}
-    for dev in devices:
-        z_dev = wide.loc[dev]
-        if len(z_dev) < WINDOW + 1:
+    # event recall on test episodes
+    print("\nEvaluating on test episodes...")
+    det = 0
+    per_fault = {}
+    for _, ep in eval_faults.iterrows():
+        dev = ep["device"]
+        if dev not in score_by_dev:
             continue
-        vals = z_dev[NODES].to_numpy(dtype=float)
-        n_rows = len(z_dev)
-        pred_err = np.full((n_rows, len(NODES)), np.nan)
-        for t in range(WINDOW, n_rows):
-            chunk = vals[t - WINDOW:t + 1]
-            if not np.isfinite(chunk).all():
-                continue
-            xb = torch.from_numpy(chunk[:WINDOW].reshape(1, WINDOW, len(avail)).astype(np.float32))
-            with torch.no_grad():
-                pred = net(xb)[0].numpy()
-            err = np.abs(vals[t] - pred)  # per-node abs error
-            # robust normalise
-            norm_err = (err - node_err_median) / np.maximum(node_err_iqr, 1e-8)
-            pred_err[t] = norm_err
-        # graph score = max over nodes of normalised error
-        graph_score = np.nanmax(pred_err, axis=1)
-        # threshold from calibration window
-        cal_mask = keys_df.loc[dev_df.index, "split"] == "calibrate"
-        cal_scores = graph_score[cal_mask]
-        cal_scores = cal_scores[np.isfinite(cal_scores)]
-        thr = float(np.quantile(cal_scores, 1 - FAR)) if len(cal_scores) >= 20 else np.nan
-        alarms = graph_score > thr
-        result = G.evaluate_recall(alarms, test_mask, eval_faults, devs,
-                                   f["time"].values)
-        results[dev] = result
-        print(f"  {dev}: recall={result['recall']:.3f} "
-              f"({result['detected']}/{result['n_episodes']})")
+        times = times_by_dev[dev]
+        sc = score_by_dev[dev]
+        thr_d = thr.get(dev, np.nan)
+        onset = pd.Timestamp(ep["start_time"])
+        if onset.tz is not None:
+            onset = onset.tz_convert("UTC").tz_localize(None)
+        end = pd.Timestamp(ep["end_time"])
+        if end.tz is not None:
+            end = end.tz_convert("UTC").tz_localize(None)
+        win_end = end + pd.Timedelta(hours=G.WINDOW_HOURS - 1)
+        m = (times >= np.datetime64(onset.to_datetime64(), "ns")) & \
+            (times <= np.datetime64(win_end.to_datetime64(), "ns"))
+        found = bool(np.nanmax(np.where(m, sc, np.nan)) > thr_d) if m.any() else False
+        det += found
+        per_fault.setdefault(ep["fault"], 0)
+        per_fault[ep["fault"]] += int(found)
 
-    # aggregate
-    total_detected = sum(r["detected"] for r in results.values())
-    total_eps = sum(r["n_episodes"] for r in results.values())
-    agg_recall = total_detected / max(total_eps, 1)
-    print(f"\nGDN overall recall: {agg_recall:.3f} ({total_detected}/{total_eps})")
+    recall = det / max(len(eval_faults), 1)
+    print(f"\nGDN recall @ 1% FAR: {recall:.3f} ({det}/{len(eval_faults)})")
+    print(f"  per-fault: {per_fault}")
 
-    # save
-    summary = {
+    out = {
         "generated": pd.Timestamp.now("UTC").isoformat(),
-        "n_devices": len(devices),
-        "n_eval_episodes": len(eval_faults),
-        "recall": agg_recall,
-        "per_device": {k: v["recall"] for k, v in results.items()},
-        "hyperparameters": {
-            "input_window": WINDOW,
-            "k_neighbours": K_NEIGHBOURS,
-            "embedding_dim": EMB_DIM,
-            "epochs": EPOCHS,
-            "batch_size": BATCH,
-            "lr": LR,
-            "seed": SEED,
-        },
+        "model": "GDN (Deng & Hooi 2021 adaptation)",
+        "input": "RQ1 context-model residuals (z)",
+        "recall": recall,
+        "detected": det,
+        "n_episodes": len(eval_faults),
+        "per_fault": per_fault,
+        "learned_graph": learned,
+        "hyperparameters": {"window": WINDOW, "k": K_NEIGHBOURS,
+                            "emb_dim": EMB_DIM, "epochs": EPOCHS,
+                            "batch": BATCH, "lr": LR, "seed": SEED},
     }
-    (DATA / "gdn_results.json").write_text(json.dumps(summary, indent=2))
+    (DATA / "gdn_results.json").write_text(json.dumps(out, indent=2, default=str))
     print(f"\nWrote gdn_results.json in {time.time() - t0:.0f}s")
 
 
